@@ -42,14 +42,14 @@ while 1
 
       if alpha < 1e-15
 	 warning('too small step size')
-	 %alpha = 1e-7;
-	 %break;
+	 alpha = 1e-7;
+	 break;
       end
 
       if alpha > alphaMax
-	 %alpha = 1e-7;
+	 alpha = 1e-7;
 	 warning('too large step size')
-	 %break;
+	 break;
       end
 
       alpha = alpha * factor;
