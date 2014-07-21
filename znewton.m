@@ -1,9 +1,9 @@
-function [x, fval] = znewton(f, grad, x0)
+function [x, fval] = znewton(f, x0)
 %
 
   values = [];
   
-  current_grad = grad(x0);
+  [f0 , current_grad]  = f(x0);
 
   count = 0;
 
@@ -31,7 +31,7 @@ function [x, fval] = znewton(f, grad, x0)
 
 	x = x + alpha * direction(:);
 
-	current_grad = grad(x);
+	[fx, current_grad] = f(x);
 	if norm(current_grad) < 1e-3
 	   break;
 	end
@@ -41,7 +41,7 @@ function [x, fval] = znewton(f, grad, x0)
       end
   end
 
-fval = f(x);
+[fval, fgrad] = f(x);
 plot(values);
 fprintf('%d iterations used\n', count);
 endfunction
