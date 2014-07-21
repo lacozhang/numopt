@@ -24,12 +24,12 @@ while 1
       [current_val, current_grad] = f( x0 + alpha * d0);
       factor = 1;
 
-      if current_val > ( f0 + alpha * c1 * slope)
-	 factor = dec;
-      else
+     if current_val > ( f0 + alpha * c1 * slope)
+        factor = dec;
+     else
 	  current_slope = current_grad' * d0;
 
-	  if current_slope < c2 * slope
+      if current_slope < c2 * slope
 	    factor = inc;
 	  else
 	      if current_slope > -c2*slope
@@ -41,18 +41,18 @@ while 1
       end
 
       if alpha < 1e-15
-	 warning('too small step size')
-	 alpha = 1e-7;
-	 break;
+          warning('too small step size')
+	 %alpha = 1e-7;
+	 %break;
       end
 
       if alpha > alphaMax
-	 alpha = 1e-7;
-	 warning('too large step size')
-	 break;
+	 %alpha = 1e-7;
+     warning('too large step size')
+	 %break;
       end
 
       alpha = alpha * factor;
-endwhile
+end
 retval = alpha;
-endfunction
+end
