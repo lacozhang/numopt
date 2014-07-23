@@ -35,6 +35,7 @@ end
 if nargout >= 2
   sig = 1 ./ ( 1 + exp(yXw) );
   grad_f = lambda * w - (X') * ( y .* sig );
+  %grad_f = grad_f m;
 end
 
 if nargout == 3
