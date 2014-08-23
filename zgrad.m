@@ -1,38 +1,57 @@
-function [x, fval] = zgrad(f, grad, x0)
-%
+function [x, fval] = zgrad(funcObj, x0, maxiters, learningrate)
+%gradint descent algorithm
 
-  current_grad = grad(x0);
+if nargin < 2
+   error('you must provide the function object and start point')
+end
 
-  count = 0;
-  values = [];
+if nargin < 3
+  maxiters = Inf;
+  learningrate = -Inf;
+end
 
-  if norm(current_grad) < 1e-3
-     x = x0;
-     fval = f(x0);
+if nargin < 4
+   learningrate = -Inf;
+end
+
+[unk, current_grad] = funcObj(x0); 
+
+count = 0;
+values = [];
+
+x = x0;
+x = x(:);
+
+while 1
+	
+  if learningrate == -Inf
+    alpha = backtrack(x, -current_grad, funcObj, 1e-5, 0.7);
   else
-      x = x0;
-      x = x(:);
-      while 1
+    alpha = learningrate;
+  end
+      
+  %current point
+  x = x - alpha * current_grad(:);
+    
+  [current_value, current_grad] = funcObj(x);
 
-	alpha = backtrack(x, -current_grad, f, 1e-5, 0.7);
-
-	%current point
-	x = x - alpha * current_grad(:);
-
-	[current_value, current_grad] = f(x);
-
-	if norm(current_grad) < 1e-2
-	   break;
-	end
-
-	count = count + 1;
-
-	#values = [ values, norm(current_grad) ]; 
-	values = [values, current_value];
-      end
+  if norm(current_grad) < 1e-2
+    break;
   end
 
-fval = f(x);
+  count = count + 1;
+  values = [values, current_value];
+
+  if count > maxiters
+    warning('exceed the maximum number iterations')
+    break;
+  end
+  
+  fprintf('%6d %15.5e %15.5e %15.5e\n', count , alpha , current_value, norm(current_grad));
+    
+end
+
+fval = funcObj(x);
 plot(values);
 fprintf('%d iterations used\n', count);
-endfunction
+end
