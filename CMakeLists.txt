@@ -7,7 +7,13 @@ set(target_name logisRegression)
 
 PROJECT(${target_name})
 
-include(/home/zhangyu/src/dlib/dlib/cmake)
+include(/Users/zhangyu/Src/Project/tools/include/dlib/cmake)
 
-ADD_EXECUTABLE(${target_name} logistic_regression.cpp)
+ADD_EXECUTABLE(${target_name} 
+  parameter.h
+  parameter.cpp
+  cmdline.h
+  cmdline.cpp
+  logistic_regression.cpp
+)
 TARGET_LINK_LIBRARIES(${target_name} dlib)
