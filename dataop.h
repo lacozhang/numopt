@@ -1,4 +1,5 @@
 #include <string>
+#include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 
@@ -7,7 +8,7 @@
 
 void matrix_size_estimation(std::string featfile, Eigen::VectorXi& datsize, int& row, int& col);
 
-void load_data(std::string featfile,
-			   boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
-			   boost::shared_ptr<Eigen::VectorXi>& labels);
+void load_libsvm_data(std::string featfile,
+	       boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
+	       boost::shared_ptr<Eigen::VectorXi>& labels);
 #endif

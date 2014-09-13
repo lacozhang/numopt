@@ -6,7 +6,7 @@ void cmd_line_parse(int argc, char* argv[], Parameter& param)
 {
     try {
         
-        dlib::command_line_parser parser;
+	dlib::command_line_parser parser;
 
         parser.set_group_name("Traing data options");
         parser.add_option("in",  "input file we use", 1);
@@ -103,14 +103,16 @@ void cmd_line_parse(int argc, char* argv[], Parameter& param)
         std::string loss;
         loss = parser.option("loss").argument();
         if( "hinge" == loss ){
-            param.loss_ = Parameter::Hinge;
+		param.loss_ = Parameter::Hinge;
         } else if("logistic" == loss){
-            param.loss_ = Parameter::Logistic;
+		param.loss_ = Parameter::Logistic;
         } else {
-            param.loss_ = Parameter::Squared;
+		param.loss_ = Parameter::Squared;
         }
 
-        param.learningRate_ = std::atof(parser.option("learn").argument().c_str());
+	if( parser.option("learn") ){
+		param.learningRate_ = std::atof(parser.option("learn").argument().c_str());
+	}
       
     } catch(std::exception& e){
         std::cerr << e.what() << std::endl;

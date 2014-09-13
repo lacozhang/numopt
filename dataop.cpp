@@ -11,13 +11,13 @@ boost::shared_ptr<boost::regex> tokenizer( new boost::regex("\\s+"));
 boost::shared_ptr<boost::regex> featvalpair(new boost::regex("^(\\d+):([\\d.+-]+)$"));
 
 void matrix_size_estimation(std::string featfile, 
-							Eigen::VectorXi& datsize,
-							int& row, int& col){
-	std::ifstream featsrc(featfile);
+			    Eigen::VectorXi& datsize,
+			    int& row, int& col){
+	std::ifstream featsrc(featfile.c_str());
 	std::vector<int> rowsize;
 	row = 0;
 	col = 0;
-
+	
 	if( ! featsrc.is_open() ){
 		std::cerr << "open file " << featfile << " failed" << std::endl;
 		std::abort();
@@ -57,8 +57,6 @@ void matrix_size_estimation(std::string featfile,
 			++iter;
 		}
 
-		// analysis the maximum feature index
-
 		// active feature for sample row
 		rowsize.push_back(cnt+1);
 
@@ -73,9 +71,9 @@ void matrix_size_estimation(std::string featfile,
 	}
 }
 
-void load_data(std::string featfile, 
-			   boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
-			   boost::shared_ptr<Eigen::VectorXi>& labels){
+void load_libsvm_data(std::string featfile, 
+	       boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
+	       boost::shared_ptr<Eigen::VectorXi>& labels){
 
 	// estimate the data size for loading
 	Eigen::VectorXi datasize;
@@ -99,7 +97,7 @@ void load_data(std::string featfile,
 	std::cout << "label reserve success" << std::endl;
 
 	std::string line;
-	std::ifstream ifs(featfile);
+	std::ifstream ifs(featfile.c_str());
 	if(! ifs.is_open() ){
 		std::cerr << "open file " << featfile << " failed" << std::endl;
 		std::abort();
@@ -138,5 +136,5 @@ void load_data(std::string featfile,
 		std::getline(ifs, line);
 	}
 	Samples->makeCompressed();
-	std::cout << " loading data costs " << t.toc() << " seconds " << std::endl;
+	std::cout << "loading data costs " << t.toc() << " seconds " << std::endl;
 }
