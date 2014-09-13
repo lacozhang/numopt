@@ -11,7 +11,7 @@ struct lossbase {
 struct LogLoss : public lossbase
 {
 	// logloss(a,y) = log(1+exp(-a*y))
-	static double loss(double a, double y){
+    double loss(double a, double y){
 		double z = a * y;
 		if (z > 18) 
 			return exp(-z);
@@ -20,7 +20,7 @@ struct LogLoss : public lossbase
 		return log(1 + exp(-z));
 	}
 	// dloss(a,y)/da
-	static double dloss(double a, double y){
+	double dloss(double a, double y){
 		double z = a * y;
 		if (z > 18) 
 			return -y * exp(-z);
@@ -33,7 +33,7 @@ struct LogLoss : public lossbase
 struct HingeLoss: public lossbase
 {
 	// hingeloss(a,y) = max(0, 1-a*y)
-	static double loss(double a, double y){
+	double loss(double a, double y){
 		double z = a * y;
 		if (z > 1) 
 			return 0;
@@ -41,7 +41,7 @@ struct HingeLoss: public lossbase
 	}
 	
 	// dloss(a,y)/da
-	static double dloss(double a, double y){
+    double dloss(double a, double y){
 		double z = a * y;
 		if (z > 1) 
 			return 0;
@@ -52,7 +52,7 @@ struct HingeLoss: public lossbase
 struct SquaredHingeLoss : public lossbase
 {
 	// squaredhingeloss(a,y) = 1/2 * max(0, 1-a*y)^2
-	static double loss(double a, double y){
+	double loss(double a, double y){
 		double z = a * y;
 		if (z > 1)
 			return 0;
@@ -61,7 +61,7 @@ struct SquaredHingeLoss : public lossbase
 	}
 
 	// dloss(a,y)/da
-	static double dloss(double a, double y){
+	double dloss(double a, double y){
 
 		double z = a * y;
 		if (z > 1) 
@@ -73,7 +73,7 @@ struct SquaredHingeLoss : public lossbase
 struct SmoothHingeLoss : public lossbase
 {
 	// smoothhingeloss(a,y) = ...
-	static double loss(double a, double y){
+    double loss(double a, double y){
 
 		double z = a * y;
 		if (z > 1)
@@ -85,7 +85,7 @@ struct SmoothHingeLoss : public lossbase
 	}
 
 	// dloss(a,y)/da
-	static double dloss(double a, double y){
+	double dloss(double a, double y){
 		
 		double z = a * y;
 		if (z > 1) 

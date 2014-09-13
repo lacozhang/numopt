@@ -41,7 +41,7 @@ namespace {
 	}
 
 	
-	void dlib2eigen(column_vector& from, Eigen::VectorXd& to){
+	void dlib2eigen(const column_vector& from, Eigen::VectorXd& to){
 		int rows = from.nr();
 		int cols = from.nc();
 
@@ -65,10 +65,10 @@ linearmodelopt::linearmodelopt(Parameter& param,
 {}
 
 linearmodelopt::funcval::funcval(Parameter::LossFunc loss,
-				 double l1c,
-				 double l2c,
-				 boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
-				 boost::shared_ptr<Eigen::VectorXi>& labels): l1c_(l1c), l2c_(l2c), insts_(insts), labels_(label){
+                                 double l1c,
+                                 double l2c,
+                                 boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
+                                 boost::shared_ptr<Eigen::VectorXi>& labels): l1c_(l1c), l2c_(l2c), insts_(insts), labels_(labels){
 
 	loss_.reset( getLoss( loss ) );
 	
@@ -78,7 +78,7 @@ linearmodelopt::funcval::funcval(Parameter::LossFunc loss,
 	}
 }
 
-double linearmodelopt::funcval::operator()(const column_vector& w){
+double linearmodelopt::funcval::operator() (const column_vector& w) const {
 	
 	int rows=0, cols=0;
 	Eigen::VectorXd param;
@@ -86,7 +86,7 @@ double linearmodelopt::funcval::operator()(const column_vector& w){
 	Eigen::VectorXd xw = (*insts_)*param;
 
 	double fx = 0;
-	int rows = insts_->rows();
+	rows = insts_->rows();
 	for(int i=0; i<rows; ++i){
 		fx += loss_->loss( xw.coeff(i), labels_->coeff(i) );
 	}
@@ -96,11 +96,11 @@ double linearmodelopt::funcval::operator()(const column_vector& w){
 
 
 linearmodelopt::derivaval::derivaval(Parameter::LossFunc loss,
-				     double L1c,
-				     double l2c,
-				     boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts
-				     boost::shared_ptr<Eigen::VectorXi>& labels):l1c_(l1c), l2c_(l2c), insts_(insts), labels_(labels){
-	loss_.reset( getloss( loss ) );
+                                     double l1c,
+                                     double l2c,
+                                     boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
+                                     boost::shared_ptr<Eigen::VectorXi>& labels):l1c_(l1c), l2c_(l2c), insts_(insts), labels_(labels){
+	loss_.reset( getLoss( loss ) );
 
 	if(! loss_.get() ){
 		std::cerr << "alloc loss func failed" << std::endl;
@@ -108,7 +108,7 @@ linearmodelopt::derivaval::derivaval(Parameter::LossFunc loss,
 	}
 }
 
-const column_vector linearmodelopt::derivaval::operator()(const column_vector& w){
+const column_vector linearmodelopt::derivaval::operator() (const column_vector& w) const {
 	
 	Eigen::VectorXd param;
 
@@ -119,7 +119,7 @@ const column_vector linearmodelopt::derivaval::operator()(const column_vector& w
 	column_vector ret_grad;
 	grad.setZero();
 
-	for (int k = 0; k < optInst->samples_->outerSize(); ++k){
+	for (int k = 0; k < insts_->outerSize(); ++k){
 
 		double factor = loss_->dloss( xw.coeff(k), labels_->coeff(k) );
 
@@ -139,11 +139,11 @@ const column_vector linearmodelopt::derivaval::operator()(const column_vector& w
 }
 
 
-linearmodelopt::funcval* getFuncValObj(){
-	return new funcval(param_.loss_, param.l1c_, param.l2c_, insts_, labels);
+linearmodelopt::funcval* linearmodelopt::getFuncValObj(){
+	return new linearmodelopt::funcval(param_.loss_, param_.l1_, param_.l2_, insts_, labels_);
 }
 
-linearmodelopt::derivaval* getDerivaValObj(){
+linearmodelopt::derivaval* linearmodelopt::getDerivaValObj(){
 
-	return new derivaval(param_.loss_, param.l1c_, param.l2c_, insts_, labels_);
+	return new linearmodelopt::derivaval(param_.loss_, param_.l1_, param_.l2_, insts_, labels_);
 }

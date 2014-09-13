@@ -6,7 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <dlib/optimization.h>
 #include "parameter.h"
-#includ "lossfunc.h"
+#include "lossfunc.h"
 
 typedef dlib::matrix<double, 0, 1> column_vector;
 /*
@@ -37,25 +37,25 @@ public:
 		boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts_;
 		boost::shared_ptr<Eigen::VectorXi>& labels_;
 	public:
-		double operator()(const column_vector& w);
+		double operator()(const column_vector& w) const;
 	};
 
 	class derivaval {
-		
+
+    friend class linearmodelopt;
 	private:
 		derivaval(Parameter::LossFunc loss,
-			  double L1c,
-			  double l2c,
-			  boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts
-			  boost::shared_ptr<Eigen::VectorXi>& labels);
+                  double L1c,
+                  double l2c,
+                  boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
+                  boost::shared_ptr<Eigen::VectorXi>& labels);
 		
 		boost::shared_ptr<lossbase> loss_;
 		double l1c_, l2c_;
 		boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts_;
 		boost::shared_ptr<Eigen::VectorXi>& labels_;
 	public:
-		const column_vector operator()(const column_vector& w);
-
+		const column_vector operator()(const column_vector& w) const;
 	};
 
 	linearmodelopt::funcval* getFuncValObj();

@@ -29,7 +29,7 @@ void randominit(column_vector& u){
 	}
 
 	for(int i=0; i<rows; ++i){
-		u(i) = std::rand() / std::RAND_MAX;
+		u(i) = std::rand() / RAND_MAX;
 	}
 	
 }
@@ -77,13 +77,11 @@ int main(int argc, char* argv[]){
 	
 	randominit(*parameters);
 
-	dlib::find_min( dlib::lbfgs_search_stragety(10),
-			dlib::objective_delta_stop_strategy(1e-7).be_verse(),
-			
-			*func,
-			*der,
-			*parameter,
-			-1000);
-
+	dlib::find_min( dlib::lbfgs_search_strategy(10),
+                    dlib::objective_delta_stop_strategy(1e-7).be_verbose(),
+                    *func,
+                    *der,
+                    *parameters,
+                    -1000);
     return 0;
 }
