@@ -6,8 +6,8 @@ set(target_name logisRegression)
 
 PROJECT(${target_name})
 
-include(/Users/zhangyu/Src/Project/tools/include/dlib/cmake)
-include_directories(/Users/zhangyu/Src/Project/tools/include/eigen)
+include(/home/zhangyu/src/dlib/dlib/cmake)
+include_directories(/home/zhangyu/src/tools/eigen)
 
 ADD_EXECUTABLE(${target_name} 
   parameter.h

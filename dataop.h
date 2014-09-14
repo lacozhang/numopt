@@ -10,5 +10,6 @@ void matrix_size_estimation(std::string featfile, Eigen::VectorXi& datsize, int&
 
 void load_libsvm_data(std::string featfile,
 	       boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
+
 	       boost::shared_ptr<Eigen::VectorXi>& labels);
 #endif

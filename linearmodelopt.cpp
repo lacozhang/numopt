@@ -1,44 +1,48 @@
 #include <iostream>
+#include <dlib/logger.h>
 #include "linearmodelopt.h"
+#include "util.h"
 
 namespace {
 
-  lossbase* getLoss(Parameter::LossFunc l){
+	static timeutil timer;
+
+	lossbase* getLoss(Parameter::LossFunc l){
 	  
-	  switch(l){
-	  case Parameter::Squared:
-		  std::cerr << "squaredloss not implemented yet" << std::endl;
-		  return NULL;
-		  break;
-	  case Parameter::Hinge:
-		  return new HingeLoss();
-		  break;
-	  case Parameter::Logistic:
-		  return new LogLoss();
-		  break;
-	  default:
-		  std::cerr << "unsupported loss type" << std::endl;
-		  return NULL;
-	  }
-  }
-
-	// convert a column matrix from eigen3 format from dlib format
-	void eigen2dlib(column_vector& to, Eigen::VectorXd& f){
-		
-		int rows = f.rows();
-		int cols = f.cols();
-		
-		if( 1 != cols ){
-			std::cerr << "error, column must be 1" << std::endl;
-			std::abort();
-		}
-
-		to.set_size(rows);
-
-		for(int i=0; i<rows; i++){
-			to(i) = f.coeff(i);
+		switch(l){
+		case Parameter::Squared:
+			std::cerr << "squaredloss not implemented yet" << std::endl;
+			return NULL;
+			break;
+		case Parameter::Hinge:
+			return new HingeLoss();
+			break;
+		case Parameter::Logistic:
+			return new LogLoss();
+			break;
+		default:
+			std::cerr << "unsupported loss type" << std::endl;
+			return NULL;
 		}
 	}
+
+  // convert a column matrix from eigen3 format from dlib format
+  void eigen2dlib(column_vector& to, Eigen::VectorXd& f){
+    
+	  int rows = f.rows();
+	  int cols = f.cols();
+	  
+	  if( 1 != cols ){
+		  std::cerr << "error, column must be 1" << std::endl;
+		  std::abort();
+	  }
+
+	  to.set_size(rows);
+
+	  for(int i=0; i<rows; i++){
+		  to(i) = f.coeff(i);
+	  }
+  }
 
 	
 	void dlib2eigen(const column_vector& from, Eigen::VectorXd& to){
@@ -80,17 +84,25 @@ linearmodelopt::funcval::funcval(Parameter::LossFunc loss,
 
 double linearmodelopt::funcval::operator() (const column_vector& w) const {
 	
+	dlib::logger log("train");
+	log << dlib::LINFO << "compute the function value";
 	int rows=0, cols=0;
 	Eigen::VectorXd param;
+
+	timer.tic();
 	dlib2eigen(w, param);
+	log << dlib::LINFO << "conversion costs " << timer.toc() << " seconds";
+	timer.tic();
 	Eigen::VectorXd xw = (*insts_)*param;
+	log << dlib::LINFO << "sparse dense matrix vector product costs " << timer.toc() << " seconds";
 
 	double fx = 0;
 	rows = insts_->rows();
 	for(int i=0; i<rows; ++i){
 		fx += loss_->loss( xw.coeff(i), labels_->coeff(i) );
 	}
-
+	
+	fx += 0.5*l2c_* param.squaredNorm();
 	return fx;
 }
 
@@ -110,13 +122,22 @@ linearmodelopt::derivaval::derivaval(Parameter::LossFunc loss,
 
 const column_vector linearmodelopt::derivaval::operator() (const column_vector& w) const {
 	
-	Eigen::VectorXd param;
+	dlib::logger log("train");
+	log << dlib::LINFO << "calculate the derivative";
 
+	Eigen::VectorXd param;
+	timer.tic();
 	dlib2eigen(w, param);
+	log << dlib::LINFO << "convertion costs " << timer.toc() << " seconds";
+
+	timer.tic();
 	Eigen::VectorXd xw = (*insts_)*param;
+	log << dlib::LINFO << "m by v costs " << timer.toc() << " seconds";
 
 	Eigen::VectorXd grad( w.nr() );
 	column_vector ret_grad;
+
+	timer.tic();
 	grad.setZero();
 
 	for (int k = 0; k < insts_->outerSize(); ++k){
@@ -134,6 +155,10 @@ const column_vector linearmodelopt::derivaval::operator() (const column_vector& 
 		}
 	}
 
+	grad += l2c_ * param;
+
+	log << dlib::LINFO << "calculate the gradient costs " << timer.toc() << " seconds";
+
 	eigen2dlib(ret_grad, grad);
 	return ret_grad;
 }
@@ -146,4 +171,24 @@ linearmodelopt::funcval* linearmodelopt::getFuncValObj(){
 linearmodelopt::derivaval* linearmodelopt::getDerivaValObj(){
 
 	return new linearmodelopt::derivaval(param_.loss_, param_.l1_, param_.l2_, insts_, labels_);
+}
+
+double linearmodelopt::gettrainaccu(boost::shared_ptr<column_vector>& w){
+
+	Eigen::VectorXd param;
+	dlib2eigen(*w, param);
+	
+	Eigen::VectorXd xw = (*insts_)*(param);
+	double rc = 0, ac = 0;
+	
+	int nsample = insts_->rows();
+	for(int i=0; i<nsample; ++i){
+		if( xw.coeff(i) * labels_->coeff(i)  > 0 ){
+			rc += 1;
+		}
+
+		ac += 1;
+	}
+
+	return rc / ac;
 }

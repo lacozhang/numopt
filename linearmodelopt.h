@@ -19,8 +19,9 @@ public:
 	linearmodelopt(Parameter& param,
 		       boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
 		       boost::shared_ptr<Eigen::VectorXi>& labels);
-
-
+	
+	double gettrainaccu(boost::shared_ptr<column_vector>& w);
+	
 	// used to construct function value object
 	class funcval {
 
@@ -41,14 +42,14 @@ public:
 	};
 
 	class derivaval {
-
-    friend class linearmodelopt;
+		
+		friend class linearmodelopt;
 	private:
 		derivaval(Parameter::LossFunc loss,
-                  double L1c,
-                  double l2c,
-                  boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
-                  boost::shared_ptr<Eigen::VectorXi>& labels);
+			  double L1c,
+			  double l2c,
+			  boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& insts,
+			  boost::shared_ptr<Eigen::VectorXi>& labels);
 		
 		boost::shared_ptr<lossbase> loss_;
 		double l1c_, l2c_;

@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
+#include "util.h"
 #include "parameter.h"
 #include "cmdline.h"
 #include "dataop.h"
@@ -37,6 +38,8 @@ void randominit(column_vector& u){
 
 int main(int argc, char* argv[]){
   
+	
+	timeutil t;
 	dlib::logger trainLog("train");
 	trainLog.set_level(dlib::LALL);
 
@@ -46,9 +49,12 @@ int main(int argc, char* argv[]){
 	trainLog << dlib::LINFO << "Traing with following parameters";
 	std::cout << param;
 
+	trainLog << dlib::LINFO << "Loading data into memory";
+	t.tic();
 	load_libsvm_data(param.train_,
 			 trainSamples,
 			 trainLabels);
+	trainLog << dlib::LINFO << "Loading data costs " << t.toc() << " seconds ";
 	
 	modelopts.reset( new linearmodelopt(param, trainSamples, trainLabels) );
 
@@ -74,14 +80,31 @@ int main(int argc, char* argv[]){
 		std::abort();
 	}
 
-	
+	trainLog << dlib::LINFO << "init parameters with uniform random";
+	t.tic();
 	randominit(*parameters);
+	trainLog << dlib::LINFO << "init paramters costs " << t.toc() << " seconds";
+	trainLog << dlib::LINFO << "train with LBFGS";
 
-	dlib::find_min( dlib::lbfgs_search_strategy(10),
-                    dlib::objective_delta_stop_strategy(1e-7).be_verbose(),
-                    *func,
-                    *der,
-                    *parameters,
-                    -1000);
-    return 0;
+
+	dlib::find_min(dlib::lbfgs_search_strategy(10),
+		       dlib::objective_delta_stop_strategy(1e-7).be_verbose(),
+		       *func,
+		       *der,
+		       *parameters,
+		       -1);
+
+	/* too slow
+	trainLog << dlib::LINFO << "train with CG";
+	dlib::find_min(dlib::cg_search_strategy(),
+		       dlib::objective_delta_stop_strategy(1e-7).be_verbose(),
+		       *func,
+		       *der,
+		       *parameters,
+		       -1);
+	*/
+
+	double accu = modelopts->gettrainaccu(parameters);
+	trainLog << dlib::LINFO << "train accuracy is " << accu ;
+	return 0;
 }
