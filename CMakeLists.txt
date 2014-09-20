@@ -18,6 +18,8 @@ ADD_EXECUTABLE(${target_name}
   dataop.cpp
   util.h
   util.cpp
+  lossfunc.h
+  lossfunc.cpp
   linearmodelopt.h
   linearmodelopt.cpp
   logistic_regression.cpp

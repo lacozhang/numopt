@@ -88,6 +88,7 @@
     <ClCompile Include="..\..\dataop.cpp" />
     <ClCompile Include="..\..\linearmodelopt.cpp" />
     <ClCompile Include="..\..\logistic_regression.cpp" />
+    <ClCompile Include="..\..\lossfunc.cpp" />
     <ClCompile Include="..\..\parameter.cpp" />
     <ClCompile Include="..\..\util.cpp" />
   </ItemGroup>

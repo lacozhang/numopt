@@ -6,11 +6,12 @@ void cmd_line_parse(int argc, char* argv[], Parameter& param)
 {
     try {
         
-	dlib::command_line_parser parser;
+		dlib::command_line_parser parser;
 
         parser.set_group_name("Traing data options");
-        parser.add_option("in",  "input file we use", 1);
-        parser.add_option("out", "output file we use", 1);
+        parser.add_option("train",  "training file we use", 1);
+		parser.add_option("test", "testing file we use", 1);
+        parser.add_option("model", "output file we use", 1);
 
         parser.set_group_name("Optimization Related Options");
         parser.add_option("algo", "algorithms for optimization(LBFGS|CG|SGD|GD)", 1);
@@ -28,7 +29,7 @@ void cmd_line_parse(int argc, char* argv[], Parameter& param)
 
         parser.parse(argc, argv);
 
-        const char* one_time_options[] = {"in", "out", "h", "algo", "learn", "loss"};
+        const char* one_time_options[] = {"train", "test", "model", "h", "algo", "learn", "loss"};
         parser.check_one_time_options(one_time_options);
 
         parser.check_incompatible_options("l1", "l2");
@@ -53,14 +54,20 @@ void cmd_line_parse(int argc, char* argv[], Parameter& param)
         }
 
 
-        if( parser.option("in") ){
+        if( parser.option("train") ){
             param.train_ = parser.option("in").argument();
         } else {
             std::cerr << "You must specify the input file" << std::endl;
             std::exit(-1);
         }
 
-        if(parser.option("out")){
+		if( parser.option("test") ){
+			param.test_ = parser.option("test").argument();
+		} else {
+			std::cerr << "Warning: No test data for evaluation" << std::endl;
+		}
+
+        if(parser.option("model")){
             param.model_ = parser.option("out").argument();
         } else {
             std::cerr << "you must specify the output file\n";

@@ -28,7 +28,7 @@ class Parameter {
   double learningRate_;
   LossFunc loss_;
   
-  std::string train_, model_;
+  std::string train_, model_, test_;
 };
 
 template<class T>
