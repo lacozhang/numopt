@@ -8,5 +8,6 @@ void timeutil::tic(){
 }
 
 double timeutil::toc(){
-	return ((double)t_)/CLOCKS_PER_SEC;
+	clock_t endTime = clock();
+	return ((double)(endTime - t_))/CLOCKS_PER_SEC;
 }

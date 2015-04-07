@@ -3,6 +3,12 @@
 
 #include <cmath>
 
+enum LossFunc {
+	Squared = 2,
+	Hinge,
+	Logistic
+};
+
 struct lossbase {
 	virtual double loss(double a, double y) = 0;
 	virtual double dloss(double a, double y) = 0;
