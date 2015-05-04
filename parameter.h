@@ -7,19 +7,8 @@
 
 class Parameter {
 
- public:
-  enum OptAlgo {
-    GD = 2,
-    SGD,
-    CG,
-    LBFGS
-  };
 
-  enum LossFunc {
-    Squared = 2,
-    Hinge,
-    Logistic
-  };
+  
   
   Parameter();
 
