@@ -2,8 +2,6 @@
 #include <vector>
 #include <fstream>
 #include <boost/regex.hpp>
-#include <Eigen/Sparse>
-#include <Eigen/Dense>
 #include "dataop.h"
 #include "util.h"
 

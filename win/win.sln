@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utils", "utils\utils.vcxpro
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dataoplib", "dataoplib\dataoplib.vcxproj", "{8598825E-10D0-4C7A-93EA-729D45A8A540}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "model", "model\model.vcxproj", "{90449927-9A43-4DA5-B912-2D8BCC38B35A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -39,6 +41,10 @@ Global
 		{8598825E-10D0-4C7A-93EA-729D45A8A540}.Debug|Win32.Build.0 = Debug|Win32
 		{8598825E-10D0-4C7A-93EA-729D45A8A540}.Release|Win32.ActiveCfg = Release|Win32
 		{8598825E-10D0-4C7A-93EA-729D45A8A540}.Release|Win32.Build.0 = Release|Win32
+		{90449927-9A43-4DA5-B912-2D8BCC38B35A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{90449927-9A43-4DA5-B912-2D8BCC38B35A}.Debug|Win32.Build.0 = Debug|Win32
+		{90449927-9A43-4DA5-B912-2D8BCC38B35A}.Release|Win32.ActiveCfg = Release|Win32
+		{90449927-9A43-4DA5-B912-2D8BCC38B35A}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

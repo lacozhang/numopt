@@ -12,5 +12,3 @@ Parameter::Parameter(){
 
     train_ = model_ = "";
 }
-
-
