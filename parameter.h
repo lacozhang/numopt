@@ -4,16 +4,14 @@
 
 #include <string>
 #include <iostream>
-
+#include "opt.h"
 class Parameter {
-
-
   
-  
+public:
   Parameter();
 
   double l1_, l2_;
-  OptAlgo algo_;
+  OptMethod algo_;
   double learningRate_;
   LossFunc loss_;
   
@@ -27,31 +25,40 @@ std::basic_ostream<T>& operator<< (std::basic_ostream<T>& sink, Parameter& p) {
     
     sink << "Using optimization algorithm    : ";
     switch(p.algo_){
-    case Parameter::GD:
+	case OptMethod::GD:
         sink << "GD" << std::endl;
         break;
-    case Parameter::SGD:
+    case OptMethod::SGD:
         sink << "SGD" << std::endl;
         break;
-    case Parameter::CG:
+    case OptMethod::CG:
         sink << "CG" << std::endl;
         break;
-    case Parameter::LBFGS:
+    case OptMethod::LBFGS:
         sink << "LBFGS" << std::endl;
         break;
+	case OptMethod::PGD:
+		sink << "Proximal Gradient Descent" << std::endl;
+		break;
+	case OptMethod::CD:
+		sink << "Coordinate Descent" << std::endl;
+		break;
+	case OptMethod::BCD:
+		sink << "Block Coordinate Descent" << std::endl;
+		break;
     default:
         sink << "Unknow Optimization Algorithm" << std::endl;
     }
 
     sink << "Loss function used for modeling : ";
     switch(p.loss_){
-    case Parameter::Hinge:
+    case LossFunc::Hinge:
         sink << "Hinge" << std::endl;
         break;
-    case Parameter::Logistic:
+	case LossFunc::Logistic:
         sink << "Logistic" << std::endl;
         break;
-    case Parameter::Squared:
+	case LossFunc::Squared:
         sink << "Squared" << std::endl;
         break;
     default:
@@ -70,6 +77,8 @@ std::basic_ostream<T>& operator<< (std::basic_ostream<T>& sink, Parameter& p) {
 
     sink << "Training data file              : "
          << p.train_ << std::endl;
+	sink << "Testing data file               : "
+		<< p.test_ << std::endl;
     sink << "Model output                    : "
          << p.model_ << std::endl;
     

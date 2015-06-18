@@ -6,7 +6,8 @@
 enum LossFunc {
 	Squared = 2,
 	Hinge,
-	Logistic
+	Logistic,
+	SquaredHinge
 };
 
 struct lossbase {

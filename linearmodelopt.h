@@ -4,11 +4,10 @@
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <boost/shared_ptr.hpp>
-#include <dlib/optimization.h>
 #include "parameter.h"
 #include "lossfunc.h"
 
-typedef dlib::matrix<double, 0, 1> column_vector;
+
 /*
   from optimization perspective, the only different between linear svm/ logistic regression is just about the loss function, we comine them here.
  */

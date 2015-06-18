@@ -3,13 +3,15 @@
 #define __MODEL_H__
 
 #include "typedef.h"
+#include "lossfunc.h"
 
 class modelbase{
 public:
 	modelbase();
-	~modelbase();
+	virtual ~modelbase();
 
-	virtual double funcval(DenseVector& param) = 0;
+	virtual double lossval(DenseVector& param) = 0;
+	virtual double funcval(DenseVector& param, SparseVector& sample) = 0;
 	virtual void grad(DenseVector& param, DenseVector& g) = 0;
 
 	virtual int samplesize() const = 0;

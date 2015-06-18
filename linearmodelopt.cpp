@@ -12,6 +12,4 @@ private:
 	LogLoss loss_;
 	std::string traing_;
 	std::string modelname_;
-
-	
 };

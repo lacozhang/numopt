@@ -7,11 +7,11 @@
 #include "model.h"
 
 enum OptMethod {
-	GD = 2,
-	SGD,
-	CG,
-	LBFGS,
-	PGD,
+	GD = 2, // Gradient Descent
+	SGD, // Stochastic Gradient Descent
+	CG, // Conjugate Gradient
+	LBFGS, // Limited BFGS
+	PGD, // Proximal Gradient Descent
 	CD, // coordinate descent
 	BCD // block coordinate descent
 };
@@ -33,7 +33,8 @@ protected:
 class StochasticGD: public OptMethodBase{
 public:
 	StochasticGD(int maxIters, double gradeps, double funceps, bool decay, double initsize);
-	void train(modelbase& model) = 0;
+	~StochasticGD();
+	void train(modelbase& model);
 	DenseVector w_;
 	DenseVector grad_;
 	int iternum_;
