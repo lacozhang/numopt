@@ -73,9 +73,9 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\zhangyu\src\tools\include\eigen;D:\zhangyu\src\tools\include\dlib-18.10;D:\zhangyu\src\tools\include\boost-1_56;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\zhangyu\src\tools\lib;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin</OutDir>
+    <IncludePath>D:\zhangyu\src\tools\include\boost_1_56_0;D:\zhangyu\src\tools\include\eigen3;$(IncludePath)</IncludePath>
+    <LibraryPath>..\reflib\;D:\zhangyu\src\tools\boostx64\lib56;$(LibraryPath)</LibraryPath>
+    <OutDir>..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -102,14 +102,16 @@
       <PrecompiledHeader>
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>D:\zhangyu\src\project\numopt\win\reflib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\reflib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>dataoplib.lib;losslib.lib;model.lib;optlib.lib;utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

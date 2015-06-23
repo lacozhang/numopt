@@ -67,11 +67,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>D:\zhangyu\src\tools\include\boost-1_56;D:\zhangyu\src\tools\include\eigen;$(IncludePath)</IncludePath>
+    <IncludePath>D:\zhangyu\src\tools\boostx64\include\boost-1_56;D:\zhangyu\src\tools\eigen;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\zhangyu\src\tools\include\boost-1_56;D:\zhangyu\src\tools\include\eigen;$(IncludePath)</IncludePath>
-    <OutDir>D:\zhangyu\src\project\numopt\win\reflib</OutDir>
+    <IncludePath>D:\zhangyu\src\tools\include\boost_1_56_0;D:\zhangyu\src\tools\include\eigen3;$(IncludePath)</IncludePath>
+    <OutDir>..\reflib\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -93,6 +93,8 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
