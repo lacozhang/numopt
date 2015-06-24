@@ -13,6 +13,7 @@ public:
 	virtual double lossval(DenseVector& param) = 0;
 	virtual double funcval(DenseVector& param, SparseVector& sample) = 0;
 	virtual void grad(DenseVector& param, DenseVector& g) = 0;
+	virtual void grad(DenseVector& param, SparseVector& g) = 0;
 
 	virtual int samplesize() const = 0;
 	virtual int featsize() const = 0;

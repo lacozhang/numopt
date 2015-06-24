@@ -1,7 +1,7 @@
 #include <iostream>
 #include "logisticmodel.h"
 #include "parameter.h"
-#include "opt.h"
+#include "sgd.h"
 #include "cmdline.h"
 
 int main(int argc, char* argv[]){
@@ -15,7 +15,7 @@ int main(int argc, char* argv[]){
 
 	LogisticModel lr(param.train_);
 	StochasticGD sgd(200, 1e-3, 1e-3, false, param.learningRate_);
-	sgd.train(lr);
+	sgd.trainSparseGradient(lr);
 
 	return 0;
 }

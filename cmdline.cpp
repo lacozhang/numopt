@@ -47,6 +47,12 @@ OptMethod parseopt(char* opt){
 bool cmd_line_parse(int argc, char* argv[], Parameter& p){
 
 	int i = 1;
+
+	if (argc < 2){
+		usage();
+		exit(-1);
+	}
+
 	while (i < argc){
 		switch (argv[i][1])
 		{

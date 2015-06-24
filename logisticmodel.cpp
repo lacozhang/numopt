@@ -1,5 +1,7 @@
+#include<iostream>
 #include "logisticmodel.h"
 #include "dataop.h"
+#include "util.h"
 
 LogisticModel::LogisticModel()
 {
@@ -39,18 +41,16 @@ bool LogisticModel::nextbatch(){
 	}
 
 	epochbatch_--;
-	sampleidx_ += batchsize_;
+	sampleidx_ = std::min(sampleidx_ + batchsize_, trainsamples_->rows());
 	return true;
 }
 
 double LogisticModel::lossval(DenseVector& param){
 	double vals = 0;
-	hypouts_.clear();
-	int start = sampleidx_;
-	for (int i = 0; i < batchsize_; ++i){
-		int iterIdx = start + i;
-		hypouts_[i] = trainsamples_->row(iterIdx).dot(param);
-		vals += loss_.loss(hypouts_[i], trainlabels_->coeff(iterIdx));
+	double hypout = 0;
+	for (int i = 0; i < trainsamples_->rows(); ++i){
+		hypout = trainsamples_->row(i).dot(param);
+		vals += loss_.loss(hypout, trainlabels_->coeff(i));
 	}
 	return vals;
 }
@@ -64,10 +64,42 @@ void LogisticModel::grad(DenseVector& param, DenseVector& g){
 	g.setZero();
 	hypouts_.resize(batchsize_);
 	for (int i = 0; i < batchsize_; ++i){
+
 		int iterIdx = sampleidx_ + i;
+		if (iterIdx >= trainsamples_->rows()){
+			break;
+		}
+
 		hypouts_[i] = trainsamples_->row(iterIdx).dot(param);
 		double gradweight = loss_.dloss(hypouts_[i], trainlabels_->coeff(iterIdx));
-		g += gradweight*trainsamples_->row(iterIdx).toDense();
+
+		for (DataSamples::InnerIterator iter(*trainsamples_, iterIdx); iter; ++iter){
+			g.coeffRef(iter.col()) += gradweight * iter.value();
+		}
+	}
+}
+
+void LogisticModel::grad(DenseVector& param, SparseVector& g){
+	std::map<int, double> updates;
+	hypouts_.resize(batchsize_);
+	for (int i = 0; i < batchsize_; ++i){
+
+		int iterIdx = sampleidx_ + i;
+		if (iterIdx >= trainsamples_->rows()){
+			break;
+		}
+
+		hypouts_[i] = trainsamples_->row(iterIdx).dot(param);
+		double gradweight = loss_.dloss(hypouts_[i], trainlabels_->coeff(iterIdx));
+
+		for (DataSamples::InnerIterator iter(*trainsamples_, iterIdx); iter; ++iter){
+			updates[iter.col()] += gradweight * iter.value();
+		}
+	}
+
+	g.setZero();
+	for (std::map<int, double>::iterator iter = updates.begin(); iter != updates.end(); ++iter){
+		g.coeffRef(iter->first) = iter->second;
 	}
 }
 

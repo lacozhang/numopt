@@ -142,9 +142,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\opt.h" />
+    <ClInclude Include="..\..\sgd.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\opt.cpp" />
+    <ClCompile Include="..\..\sgd.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

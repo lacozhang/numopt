@@ -1,12 +1,24 @@
+#pragma warning(disable:4996)
+
 #include <iostream>
 #include <vector>
+#include <set>
 #include <fstream>
-#include <boost/regex.hpp>
 #include "dataop.h"
 #include "util.h"
 
-boost::shared_ptr<boost::regex> tokenizer( new boost::regex("\\s+"));
-boost::shared_ptr<boost::regex> featvalpair(new boost::regex("^(\\d+):([\\d.+-]+)$"));
+void splitstring(std::string& line, const char* delim, std::vector<std::string>& strs){
+	char* ptr = new char[line.length() + 1];
+	memset(ptr, 0, sizeof(char)*(line.length() + 1));
+	line.copy(ptr, line.length());
+
+	char* tok = std::strtok(ptr, delim);
+	while (tok != NULL){
+		strs.push_back(tok);
+		tok = std::strtok(NULL, delim);
+	}
+}
+
 
 void matrix_size_estimation(std::string featfile, 
 			    Eigen::VectorXi& datsize,
@@ -28,45 +40,34 @@ void matrix_size_estimation(std::string featfile,
 
 	while( featsrc.good() ){
 		++row;
-		int cnt = 0;
 
-		boost::sregex_token_iterator iter(line.begin(), line.end(),
-			*tokenizer, -1);
-		boost::sregex_token_iterator end;
-		while( iter != end ){
-			++cnt;
-			
-			std::string strfeatpair = iter->str();
-			// the fist part is label part
-			if( cnt > 1 ){
-				boost::smatch m;
-				if( boost::regex_match(strfeatpair, m, *featvalpair) ){
-					int featIdx = std::atoi(m[1].str().c_str());
-					double featVal = std::atof(m[2].str().c_str());
-					if( col < featIdx ){
-						col = featIdx;
-					}
-				} else {
-					std::cerr << "feat value format error in row " << row 
-						<< std::endl;
-				}
-			}
-
-			++iter;
+		std::vector<std::string> strs;
+		splitstring(line, "\t ", strs);
+		// get the larest valu index
+		std::vector<std::string> featval;
+		splitstring(strs[strs.size() - 1], ":", featval);
+		if (featval.size() != 2){
+			std::cerr << "Error, feat value pair not correct " << strs.at(strs.size()-1)
+				<< std::endl;
 		}
-
+		else {
+			int featidx = std::atoi(featval.at(0).c_str());
+			if (featidx > col){
+				col = featidx;
+			}
+		}
 		// active feature for sample row
-		rowsize.push_back(cnt+1);
+		rowsize.push_back(strs.size()+1);
 
 		// get next line from file
 		std::getline(featsrc, line);
 	}
-
 	std::cout << "data size estimation costs " << t.toc() << std::endl;
 	datsize.resize(row);
 	for(int i=0; i < rowsize.size(); ++i){
 		datsize(i) = rowsize[i];
 	}
+	col += 1;
 }
 
 void load_libsvm_data(std::string featfile, 
@@ -89,10 +90,8 @@ void load_libsvm_data(std::string featfile,
 		std::exit(-1);
 	}
 	Samples->reserve(datasize);
-	std::cout << "sample reserve success" << std::endl;
 
 	labels.reset( new Eigen::VectorXi(rowsize) );
-	std::cout << "label reserve success" << std::endl;
 
 	std::string line;
 	std::ifstream ifs(featfile.c_str());
@@ -105,31 +104,24 @@ void load_libsvm_data(std::string featfile,
 	int nrow = 0;
 	while( ifs.good() ){
 		
-		int cnt = 0;
-		boost::sregex_token_iterator iter(line.begin(), line.end(),
-			*tokenizer, -1);
-		boost::sregex_token_iterator end;
+		std::vector<std::string> strs;
+		splitstring(line, "\t ", strs);
+		
+		labels->coeffRef(nrow) = std::atoi((strs[0]).c_str());
 
-		while( iter != end ){
-			++cnt;
-			std::string featval = iter->str();
-
-			if( cnt == 1 ){
-				labels->coeffRef(nrow) = std::atoi(featval.c_str());
-			} else {
-				boost::smatch m;
-				if( boost::regex_match(featval, m, *featvalpair) ){
-					int featIdx = std::atoi(m[1].str().c_str())-1;
-					double featVal = std::atof(m[2].str().c_str());
-					Samples->insert(nrow, featIdx) = featVal;
-				} else {
-					std::cerr << "error, can not match feat-value pair " << rowsize << featval 
-						<< std::endl;
-				}
+		for (int i = 1; i < strs.size(); ++i){
+			std::vector<std::string> featvals;
+			splitstring(strs[i], ":", featvals);
+			if (featvals.size() != 2){
+				std::cerr << "Error, feat value pair not correct " << strs.at(i)
+					<< std::endl;
 			}
-			iter++;
+			else {
+				int idx = std::atoi(featvals.at(0).c_str());
+				double val = std::atoi(featvals.at(1).c_str());
+				Samples->insert(nrow, idx) = val;
+			}
 		}
-
 		++nrow;
 		std::getline(ifs, line);
 	}

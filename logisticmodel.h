@@ -13,6 +13,7 @@ public:
 	double lossval(DenseVector& param);
 	double funcval(DenseVector& param, SparseVector& sample);
 	void grad(DenseVector& param, DenseVector& g);
+	void grad(DenseVector& param, SparseVector& g);
 	void setparameter(DenseVector& param);
 
 	int samplesize() const;
