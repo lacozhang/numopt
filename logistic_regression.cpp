@@ -13,8 +13,8 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	LogisticModel lr(param.train_);
-	StochasticGD sgd(200, 1e-3, 1e-3, false, param.learningRate_);
+	LogisticModel lr(param.io_.train_);
+	StochasticGD sgd(200, 1e-3, 1e-3, false, param.learn_.learningRate_);
 	sgd.trainSparseGradient(lr);
 
 	return 0;

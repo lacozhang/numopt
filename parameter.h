@@ -5,17 +5,29 @@
 #include <string>
 #include <iostream>
 #include "opt.h"
+
+struct LearnParameters
+{
+	double l1_, l2_;
+	double learningRate_;
+	int batchsize_;
+};
+
+struct IOParameters{
+	std::string train_, model_, test_;
+};
+
 class Parameter {
   
 public:
   Parameter();
 
-  double l1_, l2_;
-  OptMethod algo_;
-  double learningRate_;
+  LearnParameters learn_;
+  IOParameters io_;
+  OptMethod opt_;
   LossFunc loss_;
   
-  std::string train_, model_, test_;
+
 };
 
 template<class T>
@@ -24,7 +36,7 @@ std::basic_ostream<T>& operator<< (std::basic_ostream<T>& sink, Parameter& p) {
     sink << "Parameter for optimization parameter" << std::endl;
     
     sink << "Using optimization algorithm    : ";
-    switch(p.algo_){
+    switch(p.opt_){
 	case OptMethod::GD:
         sink << "GD" << std::endl;
         break;
@@ -67,20 +79,23 @@ std::basic_ostream<T>& operator<< (std::basic_ostream<T>& sink, Parameter& p) {
     }
 
     sink << "L1 regularization parameter     : ";
-    sink << p.l1_ << std::endl;
+    sink << p.learn_.l1_ << std::endl;
 
     sink << "L2 regularization parameter     : ";
-    sink << p.l2_ << std::endl;
+    sink << p.learn_.l2_ << std::endl;
 
     sink << "Learning rate for optimization  : ";
-    sink << p.learningRate_ << std::endl;
+    sink << p.learn_.learningRate_ << std::endl;
+
+	sink << "mini-batch size for optimization: ";
+	sink << p.learn_.batchsize_ << std::endl;
 
     sink << "Training data file              : "
-         << p.train_ << std::endl;
+         << p.io_.train_ << std::endl;
 	sink << "Testing data file               : "
-		<< p.test_ << std::endl;
+		<< p.io_.test_ << std::endl;
     sink << "Model output                    : "
-         << p.model_ << std::endl;
+         << p.io_.model_ << std::endl;
     
     return sink;
 }

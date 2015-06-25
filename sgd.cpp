@@ -99,10 +99,10 @@ void StochasticGD::trainSparseGradient(modelbase& model){
 				w_.coeffRef(iter.index()) -= stepsize_ * iter.value();
 			}
 
-			if (samplecnt % 10000 == 0){
+			if (samplecnt % 100000 == 0){
 				std::cout << 'x' << std::endl;
 			}
-			else if (samplecnt % 1000 == 0){
+			else if (samplecnt % 10000 == 0){
 				std::cout << ".";
 			}
 		}

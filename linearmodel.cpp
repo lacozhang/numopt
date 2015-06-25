@@ -1,25 +1,25 @@
 #include<iostream>
-#include "logisticmodel.h"
+#include "linearmodel.h"
 #include "dataop.h"
 #include "util.h"
 
-LogisticModel::LogisticModel()
+LinearModel::LinearModel()
 {
 }
 
-LogisticModel::~LogisticModel()
+LinearModel::~LinearModel()
 {
 }
 
-LogisticModel::LogisticModel(std::string dat){
+LinearModel::LinearModel(std::string dat){
 	dataload(dat);
 }
 
-void LogisticModel::dataload(std::string dat){
+void LinearModel::dataload(std::string dat){
 	load_libsvm_data(dat, trainsamples_, trainlabels_);
 }
 
-void LogisticModel::startbatch(int batchsize){
+void LinearModel::startbatch(int batchsize){
 
 	if (-1 == batchsize){
 		epochbatch_ = 1;
@@ -34,7 +34,7 @@ void LogisticModel::startbatch(int batchsize){
 	hypouts_.resize(batchsize_);
 }
 
-bool LogisticModel::nextbatch(){
+bool LinearModel::nextbatch(){
 
 	if (0 == epochbatch_){
 		return false;
@@ -45,7 +45,7 @@ bool LogisticModel::nextbatch(){
 	return true;
 }
 
-double LogisticModel::lossval(DenseVector& param){
+double LinearModel::lossval(DenseVector& param){
 	double vals = 0;
 	double hypout = 0;
 	for (int i = 0; i < trainsamples_->rows(); ++i){
@@ -55,12 +55,12 @@ double LogisticModel::lossval(DenseVector& param){
 	return vals;
 }
 
-double LogisticModel::funcval(DenseVector& param, SparseVector& sample){
+double LinearModel::funcval(DenseVector& param, SparseVector& sample){
 	double hypout = sample.dot(param);
 	return 1 / (1 + exp(-hypout));
 }
 
-void LogisticModel::grad(DenseVector& param, DenseVector& g){
+void LinearModel::grad(DenseVector& param, DenseVector& g){
 	g.setZero();
 	hypouts_.resize(batchsize_);
 	for (int i = 0; i < batchsize_; ++i){
@@ -79,7 +79,7 @@ void LogisticModel::grad(DenseVector& param, DenseVector& g){
 	}
 }
 
-void LogisticModel::grad(DenseVector& param, SparseVector& g){
+void LinearModel::grad(DenseVector& param, SparseVector& g){
 	std::map<int, double> updates;
 	hypouts_.resize(batchsize_);
 	for (int i = 0; i < batchsize_; ++i){
@@ -103,14 +103,14 @@ void LogisticModel::grad(DenseVector& param, SparseVector& g){
 	}
 }
 
-void LogisticModel::setparameter(DenseVector& param){
+void LinearModel::setparameter(DenseVector& param){
 	param_ = param;
 }
 
-int LogisticModel::samplesize() const{
+int LinearModel::samplesize() const{
 	return trainsamples_->rows();
 }
 
-int LogisticModel::featsize() const{
+int LinearModel::featsize() const{
 	return trainsamples_->cols();
 }

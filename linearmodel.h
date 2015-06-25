@@ -2,14 +2,15 @@
 #define __LOGISTIC_MODEL_H__
 #include <boost/shared_ptr.hpp>
 #include "model.h"
+#include "parameter.h"
+#include "lossfunc.h"
 
 // current only support binary class logistic regression model.
-class LogisticModel: public modelbase
+class LinearModel: public modelbase
 {
 public:
-	LogisticModel();
-	LogisticModel(std::string dat);
-	~LogisticModel();
+	LinearModel(IOParameters& io, LossFunc loss);
+	~LinearModel();
 	double lossval(DenseVector& param);
 	double funcval(DenseVector& param, SparseVector& sample);
 	void grad(DenseVector& param, DenseVector& g);

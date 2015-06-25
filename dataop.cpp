@@ -17,6 +17,7 @@ void splitstring(std::string& line, const char* delim, std::vector<std::string>&
 		strs.push_back(tok);
 		tok = std::strtok(NULL, delim);
 	}
+	delete[] ptr;
 }
 
 
@@ -104,23 +105,55 @@ void load_libsvm_data(std::string featfile,
 	int nrow = 0;
 	while( ifs.good() ){
 		
-		std::vector<std::string> strs;
-		splitstring(line, "\t ", strs);
-		
-		labels->coeffRef(nrow) = std::atoi((strs[0]).c_str());
+		char* buf = new char[line.length() + 1];
+		buf[line.length()] = 0;
+		line.copy(buf, line.length());
 
-		for (int i = 1; i < strs.size(); ++i){
-			std::vector<std::string> featvals;
-			splitstring(strs[i], ":", featvals);
-			if (featvals.size() != 2){
-				std::cerr << "Error, feat value pair not correct " << strs.at(i)
-					<< std::endl;
+		char* ptr = strtok(buf, "\t ");
+		if (!ptr){
+			std::cerr << "Error, string abnormal" << ptr << std::endl;
+			std::exit(-1);
+		}
+		labels->coeffRef(nrow) = std::atoi(ptr);
+
+		std::vector<std::string> feats;
+		ptr = strtok(NULL, "\t ");
+		while (ptr != NULL){
+
+			feats.push_back(ptr);
+			ptr = strtok(NULL, "\t ");
+		}
+		delete[] buf;
+
+		for (int i = 0; i < feats.size(); ++i){
+
+			char* buf2 = new char[feats[i].length() + 1];
+			memset(buf2, 0, sizeof(char)*(feats[i].length() + 1));
+			int idx = 0;
+			double val = 0;
+
+			feats[i].copy(buf2, feats[i].length());
+
+			char* ptr2 = strtok(buf2, ":");
+			if (!ptr2){
+				std::cerr << "line format error" << line << std::endl;
+				std::exit(-1);
 			}
 			else {
-				int idx = std::atoi(featvals.at(0).c_str());
-				double val = std::atoi(featvals.at(1).c_str());
-				Samples->insert(nrow, idx) = val;
+				idx = std::atoi(ptr2);
 			}
+
+			ptr2 = strtok(NULL, ":");
+			if (!ptr2){
+				std::cerr << "line format error " << line << std::endl;
+				std::exit(-1);
+			}
+			else {
+				val = std::atof(ptr2);
+			}
+
+			delete[] buf2;
+			Samples->insert(nrow, idx) = val;
 		}
 		++nrow;
 		std::getline(ifs, line);

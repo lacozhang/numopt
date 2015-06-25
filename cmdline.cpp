@@ -6,13 +6,13 @@ void usage(){
 }
 
 LossFunc parselossfunc(char* loss){
-	if (std::strcmp(loss, "squared")){
+	if (!std::strcmp(loss, "squared")){
 		return LossFunc::Squared;
 	}
-	else if (std::strcmp(loss, "hinge")){
+	else if (!std::strcmp(loss, "hinge")){
 		return LossFunc::Hinge;
 	}
-	else if (std::strcmp(loss, "logistic")){
+	else if (!std::strcmp(loss, "logistic")){
 		return LossFunc::Logistic;
 	}
 	else {
@@ -21,22 +21,22 @@ LossFunc parselossfunc(char* loss){
 }
 
 OptMethod parseopt(char* opt){
-	if (std::strcmp(opt, "gd")){
+	if (!std::strcmp(opt, "gd")){
 		return OptMethod::GD;
 	}
-	else if (std::strcmp(opt, "sgd")){
+	else if (!std::strcmp(opt, "sgd")){
 		return OptMethod::SGD;
 	}
-	else if (std::strcmp(opt, "cg")){
+	else if (!std::strcmp(opt, "cg")){
 		return OptMethod::CG;
 	}
-	else if (std::strcmp(opt, "lbfgs")){
+	else if (!std::strcmp(opt, "lbfgs")){
 		return OptMethod::LBFGS;
 	}
-	else if (std::strcmp(opt, "pgd")){
+	else if (!std::strcmp(opt, "pgd")){
 		return OptMethod::PGD;
 	}
-	else if (std::strcmp(opt, "cd")){
+	else if (!std::strcmp(opt, "cd")){
 		return OptMethod::CD;
 	}
 	else {
@@ -57,29 +57,31 @@ bool cmd_line_parse(int argc, char* argv[], Parameter& p){
 		switch (argv[i][1])
 		{
 		case 'm':
-			p.model_ = argv[++i];
+			p.io_.model_ = argv[++i];
 			break;
 		case 'i':
-			p.train_ = argv[++i];
+			p.io_.train_ = argv[++i];
 			break;
 		case 't':
-			p.test_ = argv[++i];
+			p.io_.test_ = argv[++i];
 			break;
 		case '1':
-			p.l1_ = atof(argv[++i]);
+			p.learn_.l1_ = atof(argv[++i]);
 			break;
 		case '2':
-			p.l2_ = atof(argv[++i]);
+			p.learn_.l2_ = atof(argv[++i]);
 			break;
 		case 'l':
 			p.loss_ = parselossfunc(argv[++i]);
 			break;
 		case 's':
-			p.algo_ = parseopt(argv[++i]);
+			p.opt_ = parseopt(argv[++i]);
 			break;
 		case 'r':
-			p.learningRate_ = atof(argv[++i]);
+			p.learn_.learningRate_ = atof(argv[++i]);
 			break;
+		case 'b':
+			p.learn_.batchsize_ = atoi(argv[++i]);
 		case 'h':
 		default:
 			usage();
