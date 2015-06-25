@@ -157,13 +157,7 @@
     <Text Include="..\..\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\cmdline.cpp" />
     <ClCompile Include="..\..\logistic_regression.cpp" />
-    <ClCompile Include="..\..\parameter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\cmdline.h" />
-    <ClInclude Include="..\..\parameter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

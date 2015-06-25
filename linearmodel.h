@@ -11,11 +11,14 @@ class LinearModel: public modelbase
 public:
 	LinearModel(IOParameters& io, LossFunc loss);
 	~LinearModel();
-	double lossval(DenseVector& param);
-	double funcval(DenseVector& param, SparseVector& sample);
-	void grad(DenseVector& param, DenseVector& g);
-	void grad(DenseVector& param, SparseVector& g);
+	void setloss(LossFunc loss);
+	void setio(IOParameters& io);
+	double lossval();
+	double funcval(SparseVector& sample);
+	void grad(DenseVector& g);
+	void grad(SparseVector& g);
 	void setparameter(DenseVector& param);
+	DenseVector& param() const;
 
 	int samplesize() const;
 
@@ -25,15 +28,28 @@ public:
 	void startbatch(int batchsize);
 	bool nextbatch();
 private:
-	void dataload(std::string dat);
-	LogLoss loss_;
+	void loadtrain(std::string dat);
+	void loadtest(std::string dat);
+	void savemodel(std::string model);
+	boost::shared_ptr<lossbase> loss_;
+
+	// training data
 	boost::shared_ptr<DataSamples> trainsamples_;
 	boost::shared_ptr<ClsLabelVector> trainlabels_;
+
+	// test data
+	boost::shared_ptr<DataSamples> testsamples_;
+	boost::shared_ptr<ClsLabelVector> testlabels_;
+
 	int batchsize_; // size of each batch, -1 menas all the training data.
 	int sampleidx_; // for each epocs, current index of samples.
 	int epochbatch_; // the number of batchs in each epocs. epochbatch_ = trainsamples->rows() / batchsize_;
-	std::vector<double> hypouts_;
-	DenseVector param_;
+
+	// parameters
+	boost::shared_ptr<DenseVector> param_;
+
+	// IO parameters
+	IOParameters io_;
 };
 
 

@@ -8,7 +8,6 @@ public:
 	~StochasticGD();
 	void trainDenseGradient(modelbase& model);
 	void trainSparseGradient(modelbase& model);
-	DenseVector w_;
 	int iternum_;
 	bool decay_;
 	double stepsize_;

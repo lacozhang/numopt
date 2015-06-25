@@ -139,11 +139,11 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\logisticmodel.h" />
+    <ClInclude Include="..\..\linearmodel.h" />
     <ClInclude Include="..\..\model.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\logisticmodel.cpp" />
+    <ClCompile Include="..\..\linearmodel.cpp" />
     <ClCompile Include="..\..\model.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

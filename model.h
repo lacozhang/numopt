@@ -9,10 +9,11 @@ public:
 	modelbase();
 	virtual ~modelbase();
 
-	virtual double lossval(DenseVector& param) = 0;
-	virtual double funcval(DenseVector& param, SparseVector& sample) = 0;
-	virtual void grad(DenseVector& param, DenseVector& g) = 0;
-	virtual void grad(DenseVector& param, SparseVector& g) = 0;
+	virtual double lossval() = 0;
+	virtual double funcval(SparseVector& sample) = 0;
+	virtual void grad(DenseVector& g) = 0;
+	virtual void grad(SparseVector& g) = 0;
+	virtual DenseVector& param() const = 0;
 
 	virtual int samplesize() const = 0;
 	virtual int featsize() const = 0;

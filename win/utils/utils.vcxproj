@@ -143,10 +143,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\cmdline.h" />
+    <ClInclude Include="..\..\parameter.h" />
     <ClInclude Include="..\..\typedef.h" />
     <ClInclude Include="..\..\util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\cmdline.cpp" />
+    <ClCompile Include="..\..\parameter.cpp" />
     <ClCompile Include="..\..\util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

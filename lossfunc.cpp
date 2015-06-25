@@ -76,3 +76,12 @@ double SmoothHingeLoss::dloss(double a, double y){
 		return -y;
 	return -y * (1 - z);
 }
+
+
+double SquaredLoss::loss(double a, double t){
+	return 0.5*(a - t)*(a - t);
+}
+
+double SquaredLoss::dloss(double a, double t){
+	return (a - t);
+}

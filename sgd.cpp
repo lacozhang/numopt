@@ -5,7 +5,6 @@
 StochasticGD::StochasticGD(int maxIters, double gradeps, double funceps,
 	bool decay, double initsize)
 	:OptMethodBase(maxIters, gradeps, funceps){
-	w_.resize(0);
 	decay_ = decay;
 	initsize_ = initsize;
 }
@@ -22,7 +21,7 @@ void StochasticGD::trainDenseGradient(modelbase& model){
 
 	stepsize_ = initsize_;
 	std::cout << "step size : " << stepsize_ << std::endl;
-	double func0 = abs(model.lossval(w_));
+	double func0 = abs(model.lossval());
 	std::cout << "F0 value  : " << func0
 		<< std::endl;
 
@@ -39,7 +38,7 @@ void StochasticGD::trainDenseGradient(modelbase& model){
 			samplecnt += 1;
 
 			t.tic();
-			model.grad(w_, grad);
+			model.grad(grad);
 			std::cout << "grad interface costs :" << t.toc() << std::endl;
 			t.tic();
 			w_ -= stepsize_ * grad;
