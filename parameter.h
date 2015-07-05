@@ -4,13 +4,36 @@
 
 #include <string>
 #include <iostream>
-#include "opt.h"
+#include "lossfunc.h"
+
+enum OptMethod {
+	GD = 2, // Gradient Descent
+	SGD, // Stochastic Gradient Descent
+	CG, // Conjugate Gradient
+	LBFGS, // Limited BFGS
+	PGD, // Proximal Gradient Descent
+	CD, // coordinate descent
+	BCD // block coordinate descent
+};
 
 struct LearnParameters
 {
 	double l1_, l2_;
-	double learningRate_;
+	double learningrate_;
 	int batchsize_;
+	int maxiter_;
+	double funceps_, gradeps_;
+
+public:
+	LearnParameters(){
+		l1_ = 0;
+		l2_ = 1.0;
+
+		learningrate_ = 1e-3;
+		batchsize_ = -1;
+		maxiter_ = 1000;
+		funceps_ = gradeps_ = 1e-3;
+	}
 };
 
 struct IOParameters{
@@ -26,8 +49,6 @@ public:
   IOParameters io_;
   OptMethod opt_;
   LossFunc loss_;
-  
-
 };
 
 template<class T>
@@ -85,10 +106,13 @@ std::basic_ostream<T>& operator<< (std::basic_ostream<T>& sink, Parameter& p) {
     sink << p.learn_.l2_ << std::endl;
 
     sink << "Learning rate for optimization  : ";
-    sink << p.learn_.learningRate_ << std::endl;
+    sink << p.learn_.learningrate_ << std::endl;
 
 	sink << "mini-batch size for optimization: ";
 	sink << p.learn_.batchsize_ << std::endl;
+
+	sink << "max iteration of learning";
+	sink << p.learn_.maxiter_ << std::endl;
 
     sink << "Training data file              : "
          << p.io_.train_ << std::endl;

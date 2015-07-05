@@ -1,9 +1,6 @@
 #include "cmdline.h"
 
-void usage(){
-	std::cout << "logreg -m model -i trainging.dat -t test.tsv -1 lambda_1 -2 lambda_2 -l hinge -s GD -r 0.03"
-		<< std::endl;
-}
+
 
 LossFunc parselossfunc(char* loss){
 	if (!std::strcmp(loss, "squared")){
@@ -44,6 +41,11 @@ OptMethod parseopt(char* opt){
 	}
 }
 
+void usage(){
+	std::cout << "logreg -m model -i trainging.dat -t test.tsv -1 lambda_1 -2 lambda_2 -l hinge -s GD -r 0.03 -b 10"
+		<< std::endl;
+}
+
 bool cmd_line_parse(int argc, char* argv[], Parameter& p){
 
 	int i = 1;
@@ -78,10 +80,14 @@ bool cmd_line_parse(int argc, char* argv[], Parameter& p){
 			p.opt_ = parseopt(argv[++i]);
 			break;
 		case 'r':
-			p.learn_.learningRate_ = atof(argv[++i]);
+			p.learn_.learningrate_ = atof(argv[++i]);
 			break;
 		case 'b':
 			p.learn_.batchsize_ = atoi(argv[++i]);
+			break;
+		case 'e':
+			p.learn_.maxiter_ = atoi(argv[++i]);
+			break;
 		case 'h':
 		default:
 			usage();

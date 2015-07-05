@@ -4,14 +4,14 @@
 
 class StochasticGD : public OptMethodBase{
 public:
-	StochasticGD(int maxIters, double gradeps, double funceps, bool decay, double initsize);
+	StochasticGD(LearnParameters& learn, bool ratedecay);
 	~StochasticGD();
 	void trainDenseGradient(modelbase& model);
 	void trainSparseGradient(modelbase& model);
-	int iternum_;
-	bool decay_;
-	double stepsize_;
-	double initsize_;
+
+private:
+
+	bool ratedecay_;
 };
 
 #endif // __SGD_H__

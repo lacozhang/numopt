@@ -4,30 +4,46 @@
 // header file for optimization algorithm like GD, SGD, CG, LBFGS, Proximal SGD, GD
 
 #include "typedef.h"
+#include "parameter.h"
 #include "model.h"
-
-enum OptMethod {
-	GD = 2, // Gradient Descent
-	SGD, // Stochastic Gradient Descent
-	CG, // Conjugate Gradient
-	LBFGS, // Limited BFGS
-	PGD, // Proximal Gradient Descent
-	CD, // coordinate descent
-	BCD // block coordinate descent
-};
 
 class OptMethodBase {
 public:
-	OptMethodBase(int maxEpochs, double gradeps, double funceps);
+	OptMethodBase(LearnParameters& learn);
 	virtual ~OptMethodBase();
 	virtual void trainDenseGradient(modelbase& model) = 0;
 	virtual void trainSparseGradient(modelbase& model) = 0;
 
-protected:
+	int maxIter() const {
+		return learn_.maxiter_;
+	}
 
-	int maxiters_;
-	double gradeps_;
-	double funceps_;
+	double learningRate() const {
+		return learn_.learningrate_;
+	}
+
+	double functionEpsilon() const {
+		return learn_.funceps_;
+	}
+
+	double gradEpsilon() const {
+		return learn_.gradeps_;
+	}
+
+	double batchSize() const {
+		return learn_.batchsize_;
+	}
+
+	double l2RegVal() const {
+		return learn_.l2_;
+	}
+
+	double l1RegVal() const {
+		return learn_.l1_;
+	}
+
+protected:
+	LearnParameters learn_;
 };
 
 #endif // __OPT_H__

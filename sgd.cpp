@@ -2,33 +2,39 @@
 #include "sgd.h"
 #include "util.h"
 
-StochasticGD::StochasticGD(int maxIters, double gradeps, double funceps,
-	bool decay, double initsize)
-	:OptMethodBase(maxIters, gradeps, funceps){
-	decay_ = decay;
-	initsize_ = initsize;
+StochasticGD::StochasticGD(LearnParameters& learn, bool ratedecay)
+	:OptMethodBase(learn){
+	ratedecay_ = ratedecay;
 }
 
 void StochasticGD::trainDenseGradient(modelbase& model){
+	std::cerr << "Gradient Descent for DenseGradient Vector implemented" << std::endl;
+}
 
-	iternum_ = 0;
-	DenseVector grad;
+void StochasticGD::trainSparseGradient(modelbase& model){
+
+
+	int iternum_ = 0;
+	SparseVector grad;
+	DenseVector& params = model.param();
+	params.setZero();
+
+
 	std::cout << "start training" << std::endl;
 	std::cout << "feat size : " << model.featsize() << std::endl;
-	w_.resize(model.featsize());
-	w_.setZero();
 	grad.resize(model.featsize());
 
-	stepsize_ = initsize_;
-	std::cout << "step size : " << stepsize_ << std::endl;
+	double initsize = learningRate();
+	double stepsize = initsize;
+	std::cout << "step size : " << stepsize << std::endl;
 	double func0 = abs(model.lossval());
 	std::cout << "F0 value  : " << func0
 		<< std::endl;
 
 	timeutil t;
-	
 
-	while (iternum_ < maxiters_){
+
+	while (iternum_ < maxIter()){
 		std::cout << "epochs " << iternum_ << std::endl;
 		int samplecnt = 0;
 
@@ -37,65 +43,9 @@ void StochasticGD::trainDenseGradient(modelbase& model){
 		while (model.nextbatch()){
 			samplecnt += 1;
 
-			t.tic();
 			model.grad(grad);
-			std::cout << "grad interface costs :" << t.toc() << std::endl;
-			t.tic();
-			w_ -= stepsize_ * grad;
-			std::cout << "grad desc costs :" << t.toc() << std::endl;
-
-			if (samplecnt % 100 == 0){
-				std::cout << '.';
-			}
-			else if (samplecnt % 1000 == 0){
-				std::cout << "x" << std::endl;
-			}
-		}
-		std::cout << "epoch learning costs : " << t.toc()
-			<< std::endl;
-
-		std::cout << "func value : " << model.lossval(w_) << std::endl;
-		model.grad(w_, grad);
-		std::cout << "grad norm  : " << grad.norm() << std::endl;
-
-		if (decay_){
-			stepsize_ = initsize_ * (1.0 / (1 + iternum_));
-		}
-
-		iternum_++;
-	}
-}
-
-void StochasticGD::trainSparseGradient(modelbase& model){
-	iternum_ = 0;
-	SparseVector grad;
-	std::cout << "start training" << std::endl;
-	std::cout << "feat size : " << model.featsize() << std::endl;
-	w_.resize(model.featsize());
-	w_.setZero();
-	grad.resize(model.featsize());
-
-	stepsize_ = initsize_;
-	std::cout << "step size : " << stepsize_ << std::endl;
-	double func0 = abs(model.lossval(w_));
-	std::cout << "F0 value  : " << func0
-		<< std::endl;
-
-	timeutil t;
-
-
-	while (iternum_ < maxiters_){
-		std::cout << "epochs " << iternum_ << std::endl;
-		int samplecnt = 0;
-
-		t.tic();
-		model.startbatch(1);
-		while (model.nextbatch()){
-			samplecnt += 1;
-
-			model.grad(w_, grad);
 			for (SparseVector::InnerIterator iter(grad); iter; ++iter){
-				w_.coeffRef(iter.index()) -= stepsize_ * iter.value();
+				params.coeffRef(iter.index()) -= stepsize * iter.value();
 			}
 
 			if (samplecnt % 100000 == 0){
@@ -109,11 +59,11 @@ void StochasticGD::trainSparseGradient(modelbase& model){
 		std::cout << "epoch learning costs : " << t.toc()
 			<< std::endl;
 
-		std::cout << "func value : " << model.lossval(w_) << std::endl;
-		std::cout << "grad norm  : " << w_.norm() << std::endl;
+		std::cout << "func value : " << model.lossval() << std::endl;
+		std::cout << "grad norm  : " << params.norm() << std::endl;
 
-		if (decay_){
-			stepsize_ = initsize_ * (1.0 / (1 + iternum_));
+		if (ratedecay_){
+			stepsize = initsize * (1.0 / (1 + iternum_));
 		}
 
 		iternum_++;

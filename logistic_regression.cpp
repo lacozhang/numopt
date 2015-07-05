@@ -6,6 +6,7 @@
 
 int main(int argc, char* argv[]){
 
+
 	Parameter param;
 	bool ret = cmd_line_parse(argc, argv, param);
 
@@ -14,7 +15,7 @@ int main(int argc, char* argv[]){
 	}
 
 	LinearModel lr(param.io_, param.loss_);
-	StochasticGD sgd(200, 1e-3, 1e-3, false, param.learn_.learningRate_);
+	StochasticGD sgd(param.learn_, false);
 	sgd.trainSparseGradient(lr);
 
 	return 0;
