@@ -42,6 +42,9 @@ public:
 		return learn_.l1_;
 	}
 
+	void ProximalGradient(DenseVector& w, double lambda);
+	void ProximalGradient(SparseVector& w, double lambda);
+
 protected:
 	LearnParameters learn_;
 };

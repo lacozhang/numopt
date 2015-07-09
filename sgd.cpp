@@ -34,6 +34,7 @@ void StochasticGD::trainSparseGradient(modelbase& model){
 	timeutil t;
 
 
+
 	while (iternum_ < maxIter()){
 		std::cout << "epochs " << iternum_ << std::endl;
 		int samplecnt = 0;
@@ -44,8 +45,15 @@ void StochasticGD::trainSparseGradient(modelbase& model){
 			samplecnt += 1;
 
 			model.grad(grad);
+
+			params += learn_.l2_ * params;
+
 			for (SparseVector::InnerIterator iter(grad); iter; ++iter){
 				params.coeffRef(iter.index()) -= stepsize * iter.value();
+			}
+
+			if (std::abs(learn_.l1_) > 1e-4){
+				ProximalGradient(params, learn_.l1_);
 			}
 
 			if (samplecnt % 100000 == 0){
