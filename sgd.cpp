@@ -2,85 +2,77 @@
 #include "sgd.h"
 #include "util.h"
 
-StochasticGD::StochasticGD(LearnParameters& learn, bool ratedecay)
-	:OptMethodBase(learn){
-	ratedecay_ = ratedecay;
+StochasticGD::StochasticGD(LearnParameters &learn, bool ratedecay)
+    : OptMethodBase(learn) {
+  ratedecay_ = ratedecay;
 }
 
-void StochasticGD::trainDenseGradient(modelbase& model){
-	std::cerr << "Gradient Descent for DenseGradient Vector implemented" << std::endl;
+void StochasticGD::trainDenseGradient(modelbase &model) {
+  std::cerr << "Gradient Descent for DenseGradient Vector implemented"
+            << std::endl;
 }
 
-void StochasticGD::trainSparseGradient(modelbase& model){
+void StochasticGD::trainSparseGradient(modelbase &model) {
 
+  int iternum_ = 0;
+  SparseVector grad;
+  DenseVector &params = model.param();
+  params.setZero();
 
-	int iternum_ = 0;
-	SparseVector grad;
-	DenseVector& params = model.param();
-	params.setZero();
+  std::cout << "start training" << std::endl;
+  std::cout << "feat size : " << model.featsize() << std::endl;
+  grad.resize(model.featsize());
 
+  double initsize = learningRate();
+  double stepsize = initsize;
+  std::cout << "step size : " << stepsize << std::endl;
+  double func0 = abs(model.lossval());
+  std::cout << "F0 value  : " << func0 << std::endl;
 
-	std::cout << "start training" << std::endl;
-	std::cout << "feat size : " << model.featsize() << std::endl;
-	grad.resize(model.featsize());
+  timeutil t;
+  while (iternum_ < maxIter()) {
+    std::cout << "epochs " << iternum_ << std::endl;
+    int samplecnt = 0;
 
-	double initsize = learningRate();
-	double stepsize = initsize;
-	std::cout << "step size : " << stepsize << std::endl;
-	double func0 = abs(model.lossval());
-	std::cout << "F0 value  : " << func0
-		<< std::endl;
+    t.tic();
+    model.startbatch(batchSize());
+    while (model.nextbatch()) {
+      samplecnt += batchSize();
 
-	timeutil t;
+      model.grad(grad);
 
+      std::cout << "parameter updates costs ";
+      t.tic();
+      params -= learn_.l2_ * params;
+      std::cout << t.toc() << " seconds" << std::endl;
 
+      for (SparseVector::InnerIterator iter(grad); iter; ++iter) {
+        params.coeffRef(iter.index()) -= stepsize * iter.value();
+      }
 
-	while (iternum_ < maxIter()){
-		std::cout << "epochs " << iternum_ << std::endl;
-		int samplecnt = 0;
+      if (std::abs(learn_.l1_) > 1e-4) {
+        ProximalGradient(params, learn_.l1_);
+      }
 
-		t.tic();
-		model.startbatch(1);
-		while (model.nextbatch()){
-			samplecnt += 1;
+      if (samplecnt % 100000 == 0) {
+        std::cout << 'x' << std::endl;
+      } else if (samplecnt % 10000 == 0) {
+        std::cout << ".";
+      }
+    }
 
-			model.grad(grad);
+    std::cout << "\nepoch learning costs : " << t.toc() << std::endl;
 
-			params += learn_.l2_ * params;
+    std::cout << "func value : " << model.lossval() << std::endl;
+    std::cout << "grad norm  : " << params.norm() << std::endl;
+    std::cout << "current accuracy : " << model.getaccu() << std::endl;
 
-			for (SparseVector::InnerIterator iter(grad); iter; ++iter){
-				params.coeffRef(iter.index()) -= stepsize * iter.value();
-			}
+    if (ratedecay_) {
+      stepsize = initsize * (1.0 / (1 + iternum_));
+    }
 
-			if (std::abs(learn_.l1_) > 1e-4){
-				ProximalGradient(params, learn_.l1_);
-			}
-
-			if (samplecnt % 100000 == 0){
-				std::cout << 'x' << std::endl;
-			}
-			else if (samplecnt % 10000 == 0){
-
-				std::cout << ".";
-				std::cout << "current accuracy: " << model.getaccu() << std::endl;
-
-			}
-		}
-
-		std::cout << "epoch learning costs : " << t.toc()
-			<< std::endl;
-
-		std::cout << "func value : " << model.lossval() << std::endl;
-		std::cout << "grad norm  : " << params.norm() << std::endl;
-
-		if (ratedecay_){
-			stepsize = initsize * (1.0 / (1 + iternum_));
-		}
-
-		iternum_++;
-	}
+    iternum_++;
+  }
 }
 
-StochasticGD::~StochasticGD(){
-
-}
+StochasticGD::~StochasticGD() {}
