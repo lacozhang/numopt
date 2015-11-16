@@ -73,10 +73,12 @@ void matrix_size_estimation(std::string featfile,
 
 void load_libsvm_data(std::string featfile, 
 	       boost::shared_ptr<Eigen::SparseMatrix<double, Eigen::RowMajor> >& Samples,
-	       boost::shared_ptr<Eigen::VectorXi>& labels){
+	       boost::shared_ptr<Eigen::VectorXi>& labels, bool estimate, int ocolsize){
 
 	// estimate the data size for loading
 	Eigen::VectorXi datasize;
+
+
 	int rowsize, colsize;
 	matrix_size_estimation(featfile, datasize, rowsize, colsize);
 
@@ -84,12 +86,20 @@ void load_libsvm_data(std::string featfile,
 
 	timeutil t;
 	t.tic();
-	// set data size and space
-	Samples.reset( new Eigen::SparseMatrix<double, Eigen::RowMajor>(rowsize, colsize) );
+
+	if (estimate){
+		// set data size and space
+		Samples.reset(new Eigen::SparseMatrix<double, Eigen::RowMajor>(rowsize, colsize));
+	}
+	else {
+		Samples.reset(new Eigen::SparseMatrix<double, Eigen::RowMajor>(rowsize, ocolsize));
+	}
+
 	if( Samples.get() == NULL ){
 		std::cerr << "Error, new operator for samples error" << std::endl;
 		std::exit(-1);
 	}
+
 	Samples->reserve(datasize);
 
 	labels.reset( new Eigen::VectorXi(rowsize) );

@@ -21,6 +21,7 @@ public:
 	// batch size = -1 means all the training data; batch size = 1, means SGD;
 	virtual void startbatch(int batchsize) = 0;
 	virtual bool nextbatch() = 0;
+	virtual double getaccu() = 0;
 };
 
 #endif // __MODEL_H__

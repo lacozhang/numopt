@@ -46,11 +46,11 @@ void LinearModel::setloss(LossFunc loss){
 
 
 void LinearModel::loadtrain(std::string dat){
-	load_libsvm_data(dat, trainsamples_, trainlabels_);
+	load_libsvm_data(dat, trainsamples_, trainlabels_, true, 0);
 }
 
 void LinearModel::loadtest(std::string dat){
-	load_libsvm_data(dat, testsamples_, testlabels_);
+	load_libsvm_data(dat, testsamples_, testlabels_, false, trainsamples_->cols());
 }
 
 void LinearModel::savemodel(std::string model){
@@ -156,4 +156,19 @@ int LinearModel::samplesize() const{
 
 int LinearModel::featsize() const{
 	return trainsamples_->cols();
+}
+
+double LinearModel::getaccu() {
+	double total = testlabels_->size();
+	double correct = 0;
+
+	for (int i = 0; i < total; ++i){
+		double hypout = testsamples_->row(i).dot(*param_);
+
+		if (hypout > 0){
+			correct += 1;
+		}
+	}
+
+	return correct / total;
 }

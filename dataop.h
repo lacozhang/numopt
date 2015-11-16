@@ -9,5 +9,5 @@ void matrix_size_estimation(std::string featfile, Eigen::VectorXi& datsize, int&
 
 void load_libsvm_data(std::string featfile,
 	       boost::shared_ptr< DataSamples >& Samples,
-	       boost::shared_ptr< ClsLabelVector >& labels);
+	       boost::shared_ptr< ClsLabelVector >& labels, bool estimate, int colsize);
 #endif

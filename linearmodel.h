@@ -27,6 +27,9 @@ public:
 	// batch size = -1 means all the training data; batch size = 1, means SGD;
 	void startbatch(int batchsize);
 	bool nextbatch();
+
+	// model evaluation
+	double getaccu();
 private:
 	void loadtrain(std::string dat);
 	void loadtest(std::string dat);

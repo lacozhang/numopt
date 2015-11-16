@@ -60,7 +60,10 @@ void StochasticGD::trainSparseGradient(modelbase& model){
 				std::cout << 'x' << std::endl;
 			}
 			else if (samplecnt % 10000 == 0){
+
 				std::cout << ".";
+				std::cout << "current accuracy: " << model.getaccu() << std::endl;
+
 			}
 		}
 
