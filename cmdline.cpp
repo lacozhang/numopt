@@ -11,6 +11,7 @@ LossFunc parselossfunc(const char *loss) {
     return LossFunc::SquaredHinge;
   } else {
     std::cerr << "unsupported loss function " << loss << std::endl;
+    return LossFunc::Squared;
   }
 }
 
@@ -29,6 +30,8 @@ OptMethod parseopt(char *opt) {
     return OptMethod::CD;
   } else if (!std::strcmp(opt, "bcd")) {
     return OptMethod::BCD;
+  } else {
+    return OptMethod::SGD;
   }
 }
 

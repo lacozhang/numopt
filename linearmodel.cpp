@@ -74,7 +74,6 @@ bool LinearModel::nextbatch() {
   }
 
   epochbatch_--;
-  sampleidx_ = std::min(sampleidx_ + batchsize_, trainsamples_->rows());
   return true;
 }
 
@@ -117,6 +116,7 @@ void LinearModel::grad(SparseVector &g) {
 
   double hypout;
   std::map<int, double> updates;
+  int samplecnt = 0;
   for (int i = 0; i < batchsize_; ++i) {
 
     int iterIdx = sampleidx_ + i;
@@ -124,6 +124,7 @@ void LinearModel::grad(SparseVector &g) {
       break;
     }
 
+    samplecnt++;
     hypout = trainsamples_->row(iterIdx).dot(*param_);
     double gradweight = loss_->dloss(hypout, trainlabels_->coeff(iterIdx));
 
@@ -131,6 +132,11 @@ void LinearModel::grad(SparseVector &g) {
          ++iter) {
       updates[iter.col()] += gradweight * iter.value();
     }
+  }
+
+  for (std::map<int, double>::iterator iter = updates.begin();
+       iter != updates.end(); ++iter) {
+    iter->second /= samplecnt;
   }
 
   g.setZero();

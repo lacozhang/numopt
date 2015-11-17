@@ -41,10 +41,8 @@ void StochasticGD::trainSparseGradient(modelbase &model) {
 
       model.grad(grad);
 
-      std::cout << "parameter updates costs ";
       t.tic();
       params -= learn_.l2_ * params;
-      std::cout << t.toc() << " seconds" << std::endl;
 
       for (SparseVector::InnerIterator iter(grad); iter; ++iter) {
         params.coeffRef(iter.index()) -= stepsize * iter.value();
