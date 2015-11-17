@@ -76,14 +76,14 @@
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>D:\zhangyu\src\tools\include\boost_1_56_0;D:\zhangyu\src\tools\include\eigen3;$(IncludePath)</IncludePath>
     <LibraryPath>..\reflib\;D:\zhangyu\src\tools\boostx64\lib56;$(LibraryPath)</LibraryPath>
-    <OutDir>..\bin\</OutDir>
+    <OutDir>..\debug\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>D:\zhangyu\src\numopt\win\bin</OutDir>
+    <OutDir>D:\zhangyu\src\numopt\win\bin\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

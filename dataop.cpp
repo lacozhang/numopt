@@ -12,41 +12,29 @@ namespace {
   static const char *libsvmseps = "\t ";
   static char TempLineBuffer[UINT16_MAX] = { '\0' };
 
-  void parselibsvmline(const std::string &line,
+  void parselibsvmline(char* line,
     std::vector<std::pair<size_t, size_t>> &feats, int &label,
     bool parse = true) {
-    char *buf = nullptr;
-    bool linebuffnew = false;
     std::vector<std::string> featstrs;
 
     feats.clear();
-    if (line.length() > INT16_MAX) {
-      buf = new char[line.length() + 1];
-      linebuffnew = true;
-    }
-    else {
-      buf = TempLineBuffer;
-    }
 
-    buf[line.length()] = 0;
-    line.copy(buf, line.length());
-
-    char *ptr = strtok(buf, libsvmseps);
+    char *ptr = strtok(line, libsvmseps);
     if (!ptr) {
       std::cerr << "Error, string abnormal" << line << std::endl;
       std::exit(-1);
     }
     label = std::atoi(ptr);
 
-    ptr = strtok(NULL, ": ");
+    ptr = strtok(NULL, ": \t");
     while (ptr != nullptr) {
       size_t index = std::atoi(ptr);
       size_t val = 0;
 
-      ptr = strtok(NULL, ": ");
+      ptr = strtok(NULL, ": \t");
       if (ptr != nullptr){
         val = std::atoi(ptr);
-        ptr = strtok(NULL, ":");
+        ptr = strtok(NULL, ": \t");
         feats.push_back(std::pair<size_t, size_t>(index, val));
       }
       else {
@@ -74,12 +62,11 @@ void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
   timeutil t;
   t.tic();
 
-  std::string line;
-  std::getline(featsrc, line);
+  featsrc.getline(TempLineBuffer, sizeof(TempLineBuffer));
 
   while (featsrc.good()) {
     ++row;
-    parselibsvmline(line, feats, label, true);
+    parselibsvmline(TempLineBuffer, feats, label, true);
     // active feature for sample row
     rowsize.push_back(feats.size() + 1);
 
@@ -90,7 +77,7 @@ void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
     }
 
     // get next line from file
-    std::getline(featsrc, line);
+    featsrc.getline(TempLineBuffer, sizeof(TempLineBuffer));
   }
   std::cout << "data size estimation costs " << t.toc() << std::endl;
   datsize.resize(row);
@@ -131,19 +118,18 @@ void load_libsvm_data(
 
   labels.reset(new Eigen::VectorXi(estrowsize));
 
-  std::string line;
   std::ifstream ifs(featfile.c_str());
   if (!ifs.is_open()) {
     std::cerr << "open file " << featfile << " failed" << std::endl;
     std::abort();
   }
 
-  std::getline(ifs, line);
+  ifs.getline(TempLineBuffer, sizeof(TempLineBuffer));
   int nrow = 0;
   while (ifs.good()) {
 
     int label;
-    parselibsvmline(line, featline, label, true);
+    parselibsvmline(TempLineBuffer, featline, label, true);
     labels->coeffRef(nrow) = label;
 
     for (std::pair<size_t, size_t> &item : featline) {
@@ -155,7 +141,7 @@ void load_libsvm_data(
       }
     }
     ++nrow;
-    std::getline(ifs, line);
+    ifs.getline(TempLineBuffer, sizeof(TempLineBuffer));
   }
   Samples->makeCompressed();
   std::cout << "loading data costs " << t.toc() << " seconds " << std::endl;
