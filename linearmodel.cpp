@@ -97,7 +97,7 @@ void LinearModel::grad(DenseVector &g) {
   g.setZero();
   for (int i = 0; i < batchsize_; ++i) {
 
-    int iterIdx = sampleidx_ + i;
+    size_t iterIdx = sampleidx_ + i;
     if (iterIdx >= trainsamples_->rows()) {
       break;
     }
@@ -134,12 +134,13 @@ void LinearModel::grad(SparseVector &g) {
     }
   }
 
-  for (std::map<int, double>::iterator iter = updates.begin();
-       iter != updates.end(); ++iter) {
+  g.setZero();
+  sampleidx_ += samplecnt;
+
+  for (std::map<int, double>::iterator iter = updates.begin(); iter != updates.end(); ++iter){
     iter->second /= samplecnt;
   }
 
-  g.setZero();
   for (std::map<int, double>::iterator iter = updates.begin();
        iter != updates.end(); ++iter) {
     g.coeffRef(iter->first) = iter->second;
@@ -158,6 +159,7 @@ double LinearModel::getaccu() {
 
   for (int i = 0; i < total; ++i) {
     double hypout = testsamples_->row(i).dot(*param_);
+    double zvalue = hypout * testlabels_->coeff(i);
 
     if (hypout > 0) {
       correct += 1;

@@ -9,40 +9,38 @@
 
 namespace {
 
-  static const char *libsvmseps = "\t ";
-  static char TempLineBuffer[UINT16_MAX] = { '\0' };
+static const char *libsvmseps = "\t ";
+static char TempLineBuffer[UINT16_MAX] = {'\0'};
 
-  void parselibsvmline(char* line,
-    std::vector<std::pair<size_t, size_t>> &feats, int &label,
-    bool parse = true) {
-    std::vector<std::string> featstrs;
+void parselibsvmline(char *line, std::vector<std::pair<size_t, size_t>> &feats,
+                     int &label, bool parse = true) {
+  std::vector<std::string> featstrs;
 
-    feats.clear();
+  feats.clear();
 
-    char *ptr = strtok(line, libsvmseps);
-    if (!ptr) {
-      std::cerr << "Error, string abnormal" << line << std::endl;
-      std::exit(-1);
-    }
-    label = std::atoi(ptr);
+  char *ptr = strtok(line, libsvmseps);
+  if (!ptr) {
+    std::cerr << "Error, string abnormal" << line << std::endl;
+    std::exit(-1);
+  }
+  label = std::atoi(ptr);
+
+  ptr = strtok(NULL, ": \t");
+  while (ptr != nullptr) {
+    size_t index = std::atoi(ptr);
+    size_t val = 0;
 
     ptr = strtok(NULL, ": \t");
-    while (ptr != nullptr) {
-      size_t index = std::atoi(ptr);
-      size_t val = 0;
-
+    if (ptr != nullptr) {
+      val = std::atoi(ptr);
       ptr = strtok(NULL, ": \t");
-      if (ptr != nullptr){
-        val = std::atoi(ptr);
-        ptr = strtok(NULL, ": \t");
-        feats.push_back(std::pair<size_t, size_t>(index, val));
-      }
-      else {
-        std::cerr << "error, data format error" << std::endl;
-        std::exit(-1);
-      }
+      feats.push_back(std::pair<size_t, size_t>(index, val));
+    } else {
+      std::cerr << "error, data format error" << std::endl;
+      std::exit(-1);
     }
   }
+}
 }
 
 void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
@@ -136,8 +134,8 @@ void load_libsvm_data(
       if (item.first <= colsize) {
         Samples->insert(nrow, item.first) = item.second;
       } else {
-        std::cerr << "warning line " << item.first << " has unsupported features"
-                  << std::endl;
+        std::cerr << "warning line " << item.first
+                  << " has unsupported features" << std::endl;
       }
     }
     ++nrow;
@@ -145,4 +143,26 @@ void load_libsvm_data(
   }
   Samples->makeCompressed();
   std::cout << "loading data costs " << t.toc() << " seconds " << std::endl;
+}
+
+void estimate_binary_datasize(std::string featfile, int& row, int& col){
+  row = col = 0;
+
+  std::ifstream src(featfile.c_str());
+}
+
+
+
+void load_binary_data(std::string featfile,
+  boost::shared_ptr<DataSamples> &samples,
+  boost::shared_ptr<ClsLabelVector> &labels, bool estimate,
+  int colsize){
+
+  std::ifstream src(featfile.c_str());
+  if (!src.is_open()){
+    std::cerr << "open file " << featfile << " failed" << std::endl;
+    std::exit(1);
+  }
+
+
 }

@@ -15,7 +15,7 @@ LossFunc parselossfunc(const char *loss) {
   }
 }
 
-OptMethod parseopt(char *opt) {
+OptMethod parseopt(const char *opt) {
   if (!std::strcmp(opt, "gd")) {
     return OptMethod::GD;
   } else if (!std::strcmp(opt, "sgd")) {
@@ -41,7 +41,7 @@ void usage() {
             << std::endl;
 }
 
-bool cmd_line_parse(int argc, char *argv[], Parameter &p) {
+bool cmd_line_parse(int argc, const char *argv[], Parameter &p) {
 
   int i = 1;
 
