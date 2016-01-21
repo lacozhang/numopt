@@ -3,15 +3,10 @@
 #include "parameter.h"
 #include "sgd.h"
 #include "cmdline.h"
-#include <glog/logging.h>
 
 int main(int argc, const char *argv[]) {
 
-  google::InitGoogleLogging(argv[0]);
-
   Parameter param;
-
-  LOG(INFO) << "Start Parsing Command Line" << std::endl;
   bool ret = cmd_line_parse(argc, argv, param);
 
   if (!ret) {
