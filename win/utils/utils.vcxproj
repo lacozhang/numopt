@@ -70,7 +70,7 @@
     <IncludePath>D:\zhangyu\src\tools\eigen;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\zhangyu\src\tools\include\eigen3;$(IncludePath)</IncludePath>
+    <IncludePath>D:\zhangyu\src\tools\include\eigen;$(IncludePath)</IncludePath>
     <OutDir>..\reflib\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
