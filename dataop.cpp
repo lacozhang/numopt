@@ -67,6 +67,7 @@ namespace {
 
 				--n;
 			}
+			++row;
 		}
 	}
 
