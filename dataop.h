@@ -13,11 +13,6 @@ void load_libsvm_data(std::string featfile,
                       boost::shared_ptr<ClsLabelVector> &labels, bool estimate,
                       int colsize);
 
-void load_binary_data(std::string featfile,
-                      boost::shared_ptr<DataSamples> &samples,
-                      boost::shared_ptr<ClsLabelVector> &labels, bool estimate,
-                      int colsize);
-
 void parselibsvmline(char *line, std::vector<std::pair<size_t, double>> &feats,
 	int &label, bool parse = true);
 

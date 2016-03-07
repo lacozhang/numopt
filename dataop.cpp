@@ -44,14 +44,13 @@ namespace {
 		int &row, int &col){
 		row = col = 0;
 
+		int label = 0, n = 0;
+		featsrc.read((char*)&label, sizeof(int));
+
 		while (featsrc.good())
 		{
-			int label = 0;
-			featsrc.read((char*)&label, sizeof(int));
-			int n = 0;
 			featsrc.read((char*)&n, sizeof(int));
-
-			rowsize.push_back(n + 1);
+			rowsize.push_back(n+1);
 
 			while (n > 0)
 			{
@@ -68,10 +67,13 @@ namespace {
 				--n;
 			}
 			++row;
+
+			featsrc.read((char*)&label, sizeof(int));
 		}
 	}
 
-	void load_libsvm_data_text(std::ifstream& ifs, boost::shared_ptr<DataSamples> samples, boost::shared_ptr<ClsLabelVector> labels){
+	void load_libsvm_data_text(std::ifstream& ifs, boost::shared_ptr<DataSamples> samples, 
+		boost::shared_ptr<ClsLabelVector> labels, int featsize){
 		
 		std::vector<std::pair<size_t, double>> featline;
 
@@ -84,41 +86,78 @@ namespace {
 			labels->coeffRef(nrow) = label;
 
 			for (std::pair<size_t, double> &item : featline) {
-				samples->insert(nrow, item.first) = item.second;
+				if (item.first < featsize) {
+					samples->insert(nrow, item.first) = item.second;
+				}
 			}
 			++nrow;
 			ifs.getline(TempLineBuffer, sizeof(TempLineBuffer));
 		}
 	}
+
+	void load_libsvm_data_bin(std::ifstream& ifs, boost::shared_ptr<DataSamples>& samples, 
+		boost::shared_ptr<ClsLabelVector>& labels, int featsize) {
+
+		int rowindex = 0;
+
+		int label = 0, n = std::numeric_limits<int>::infinity();
+		ifs.read(reinterpret_cast<char*>(&label), sizeof(int));
+
+		while (ifs.good())
+		{
+			ifs.read(reinterpret_cast<char*>(&n), sizeof(int));
+
+			while (n>0)
+			{
+
+				size_t index = 0;
+				double val = 0;
+
+				ifs.read(reinterpret_cast<char*>(&index), sizeof(size_t));
+				ifs.read(reinterpret_cast<char*>(&val), sizeof(double));
+
+				if (index < featsize) {
+					samples->coeffRef(rowindex, index) = val;
+				}
+				--n;
+			}
+
+			++rowindex;
+			ifs.read(reinterpret_cast<char*>(&label), sizeof(int));
+		}
+		std::cout << "Load Total " << rowindex << " samples" << std::endl;
+	}
+
 }
+
 void parselibsvmline(char *line, std::vector<std::pair<size_t, double>> &feats,
-                     int &label, bool parse) {
-  feats.clear();
+	int &label, bool parse) {
+	feats.clear();
 
-  char *ptr = strtok(line, libsvmseps);
-  if (!ptr) {
-    std::cerr << "Error, string abnormal" << line << std::endl;
-    std::exit(-1);
-  }
-  label = std::atoi(ptr);
+	char *ptr = strtok(line, libsvmseps);
+	if (!ptr) {
+		std::cerr << "Error, string abnormal" << line << std::endl;
+		std::exit(-1);
+	}
+	label = std::atoi(ptr);
 
-  ptr = strtok(NULL, ": \t");
-  while (ptr != nullptr) {
-    size_t index = std::atoi(ptr);
-    double val = 0;
+	ptr = strtok(NULL, ": \t");
+	while (ptr != nullptr) {
+		size_t index = std::atoi(ptr);
+		double val = 0;
 
-    ptr = strtok(NULL, ": \t");
-    if (ptr != nullptr) {
-		val = std::atof(ptr);
-      ptr = strtok(NULL, ": \t");
-      feats.push_back(std::pair<size_t, double>(index, val));
-    } else {
-      std::cerr << "error, data format error" << std::endl;
-      std::exit(-1);
-    }
-  }
+		ptr = strtok(NULL, ": \t");
+		if (ptr != nullptr) {
+			val = std::atof(ptr);
+			ptr = strtok(NULL, ": \t");
+			feats.push_back(std::pair<size_t, double>(index, val));
+		}
+		else {
+			std::cerr << "error, data format error" << std::endl;
+			std::exit(-1);
+		}
+	}
 }
-
 
 
 void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
@@ -153,12 +192,16 @@ void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
 	  matrix_size_estimation_from_bin(featsrc, rowsize, row, col);
   }
 
+  col += 1;
+
   std::cout << "data size estimation costs " << t.toc() << std::endl;
+  std::cout << "row size " << row << " colsize " << col << std::endl;
+
   datsize.resize(row);
   for (int i = 0; i < rowsize.size(); ++i) {
     datsize(i) = rowsize[i];
   }
-  col += 1;
+
 }
 
 void load_libsvm_data(
@@ -169,6 +212,8 @@ void load_libsvm_data(
 	// estimate the data size for loading
 	Eigen::VectorXi datasize;
 	std::vector<std::pair<size_t, double>> featline;
+
+	bool binary = boost::algorithm::ends_with(featfile, ".bin");
 
 	int estrowsize, estcolsize;
 	matrix_size_estimation(featfile, datasize, estrowsize, estcolsize);
@@ -181,6 +226,7 @@ void load_libsvm_data(
 	if (estimate)
 		colsize = estcolsize;
 
+	std::cout << "rowsize " << estrowsize << " colsize " << colsize << std::endl;
 	Samples.reset(new DataSamples(estrowsize, colsize));
 
 	if (Samples.get() == NULL) {
@@ -192,13 +238,26 @@ void load_libsvm_data(
 
 	labels.reset(new Eigen::VectorXi(estrowsize));
 
-	std::ifstream ifs(featfile.c_str());
-	if (!ifs.is_open()) {
-		std::cerr << "open file " << featfile << " failed" << std::endl;
-		std::abort();
+	std::ifstream featsrc;
+	if (binary) {
+		featsrc.open(featfile, std::ios_base::in | std::ios_base::binary);
+	}
+	else {
+		featsrc.open(featfile, std::ios_base::in);
 	}
 
+	if (!featsrc.is_open()) {
+		std::cerr << "open file " << featfile << " failed" << std::endl;
+		return;
+	}
+
+	if (binary) {		
+		load_libsvm_data_bin(featsrc, Samples, labels, colsize);
+	}
+	else {
+		load_libsvm_data_text(featsrc, Samples, labels, colsize);
+	}
 
 	Samples->makeCompressed();
-	std::cout << "loading data costs " << t.toc() << " seconds " << std::endl;
+	std::cout << "Loading data costs " << t.toc() << " seconds " << std::endl;
 }
