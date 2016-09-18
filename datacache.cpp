@@ -68,12 +68,13 @@ int main(int argc, char* argv[]) {
     std::vector<std::pair<size_t, double>> feats;
     int label = 0;
     while (src.good()) {
+
       parselibsvmline(TempLineBuffer, feats, label);
       ++linecount;
       // write label
-      sink.write((const char*)&label, sizeof(label));
+      sink.write((const char*)&label, sizeof(int));
       int n = feats.size();
-      sink.write((const char*)&n, sizeof(n));
+      sink.write((const char*)&n, sizeof(int));
 
       for (std::pair<size_t, double>& item : feats) {
         sink.write((const char*)&item.first, sizeof(size_t));
@@ -86,6 +87,8 @@ int main(int argc, char* argv[]) {
         dlog << dlib::LINFO << "Line count " << linecount;
       }
     }
+
+	dlog << dlib::LINFO << "Total line cout " << linecount;
   } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
     return -1;
