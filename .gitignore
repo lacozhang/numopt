@@ -3,3 +3,6 @@ x64/
 X64/
 ipch/
 *.user
+*.db
+*.sdf
+*.suo
