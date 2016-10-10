@@ -1,98 +1,55 @@
-#include <dlib/cmd_line_parser.h>
-#include <dlib/logger.h>
-#include <dlib/misc_api.h>
 #include <climits>
 #include <fstream>
 #include <iostream>
+#include <boost/program_options.hpp>
+#include <boost/log/core.hpp>
+#include <boost/log/trivial.hpp>
 #include "dataop.h"
 #include "util.h"
 
-dlib::logger dlog("datacache");
-
+namespace triv = boost::log::trivial;
 static char TempLineBuffer[UINT16_MAX] = {'\0'};
 
 int main(int argc, char* argv[]) {
-  dlog.set_level(dlib::LALL);
-  dlog << dlib::LINFO << "Start Program " << argv[0];
 
-  try {
-    dlib::command_line_parser parser;
-    parser.add_option("in", "input file name", 1);
-    parser.add_option("out", "output file name", 1);
-    parser.set_group_name("misc options");
-    parser.add_option("h", "display help message");
+	namespace po = boost::program_options;
+	BOOST_LOG_TRIVIAL(trace) << "Start Running program";
 
-    parser.parse(argc, argv);
+	try {
+		po::options_description desc("make program cache");
+		desc.add_options()
+			("help,h", "print help message")
+			("in,i", po::value<std::string>()->required(), "input file name")
+			("out,o", po::value<std::string>()->required(), "output file name");
 
-    if (parser.option("h")) {
-      parser.print_options();
-      return 0;
-    }
+		po::variables_map vm;
+		po::store(po::parse_command_line(argc, argv, desc), vm);
+		po::notify(vm);
 
-    std::string infile, outfile;
-    if (parser.option("in")) {
-      infile = parser.option("in").argument();
-      dlog << dlib::LINFO << "Input file " << infile;
-    } else {
-      dlog << dlib::LERROR << "Input file is missing, must supply";
-      parser.print_options();
-      return -1;
-    }
+		if (vm.count("help")) {
+			std::cout << desc << std::endl;
+			return 0;
+		}
 
-    if (parser.option("out")) {
-      outfile = parser.option("out").argument();
-      dlog << dlib::LINFO << "Output file " << outfile;
-    } else {
-      dlog << dlib::LERROR << "Output file is missing, must supply";
-      parser.print_options();
-      return -1;
-    }
+		std::string infile, outfile;
+		infile = vm["in"].as<std::string>();
+		outfile = vm["out"].as<std::string>();
+		BOOST_LOG_TRIVIAL(trace) << "Input File  :" << infile;
+		BOOST_LOG_TRIVIAL(trace) << "Output File :" << outfile;
 
-    std::ifstream src(infile.c_str(), std::ios_base::in);
-    if (!src.is_open()) {
-      dlog << dlib::LERROR << "Open file " << infile << " failed";
-      return -1;
-    }
+		boost::shared_ptr<DataSamples> samples;
+		boost::shared_ptr<LabelVector> labels;
 
-    std::ofstream sink(outfile.c_str(),
-                       std::ios_base::out | std::ios_base::binary);
-    if (!sink.is_open()) {
-      dlog << dlib::LERROR << "Create binary file " << outfile << " failed";
-      return -1;
-    }
+		BOOST_LOG_TRIVIAL(trace) << "Load text format data";
+		load_libsvm_data(infile, samples, labels, true, 0);
+		BOOST_LOG_TRIVIAL(trace) << "Save to Bin format";
+		save_libsvm_data_bin(outfile, samples, labels);
+		BOOST_LOG_TRIVIAL(trace) << "Verify the bin format by reloading";
+		load_libsvm_data(outfile, samples, labels, true, 0);
+	}
+	catch (std::exception& e) {
+		BOOST_LOG_TRIVIAL(fatal) << e.what();
+	}
 
-    std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
-
-    int linecount = 0;
-    src.getline(TempLineBuffer, sizeof(TempLineBuffer));
-    std::vector<std::pair<size_t, double>> feats;
-    int label = 0;
-    while (src.good()) {
-
-      parselibsvmline(TempLineBuffer, feats, label);
-      ++linecount;
-      // write label
-      sink.write((const char*)&label, sizeof(int));
-      int n = feats.size();
-      sink.write((const char*)&n, sizeof(int));
-
-      for (std::pair<size_t, double>& item : feats) {
-        sink.write((const char*)&item.first, sizeof(size_t));
-        sink.write((const char*)&item.second, sizeof(double));
-      }
-
-      src.getline(TempLineBuffer, sizeof(TempLineBuffer));
-
-      if (linecount % 10000 == 0) {
-        dlog << dlib::LINFO << "Line count " << linecount;
-      }
-    }
-
-	dlog << dlib::LINFO << "Total line cout " << linecount;
-  } catch (std::exception& e) {
-    std::cerr << e.what() << std::endl;
-    return -1;
-  }
-
-  return 0;
+	return 0;
 }

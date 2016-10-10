@@ -38,11 +38,11 @@ private:
 
 	// training data
 	boost::shared_ptr<DataSamples> trainsamples_;
-	boost::shared_ptr<ClsLabelVector> trainlabels_;
+	boost::shared_ptr<LabelVector> trainlabels_;
 
 	// test data
 	boost::shared_ptr<DataSamples> testsamples_;
-	boost::shared_ptr<ClsLabelVector> testlabels_;
+	boost::shared_ptr<LabelVector> testlabels_;
 
 	int batchsize_; // size of each batch, -1 menas all the training data.
 	int sampleidx_; // for each epocs, current index of samples.

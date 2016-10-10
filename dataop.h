@@ -5,15 +5,19 @@
 #ifndef __DATA_OP_H__
 #define __DATA_OP_H__
 
-void matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
+bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
                             int &row, int &col);
 
 void load_libsvm_data(std::string featfile,
                       boost::shared_ptr<DataSamples> &Samples,
-                      boost::shared_ptr<ClsLabelVector> &labels, bool estimate,
+                      boost::shared_ptr<LabelVector> &labels, bool estimate,
                       int colsize);
 
-void parselibsvmline(char *line, std::vector<std::pair<size_t, double>> &feats,
+bool save_libsvm_data_bin(std::string filepath,
+	boost::shared_ptr<DataSamples>& samples,
+	boost::shared_ptr<LabelVector>& labels);
+
+void parselibsvmline(char *line, std::vector<std::pair<size_t, float>> &feats,
 	int &label, bool parse = true);
 
 #endif

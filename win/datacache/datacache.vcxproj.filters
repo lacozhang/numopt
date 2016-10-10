@@ -18,8 +18,5 @@
     <ClCompile Include="..\..\datacache.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\tools\include\dlib-18.13\dlib\all\source.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>
