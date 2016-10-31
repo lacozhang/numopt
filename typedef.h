@@ -6,6 +6,6 @@ include widely used library, define available types
 #include <Eigen/Sparse>
 
 typedef Eigen::SparseVector<float, Eigen::ColMajor> SparseVector;
-typedef Eigen::VectorXd DenseVector;
+typedef Eigen::VectorXf DenseVector;
 typedef Eigen::VectorXi LabelVector;
 typedef Eigen::SparseMatrix<float, Eigen::RowMajor> DataSamples;

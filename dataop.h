@@ -5,10 +5,34 @@
 #ifndef __DATA_OP_H__
 #define __DATA_OP_H__
 
+enum TrainDataType {
+	kLibSVM,
+	kLCCRF,
+	kSemiCRF
+};
+
+template <TrainDataType T, class Feat, class Label>
+class DataLoader {
+
+public:
+	DataLoader(std::string);
+	bool LoadData();
+	void SetFeatureDimension(size_t featdim);
+
+private:
+
+	boost::shared_ptr<Feat> features_;
+	boost::shared_ptr<Label> labels_;
+
+	size_t featdim_;
+	bool specifyfeatdim_;
+	std::string filepath_;
+};
+
 bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
                             int &row, int &col);
 
-void load_libsvm_data(std::string featfile,
+bool load_libsvm_data(std::string featfile,
                       boost::shared_ptr<DataSamples> &Samples,
                       boost::shared_ptr<LabelVector> &labels, bool estimate,
                       int colsize);

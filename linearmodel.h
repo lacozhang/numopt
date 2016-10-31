@@ -1,59 +1,34 @@
 #ifndef __LOGISTIC_MODEL_H__
 #define __LOGISTIC_MODEL_H__
 #include <boost/shared_ptr.hpp>
-#include "model.h"
 #include "parameter.h"
 #include "lossfunc.h"
+#include "typedef.h"
 
-// current only support binary class logistic regression model.
-class LinearModel: public modelbase
+class LinearModel
 {
 public:
-	LinearModel(IOParameters& io, LossFunc loss);
+	LinearModel(LossFunc loss, size_t featdim, size_t numclasses);
 	~LinearModel();
-	void setloss(LossFunc loss);
-	void setio(IOParameters& io);
-	double lossval();
-	double funcval(SparseVector& sample);
-	void grad(DenseVector& g);
-	void grad(SparseVector& g);
-	void setparameter(DenseVector& param);
-	DenseVector& param() const;
 
-	int samplesize() const;
+	void SetLoss(LossFunc loss);
 
-	int featsize() const;
+	DenseVector& GetParameters() const;
+	size_t FeatureDimension() const;
+	size_t NumClasses() const;
 
-	// batch size = -1 means all the training data; batch size = 1, means SGD;
-	void startbatch(int batchsize);
-	bool nextbatch();
+	bool LoadModel(std::string model);
+	bool SaveModel(std::string model, bool binary);
 
-	// model evaluation
-	double getaccu();
+	void RetrieveGradient(DataSamples& samples, LabelVector& labels, DenseVector& grad);
+	void RetrieveGradient(SparseVector& sample, int label, DenseVector& grad);
+	void RetrieveGradient(DataSamples& samples, LabelVector& labels, SparseVector& grad);
+	void RetrieveGradient(SparseVector& sample, int label, SparseVector& grad);
+
 private:
-	void loadtrain(std::string dat);
-	void loadtest(std::string dat);
-	void savemodel(std::string model);
 	boost::shared_ptr<lossbase> loss_;
-
-	// training data
-	boost::shared_ptr<DataSamples> trainsamples_;
-	boost::shared_ptr<LabelVector> trainlabels_;
-
-	// test data
-	boost::shared_ptr<DataSamples> testsamples_;
-	boost::shared_ptr<LabelVector> testlabels_;
-
-	int batchsize_; // size of each batch, -1 menas all the training data.
-	int sampleidx_; // for each epocs, current index of samples.
-	int epochbatch_; // the number of batchs in each epocs. epochbatch_ = trainsamples->rows() / batchsize_;
-
-	// parameters
 	boost::shared_ptr<DenseVector> param_;
-
-	// IO parameters
-	IOParameters io_;
-};
-
+	size_t numclasses_;
+}
 
 #endif // __LOGISTIC_MODEL_H__

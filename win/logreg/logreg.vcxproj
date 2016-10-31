@@ -164,6 +164,9 @@
   <ItemGroup>
     <ClCompile Include="..\..\logistic_regression.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\linearmodel.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

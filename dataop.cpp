@@ -108,7 +108,7 @@ bool matrix_size_estimation_from_bin(std::ifstream& ifs, std::vector<size_t>& ro
 	return true;
 }
 
-void load_libsvm_data_text(std::ifstream& ifs, boost::shared_ptr<DataSamples> samples,
+bool load_libsvm_data_text(std::ifstream& ifs, boost::shared_ptr<DataSamples> samples,
 	boost::shared_ptr<LabelVector> labels, int featsize) {
 
 	std::vector<std::pair<size_t, float>> featline;
@@ -129,6 +129,7 @@ void load_libsvm_data_text(std::ifstream& ifs, boost::shared_ptr<DataSamples> sa
 		++nrow;
 		ifs.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	}
+	return true;
 }
 
 bool load_libsvm_data_bin(std::ifstream& ifs, boost::shared_ptr<DataSamples>& samples,
@@ -428,7 +429,7 @@ bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
 	return true;
 }
 
-void load_libsvm_data(
+bool load_libsvm_data(
 	std::string featfile,
 	boost::shared_ptr<DataSamples> &Samples,
 	boost::shared_ptr<LabelVector> &labels, bool estimate, int colsize) {
@@ -446,7 +447,10 @@ void load_libsvm_data(
 	}
 
 	int estrowsize, estcolsize;
-	matrix_size_estimation(featfile, datasize, estrowsize, estcolsize);
+	if (!matrix_size_estimation(featfile, datasize, estrowsize, estcolsize)) {
+		BOOST_LOG_TRIVIAL(fatal) << "load data file " << featfile << " failed";
+		return false;
+	}
 
 	BOOST_LOG_TRIVIAL(trace) << "Finish data size estimation";
 
@@ -478,19 +482,42 @@ void load_libsvm_data(
 
 	if (!featsrc.is_open()) {
 		BOOST_LOG_TRIVIAL(error) << "open file " << featfile << " failed";
-		return;
+		return false;
 	}
 
+	bool ret = true;
 	t.tic();
 	if (binary) {
-		load_libsvm_data_bin(featsrc, Samples, labels, colsize);
+		ret = load_libsvm_data_bin(featsrc, Samples, labels, colsize);
 	}
 	else {
-		load_libsvm_data_text(featsrc, Samples, labels, colsize);
+		ret = load_libsvm_data_text(featsrc, Samples, labels, colsize);
 	}
 
 	Samples->makeCompressed();
 	BOOST_LOG_TRIVIAL(info) << "Loading data costs " << t.toc() << " seconds " << std::endl;
 	BOOST_LOG_TRIVIAL(info) << "data samples : " << Samples->rows() << std::endl;
 	BOOST_LOG_TRIVIAL(info) << "max feat id  : " << (Samples->cols() - 1) << std::endl;
+	return ret;
+}
+
+template <TrainDataType T, class Feat, class Label>
+DataLoader<T, Feat, Label>::DataLoader(std::string srcfile) {
+	filepath_ = srcfile;
+	specifyfeatdim_ = false;
+	featdim_ = 0;
+}
+
+template<>
+bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
+	bool load_succ = false;
+	load_succ = load_libsvm_data(filepath_, features_, labels_, !specifyfeatdim_, featdim_);
+	return load_succ;
+}
+
+
+template <TrainDataType T, class Feat, class Label>
+void DataLoader<T, Feat, Label>::SetFeatureDimension(size_t featdim) {
+	specifyfeatdim_ = true;
+	featdim_ = featdim;
 }

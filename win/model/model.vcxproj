@@ -148,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\linearmodel.h" />
-    <ClInclude Include="..\..\model.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\linearmodel.cpp" />
