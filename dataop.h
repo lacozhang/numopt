@@ -17,16 +17,33 @@ class DataLoader {
 public:
 	DataLoader(std::string);
 	bool LoadData();
-	void SetFeatureDimension(size_t featdim);
+	void SetMaxFeatureId(size_t featdim);
+	size_t GetMaxFeatureId() const {
+		return maxfeatid_;
+	}
+
+	boost::shared_ptr<Feat>& GetData() {
+		return features_;
+	}
+
+	boost::shared_ptr<Label>& GetLabels() {
+		return labels_;
+	}
+
+	bool IsValidDatset() const {
+		return valid_;
+	}
 
 private:
 
 	boost::shared_ptr<Feat> features_;
 	boost::shared_ptr<Label> labels_;
 
-	size_t featdim_;
-	bool specifyfeatdim_;
+	size_t maxfeatid_;
 	std::string filepath_;
+
+	bool specifyfeatdim_;
+	bool valid_;
 };
 
 bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,

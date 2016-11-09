@@ -5,30 +5,38 @@
 #include "lossfunc.h"
 #include "typedef.h"
 
-class LinearModel
+class BinaryLinearModel
 {
 public:
-	LinearModel(LossFunc loss, size_t featdim, size_t numclasses);
-	~LinearModel();
+	BinaryLinearModel(LossFunc loss, size_t featdim, float bias);
+	~BinaryLinearModel();
 
 	void SetLoss(LossFunc loss);
 
-	DenseVector& GetParameters() const;
-	size_t FeatureDimension() const;
-	size_t NumClasses() const;
+	DenseVector& GetParameters() const {
+		return *param_;
+	}
+
+	size_t FeatureDimension() const {
+		return featdim_;
+	}
 
 	bool LoadModel(std::string model);
-	bool SaveModel(std::string model, bool binary);
+	bool SaveModel(std::string model);
 
-	void RetrieveGradient(DataSamples& samples, LabelVector& labels, DenseVector& grad);
-	void RetrieveGradient(SparseVector& sample, int label, DenseVector& grad);
-	void RetrieveGradient(DataSamples& samples, LabelVector& labels, SparseVector& grad);
-	void RetrieveGradient(SparseVector& sample, int label, SparseVector& grad);
+	void Learn(DataSamples& samples, LabelVector& labels, SparseVector& grad);
+	void Learn(DataSamples& samples, LabelVector& labels, DenseVector& grad);
+
+	void Inference(DataSamples& samples, LabelVector& labels);
+
+	void Evaluate(DataSamples& samples, LabelVector& labels, std::string& summary);
 
 private:
+	void Init();
+
 	boost::shared_ptr<lossbase> loss_;
 	boost::shared_ptr<DenseVector> param_;
-	size_t numclasses_;
-}
+	size_t featdim_;
+};
 
 #endif // __LOGISTIC_MODEL_H__

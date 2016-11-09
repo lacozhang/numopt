@@ -19,9 +19,11 @@ enum OptMethod {
 struct LearnParameters {
   double l1_, l2_;
   double learningrate_;
+  double learningratedecay_;
   int batchsize_;
   int maxiter_;
   double funceps_, gradeps_;
+  int seed_;
 
 public:
   LearnParameters() {
@@ -29,8 +31,9 @@ public:
     l2_ = 1.0;
 
     learningrate_ = 1e-3;
+	learningratedecay_ = 1e-4;
     batchsize_ = -1;
-    maxiter_ = 1000;
+	maxiter_ = 5;
     funceps_ = gradeps_ = 1e-3;
   }
 };
@@ -112,7 +115,7 @@ std::basic_ostream<T> &operator<<(std::basic_ostream<T> &sink, Parameter &p) {
   sink << "mini-batch size for optimization: ";
   sink << p.learn_.batchsize_ << std::endl;
 
-  sink << "max iteration of learning";
+  sink << "max iteration of learning       : ";
   sink << p.learn_.maxiter_ << std::endl;
 
   sink << "Training data file              : " << p.io_.train_ << std::endl;

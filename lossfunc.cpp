@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "lossfunc.h"
 
 // logloss(a,y) = log(1+exp(-a*y))
 double LogLoss::loss(double a, double y){

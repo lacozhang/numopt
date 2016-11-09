@@ -1,10 +1,32 @@
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <map>
+#include <boost/algorithm/string.hpp>
+#include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include "linearmodel.h"
 #include "util.h"
 
-LinearModel::LinearModel(LossFunc loss, size_t featdim, size_t numclasses) {
+BinaryLinearModel::BinaryLinearModel(LossFunc loss, size_t featdim, float bias) {
+	// handle loss function
+	SetLoss(loss);
+	featdim_ = featdim;
+	Init();
+}
 
+void BinaryLinearModel::Init() {
+	param_.reset(new DenseVector(featdim_));
+	BOOST_LOG_TRIVIAL(info) << "param dimension " << featdim_;
+	if (param_.get() == nullptr) {
+		BOOST_LOG_TRIVIAL(error) << "Allocate parameter vector for binary model failed";
+	}
+	else {
+		param_->setZero();
+	}
+}
+
+void BinaryLinearModel::SetLoss(LossFunc loss) {
 	switch (loss)
 	{
 	case Squared:
@@ -20,8 +42,123 @@ LinearModel::LinearModel(LossFunc loss, size_t featdim, size_t numclasses) {
 		loss_ = boost::make_shared<SquaredHingeLoss>();
 		break;
 	default:
+		BOOST_LOG_TRIVIAL(fatal) << "Loss function error";
 		break;
 	}
+}
 
-	
+BinaryLinearModel::~BinaryLinearModel()
+{
+}
+
+bool BinaryLinearModel::LoadModel(std::string model)
+{
+	bool binfmode = boost::algorithm::ends_with(model, ".bin");
+	std::ifstream src(model.c_str(), binfmode ? std::ios_base::binary | std::ios_base::in : std::ios_base::in);
+	if (!src.is_open()) {
+		BOOST_LOG_TRIVIAL(error) << "open file " << model << " failed";
+		return false;
+	}
+	src.read((char*)&featdim_, sizeof(size_t));
+	for (size_t i = 0; i < featdim_; ++i) {
+		src.read((char*)&param_->coeffRef(i), sizeof(DenseVector::CoeffReturnType));
+	}
+	return true;
+}
+
+bool BinaryLinearModel::SaveModel(std::string model)
+{
+	bool filemode = boost::algorithm::ends_with(model, ".bin");
+	std::ofstream writer(model.c_str(), filemode ? std::ios_base::binary | std::ios_base::out : std::ios_base::out);
+	if (!writer.is_open()) {
+		BOOST_LOG_TRIVIAL(error) << "open file " << model << " failed";
+		return false;
+	}
+	writer.write((char*)&featdim_, sizeof(size_t));
+	for (size_t i = 0; i < featdim_; ++i) {
+		writer.write((char*)&param_->coeff(i), sizeof(DenseVector::CoeffReturnType));
+	}
+	return true;
+}
+
+void BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, SparseVector & grad)
+{
+	grad.resize(featdim_);
+	DenseVector xtw = samples * (*param_);
+	grad.resizeNonZeros(samples.nonZeros());
+	grad.setZero();
+
+	size_t featcnt = 0;
+	for (int i = 0; i < samples.rows(); ++i) {
+		double loss = loss_->dloss(xtw.coeff(i), labels.coeff(i));
+
+		for (DataSamples::InnerIterator it(samples, i); it; ++it) {
+			grad.coeffRef(it.col()) += loss * it.value();
+		}
+	}
+	grad /= samples.rows();
+}
+
+void BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, DenseVector & grad)
+{
+	DenseVector xtw = samples * (*param_);
+	grad.resize(featdim_);
+	grad.setZero();
+
+	for (int i = 0; i < labels.rows(); ++i) {
+		grad += samples.row(i) * loss_->dloss(xtw.coeff(i), labels.coeff(i));
+	}
+	grad /= samples.rows();
+}
+
+void BinaryLinearModel::Inference(DataSamples & samples, LabelVector & labels)
+{
+	DenseVector xtw = samples * (*param_);
+	labels.resize(xtw.rows());
+	for (int i = 0; i < labels.rows(); ++i) {
+		labels.coeffRef(i) = xtw.coeff(i) > 0 ? 1 : -1;
+	}
+}
+
+void BinaryLinearModel::Evaluate(DataSamples & samples, LabelVector& labels, std::string& summary)
+{
+	std::stringstream sout;
+	DenseVector xtw = samples * (*param_);
+	double losses = 0.0f;
+	double tp = 0.0f, fp = 0.0f, tn = 0.0f, fn = 0.0f;
+	double correct = 0.0f;
+	for (int i = 0; i < labels.rows(); ++i) {
+		losses += loss_->loss(xtw.coeff(i), labels.coeff(i));
+		if (xtw.coeff(i) * labels.coeff(i) > 0) {
+			correct += 1.0;
+			if (labels.coeff(i) > 0) {
+				tp += 1.0;
+			}
+			else {
+				tn += 1.0;
+			}
+		}
+		else {
+
+			if (labels.coeff(i) > 0) {
+				fn += 1.0;
+			}
+			else {
+				fp += 1.0;
+			}
+		}
+	}
+
+	losses /= samples.rows();
+	double precision = 0.0, recall = 0.0f;
+	if ((tp + fp) > 0) {
+		precision = tp / (tp + fp);
+	}
+
+	if ((tp + fn) > 0) {
+		recall = tp / (tp + fn);
+	}
+
+	sout << "avg loss: " << losses << "/precision: " << precision << "/recall: " << recall << "/accu: " << (correct / samples.rows());
+	summary = sout.str();
 }

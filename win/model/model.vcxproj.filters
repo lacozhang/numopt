@@ -21,9 +21,15 @@
     <ClInclude Include="..\..\linearmodel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\lossfunc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\linearmodel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lossfunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

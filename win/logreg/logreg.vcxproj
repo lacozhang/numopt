@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>D:\zhangyu\src\tools\include\boost-1_56;D:\zhangyu\src\tools\include\eigen;$(IncludePath)</IncludePath>
-    <LibraryPath>..\reflib\;D:\zhangyu\src\tools\boostx64\lib56;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(IncludePath)</IncludePath>
+    <LibraryPath>..\reflib\;$(LibraryPath)</LibraryPath>
     <OutDir>..\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -116,7 +116,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\zhangyu\src\tools\boostx64\lib;..\reflib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dataoplib.lib;losslib.lib;model.lib;optlib.lib;utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dataoplib.lib;model.lib;optlib.lib;utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -147,15 +147,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>D:\zhangyu\src\tools\include\eigen3;D:\zhangyu\src\tools\include\boost_1_56_0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\zhangyu\src\tools\include\eigen3;D:\zhangyu\src\tools\boostx64\include\boost-1_61;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>D:\zhangyu\src\numopt\win\relreflib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dataoplib.lib;losslib.lib;model.lib;optlib.lib;utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>D:\zhangyu\src\tools\boostx64\lib;D:\zhangyu\src\numopt\win\relreflib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>dataoplib.lib;model.lib;optlib.lib;utils.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -163,9 +164,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\logistic_regression.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\linearmodel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

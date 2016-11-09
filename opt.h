@@ -5,45 +5,43 @@
 
 #include "typedef.h"
 #include "parameter.h"
-#include "model.h"
 
 class OptMethodBase {
 public:
 	OptMethodBase(LearnParameters& learn);
 	virtual ~OptMethodBase();
-	virtual void trainDenseGradient(modelbase& model) = 0;
-	virtual void trainSparseGradient(modelbase& model) = 0;
 
-	int maxIter() const {
+	int MaxIter() const {
 		return learn_.maxiter_;
 	}
 
-	double learningRate() const {
+	double LearningRate() const {
 		return learn_.learningrate_;
 	}
 
-	double functionEpsilon() const {
+	double LearningRateDecay() const {
+		return learn_.learningratedecay_;
+	}
+
+	double FunctionEpsilon() const {
 		return learn_.funceps_;
 	}
 
-	double gradEpsilon() const {
+	double GradEpsilon() const {
 		return learn_.gradeps_;
 	}
 
-	double batchSize() const {
+	double BatchSize() const {
 		return learn_.batchsize_;
 	}
 
-	double l2RegVal() const {
+	double L2RegVal() const {
 		return learn_.l2_;
 	}
 
-	double l1RegVal() const {
+	double L1RegVal() const {
 		return learn_.l1_;
 	}
-
-	void ProximalGradient(DenseVector& w, double lambda);
-	void ProximalGradient(SparseVector& w, double lambda);
 
 protected:
 	LearnParameters learn_;

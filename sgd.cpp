@@ -2,75 +2,58 @@
 #include "sgd.h"
 #include "util.h"
 
-StochasticGD::StochasticGD(LearnParameters &learn, bool ratedecay)
-    : OptMethodBase(learn) {
-  ratedecay_ = ratedecay;
-}
-
-void StochasticGD::trainDenseGradient(modelbase &model) {
-  std::cerr << "Gradient Descent for DenseGradient Vector implemented"
-            << std::endl;
-}
-
-void StochasticGD::trainSparseGradient(modelbase &model) {
-
-  int iternum_ = 0;
-  SparseVector grad;
-  DenseVector &params = model.param();
-  params.setZero();
-
-  std::cout << "start training" << std::endl;
-  std::cout << "feat size : " << model.featsize() << std::endl;
-  grad.resize(model.featsize());
-
-  double initsize = learningRate();
-  double stepsize = initsize;
-  std::cout << "step size : " << stepsize << std::endl;
-  double func0 = abs(model.lossval());
-  std::cout << "F0 value  : " << func0 << std::endl;
-
-  timeutil t;
-  while (iternum_ < maxIter()) {
-    std::cout << "epochs " << iternum_ << std::endl;
-    int samplecnt = 0;
-
-    t.tic();
-    model.startbatch(batchSize());
-    while (model.nextbatch()) {
-      samplecnt += batchSize();
-
-      model.grad(grad);
-
-      t.tic();
-      params -= learn_.l2_ * params;
-
-      for (SparseVector::InnerIterator iter(grad); iter; ++iter) {
-        params.coeffRef(iter.index()) -= stepsize * iter.value();
-      }
-
-      if (std::abs(learn_.l1_) > 1e-4) {
-        ProximalGradient(params, learn_.l1_);
-      }
-
-      if (samplecnt % 100000 == 0) {
-        std::cout << 'x' << std::endl;
-      } else if (samplecnt % 10000 == 0) {
-        std::cout << ".";
-      }
-    }
-
-    std::cout << "\nepoch learning costs : " << t.toc() << std::endl;
-
-    std::cout << "func value : " << model.lossval() << std::endl;
-    std::cout << "grad norm  : " << params.norm() << std::endl;
-    std::cout << "current accuracy : " << model.getaccu() << std::endl;
-
-    if (ratedecay_) {
-      stepsize = initsize * (1.0 / (1 + iternum_));
-    }
-
-    iternum_++;
-  }
+StochasticGD::StochasticGD(LearnParameters& learn, DataIterator& trainiter, DataIterator& testiter, BinaryLinearModel& model) :
+	OptMethodBase(learn), trainiter_(trainiter), testiter_(testiter), model_(model)
+{
+	learnrateiter_ = 0;
+	itercount_ = 0;
 }
 
 StochasticGD::~StochasticGD() {}
+
+void StochasticGD::Train()
+{
+	learnrateiter_ = LearningRate();
+	itercount_ = 0;
+
+	for (int i = 0; i < MaxIter(); ++i) {
+		BOOST_LOG_TRIVIAL(info) << "epoch " << i << " start";
+		trainiter_.ResetBatch();
+		TrainOneEpoch();
+
+		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
+		EvaluateOnSet(trainiter_.GetAllData(), trainiter_.GetAllLabel());
+
+		if (testiter_.IsValid()) {
+			BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
+			EvaluateOnSet(testiter_.GetAllData(), testiter_.GetAllLabel());
+		}
+	}
+}
+
+void StochasticGD::EvaluateOnSet(DataSamples & samples, LabelVector & labels)
+{
+	std::string message;
+	double correct = 0, total = 0;
+	model_.Evaluate(samples, labels, message);
+	BOOST_LOG_TRIVIAL(info) << message << std::endl;
+}
+
+void StochasticGD::TrainOneEpoch()
+{
+	DenseVector& param = model_.GetParameters();
+	SparseVector paramgrad;
+	DataSamples minibatchdata;
+	LabelVector minibatchlabel;
+	while (trainiter_.GetNextBatch(minibatchdata, minibatchlabel)) {
+
+		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
+		learnrateiter_ = LearningRate() / (1 + LearningRateDecay() * itercount_);
+		if (L2RegVal() > 0) {
+			param *= (1 - L2RegVal() * learnrateiter_);
+		}
+		param -= learnrateiter_ * paramgrad;
+		itercount_ += 1;
+	}
+	BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();
+}

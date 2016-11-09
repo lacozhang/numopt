@@ -501,23 +501,29 @@ bool load_libsvm_data(
 	return ret;
 }
 
-template <TrainDataType T, class Feat, class Label>
-DataLoader<T, Feat, Label>::DataLoader(std::string srcfile) {
+template<>
+DataLoader<kLibSVM, DataSamples, LabelVector>::DataLoader(std::string srcfile) {
 	filepath_ = srcfile;
 	specifyfeatdim_ = false;
-	featdim_ = 0;
+	maxfeatid_ = 0;
+	valid_ = false;
 }
 
 template<>
 bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
-	bool load_succ = false;
-	load_succ = load_libsvm_data(filepath_, features_, labels_, !specifyfeatdim_, featdim_);
-	return load_succ;
+	if (filepath_.empty()) {
+		valid_ = false;
+	}
+	else {
+		valid_ = load_libsvm_data(filepath_, features_, labels_, !specifyfeatdim_, maxfeatid_ + 1);
+		maxfeatid_ = features_->cols() - 1;
+	}
+	return valid_;
 }
 
 
-template <TrainDataType T, class Feat, class Label>
-void DataLoader<T, Feat, Label>::SetFeatureDimension(size_t featdim) {
+template<>
+void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featdim) {
 	specifyfeatdim_ = true;
-	featdim_ = featdim;
+	maxfeatid_ = featdim;
 }

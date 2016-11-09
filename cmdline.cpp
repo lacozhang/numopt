@@ -36,9 +36,8 @@ OptMethod parseopt(const char *opt) {
 }
 
 void usage() {
-  std::cout << "logreg -m model -i trainging.dat -t test.tsv -1 lambda_1 -2 "
-               "lambda_2 -l hinge -s GD -r 0.03 -b 10"
-            << std::endl;
+	std::cout << "logreg -m model -i trainging.dat -t test.tsv -1 lambda_1_reg -2 lambda_2 -l<Loss Function> hinge -s<Optimization Method> GD -r<Learning Rate> 0.03 -b<Batch Size> 10 -x<Init Seed> 0 -e<Max Iters> 5 -d<learning Rate Decy> 1e-3"
+		<< std::endl;
 }
 
 bool cmd_line_parse(int argc, const char *argv[], Parameter &p) {
@@ -82,6 +81,11 @@ bool cmd_line_parse(int argc, const char *argv[], Parameter &p) {
     case 'e':
       p.learn_.maxiter_ = atoi(argv[++i]);
       break;
+	case 'x':
+		p.learn_.seed_ = atoi(argv[++i]);
+		break;
+	case 'd':
+		break;
     case 'h':
     default:
       usage();
