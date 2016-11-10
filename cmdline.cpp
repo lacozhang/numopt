@@ -87,6 +87,9 @@ bool cmd_line_parse(int argc, const char *argv[], Parameter &p) {
 	case 'd':
 		p.learn_.learningratedecay_ = atof(argv[++i]);
 		break;
+	case 'a':
+		p.learn_.averge_ = true;
+		break;
     case 'h':
     default:
       usage();

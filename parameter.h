@@ -24,6 +24,7 @@ struct LearnParameters {
   int maxiter_;
   double funceps_, gradeps_;
   int seed_;
+  bool averge_;
 
 public:
   LearnParameters() {
@@ -35,6 +36,7 @@ public:
     batchsize_ = -1;
 	maxiter_ = 5;
     funceps_ = gradeps_ = 1e-3;
+	averge_ = false;
   }
 };
 
@@ -114,6 +116,9 @@ std::basic_ostream<T> &operator<<(std::basic_ostream<T> &sink, Parameter &p) {
 
   sink << "Learning rate decay             : ";
   sink << p.learn_.learningratedecay_ << std::endl;
+
+  sink << "Average Parameter                : ";
+  sink << p.learn_.averge_ << std::endl;
 
   sink << "mini-batch size for optimization: ";
   sink << p.learn_.batchsize_ << std::endl;

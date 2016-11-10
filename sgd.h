@@ -17,9 +17,12 @@ private:
 
 	double learnrateiter_;
 	size_t itercount_;
+	size_t epochcount_;
 	DataIterator& trainiter_;
 	DataIterator& testiter_;
 	BinaryLinearModel& model_;
+
+	DenseVector avgparam_;
 };
 
 #endif // __SGD_H__

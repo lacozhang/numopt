@@ -7,6 +7,7 @@ StochasticGD::StochasticGD(LearnParameters& learn, DataIterator& trainiter, Data
 {
 	learnrateiter_ = 0;
 	itercount_ = 0;
+	epochcount_ = 0;
 }
 
 StochasticGD::~StochasticGD() {}
@@ -17,8 +18,8 @@ void StochasticGD::Train()
 	itercount_ = 0;
 	timeutil timer;
 
-	for (int i = 0; i < MaxIter(); ++i) {
-		BOOST_LOG_TRIVIAL(info) << "epoch " << i << " start";
+	for (epochcount_ = 0; epochcount_ < MaxIter(); ++epochcount_) {
+		BOOST_LOG_TRIVIAL(info) << "epoch " << epochcount_ << " start";
 		trainiter_.ResetBatch();
 
 		timer.tic();
@@ -50,15 +51,44 @@ void StochasticGD::TrainOneEpoch()
 	SparseVector paramgrad;
 	DataSamples minibatchdata;
 	LabelVector minibatchlabel;
+	size_t epochsize = trainiter_.GetAllData().rows();
+
+	if (learn_.averge_ && epochcount_ == 1) {
+		BOOST_LOG_TRIVIAL(trace) << "copy param to averaged param, start to averaging";
+		avgparam_.resizeLike(param);
+		avgparam_.setZero();
+		avgparam_ = param;
+	}
+	else if (learn_.averge_ && epochcount_ > 1) {
+		avgparam_.swap(param);
+	}
+
 	while (trainiter_.GetNextBatch(minibatchdata, minibatchlabel)) {
 
 		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
-		learnrateiter_ = LearningRate() / (1 + LearningRateDecay() * itercount_);
+		if (learn_.averge_) {
+			learnrateiter_ = LearningRate() / std::pow(1 + LearningRateDecay()*itercount_, 0.75);
+		}
+		else {
+			learnrateiter_ = LearningRate() / (1 + LearningRateDecay() * itercount_);
+		}
 		if (L2RegVal() > 0) {
 			param *= (1 - L2RegVal() * learnrateiter_);
 		}
 		param -= learnrateiter_ * paramgrad;
+
+		// get average work now.
+		if (learn_.averge_ && epochcount_ >= 1) {
+			double mu = 1.0 / (1 + LearningRateDecay() * (itercount_ - epochsize));
+			avgparam_ += mu * (param - avgparam_);
+		}
+
 		itercount_ += 1;
 	}
+
+	if (learn_.averge_ && epochcount_ >= 1) {
+		param.swap(avgparam_);
+	}
+
 	BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();
 }
