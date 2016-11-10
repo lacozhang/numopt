@@ -85,6 +85,7 @@ bool cmd_line_parse(int argc, const char *argv[], Parameter &p) {
 		p.learn_.seed_ = atoi(argv[++i]);
 		break;
 	case 'd':
+		p.learn_.learningratedecay_ = atof(argv[++i]);
 		break;
     case 'h':
     default:

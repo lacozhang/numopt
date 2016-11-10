@@ -15,11 +15,16 @@ void StochasticGD::Train()
 {
 	learnrateiter_ = LearningRate();
 	itercount_ = 0;
+	timeutil timer;
 
 	for (int i = 0; i < MaxIter(); ++i) {
 		BOOST_LOG_TRIVIAL(info) << "epoch " << i << " start";
 		trainiter_.ResetBatch();
+
+		timer.tic();
 		TrainOneEpoch();
+		double secs = timer.toc();
+		BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
 
 		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
 		EvaluateOnSet(trainiter_.GetAllData(), trainiter_.GetAllLabel());

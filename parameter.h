@@ -112,6 +112,9 @@ std::basic_ostream<T> &operator<<(std::basic_ostream<T> &sink, Parameter &p) {
   sink << "Learning rate for optimization  : ";
   sink << p.learn_.learningrate_ << std::endl;
 
+  sink << "Learning rate decay             : ";
+  sink << p.learn_.learningratedecay_ << std::endl;
+
   sink << "mini-batch size for optimization: ";
   sink << p.learn_.batchsize_ << std::endl;
 
