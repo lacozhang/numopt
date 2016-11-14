@@ -1,6 +1,6 @@
 #ifndef __UTIL_H__
 #define __UTIL_H__
-#include <ctime>
+#include <chrono>
 
 class timeutil {
 public:
@@ -9,7 +9,7 @@ public:
 	double toc();
 
 private:
-	clock_t t_;
+	std::chrono::time_point<std::chrono::system_clock> counter_;
 };
 
 #endif

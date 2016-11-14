@@ -73,14 +73,26 @@ void StochasticGD::TrainOneEpoch()
 			learnrateiter_ = LearningRate() / (1 + LearningRateDecay() * itercount_);
 		}
 		if (L2RegVal() > 0) {
-			param *= (1 - L2RegVal() * learnrateiter_);
+
+#pragma omp parallel for
+			for (int featidx = 0; featidx < param.size(); ++featidx) {
+				param.coeffRef(featidx) *= (1 - L2RegVal() * learnrateiter_);
+			}
+			// param *= (1 - L2RegVal() * learnrateiter_);
 		}
-		param -= learnrateiter_ * paramgrad;
+
+		// for sparse data, accelerate the speed
+		for (SparseVector::InnerIterator it(paramgrad); it; ++it) {
+			param.coeffRef(it.index()) -= learnrateiter_ * it.value();
+		}
 
 		// get average work now.
 		if (learn_.averge_ && epochcount_ >= 1) {
 			double mu = 1.0 / (1 + LearningRateDecay() * (itercount_ - epochsize));
-			avgparam_ += mu * (param - avgparam_);
+#pragma omp parallel for
+			for (int featidx = 0; featidx < avgparam_.size(); ++featidx) {
+				avgparam_.coeffRef(featidx) += mu * (param.coeff(featidx) - avgparam_.coeff(featidx));
+			}
 		}
 
 		itercount_ += 1;
