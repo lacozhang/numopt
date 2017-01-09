@@ -16,23 +16,45 @@ LossFunc parselossfunc(const char *loss) {
 }
 
 OptMethod parseopt(const char *opt) {
-  if (!std::strcmp(opt, "gd")) {
-    return OptMethod::GD;
-  } else if (!std::strcmp(opt, "sgd")) {
-    return OptMethod::SGD;
-  } else if (!std::strcmp(opt, "cg")) {
-    return OptMethod::CG;
-  } else if (!std::strcmp(opt, "lbfgs")) {
-    return OptMethod::LBFGS;
-  } else if (!std::strcmp(opt, "pgd")) {
-    return OptMethod::PGD;
-  } else if (!std::strcmp(opt, "cd")) {
-    return OptMethod::CD;
-  } else if (!std::strcmp(opt, "bcd")) {
-    return OptMethod::BCD;
-  } else {
-    return OptMethod::SGD;
-  }
+	if (!std::strcmp(opt, "gd")) {
+		return OptMethod::GD;
+	}
+	else if (!std::strcmp(opt, "sgd")) {
+		return OptMethod::SGD;
+	}
+	else if (!std::strcmp(opt, "cg")) {
+		return OptMethod::CG;
+	}
+	else if (!std::strcmp(opt, "lbfgs")) {
+		return OptMethod::LBFGS;
+	}
+	else if (!std::strcmp(opt, "pgd")) {
+		return OptMethod::PGD;
+	}
+	else if (!std::strcmp(opt, "cd")) {
+		return OptMethod::CD;
+	}
+	else if (!std::strcmp(opt, "bcd")) {
+		return OptMethod::BCD;
+	}
+	else {
+		return OptMethod::None;
+	}
+}
+
+ModelType parsemodel(const char* model) {
+	if (!std::strcmp(model, "linear")) {
+		return ModelType::Linear;
+	}
+	else if (!std::strcmp(model, "lccrf")) {
+		return ModelType::LCCRF;
+	}
+	else if (!std::strcmp(model, "smcrf")) {
+		return ModelType::SMCRF;
+	}
+	else {
+		return ModelType::None;
+	}
 }
 
 void usage() {

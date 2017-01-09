@@ -103,6 +103,12 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <Lib>
+      <AdditionalDependencies>dataoplib.lib;utils.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>..\reflib\</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -147,12 +153,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\DataIterator.h" />
     <ClInclude Include="..\..\opt.h" />
     <ClInclude Include="..\..\sgd.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\DataIterator.cpp" />
     <ClCompile Include="..\..\opt.cpp" />
     <ClCompile Include="..\..\sgd.cpp" />
   </ItemGroup>

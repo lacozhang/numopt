@@ -6,24 +6,21 @@
 #include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include "linearmodel.h"
+#include "cmdline.h"
 #include "util.h"
 
-BinaryLinearModel::BinaryLinearModel(LossFunc loss, size_t featdim, float bias) {
-	// handle loss function
-	SetLoss(loss);
-	featdim_ = featdim;
-	Init();
-}
+const char* BinaryLinearModel::kLossOption = "linear.loss";
+const char* BinaryLinearModel::kBiasOption = "linear.bias";
 
-void BinaryLinearModel::Init() {
-	param_.reset(new DenseVector(featdim_));
-	BOOST_LOG_TRIVIAL(info) << "param dimension " << featdim_;
-	if (param_.get() == nullptr) {
-		BOOST_LOG_TRIVIAL(error) << "Allocate parameter vector for binary model failed";
-	}
-	else {
-		param_->setZero();
-	}
+BinaryLinearModel::BinaryLinearModel()
+{
+	optionsdesc_.add_options()
+		(BinaryLinearModel::kLossOption,
+			boost::program_options::value<std::string>()->default_value("logistic"),
+			"loss function: squared/hinge/logistic/squaredhinge\nsquared: used for regression.\nhinge,logistic,squaredhinge: used for classification")
+		(BinaryLinearModel::kBiasOption,
+			boost::program_options::value<float>()->default_value(0),
+			"bias for linear model");
 }
 
 void BinaryLinearModel::SetLoss(LossFunc loss) {
@@ -44,6 +41,29 @@ void BinaryLinearModel::SetLoss(LossFunc loss) {
 	default:
 		BOOST_LOG_TRIVIAL(fatal) << "Loss function error";
 		break;
+	}
+}
+
+void BinaryLinearModel::InitFromCmd(int argc, const char * argv[])
+{
+	auto vm = ParseArgs(argc, argv, optionsdesc_, true);
+	std::string lossoption = vm[BinaryLinearModel::kLossOption].as<std::string>();
+	BOOST_LOG_TRIVIAL(info) << "Loss Function : " << lossoption;
+	SetLoss(parselossfunc(vm[BinaryLinearModel::kLossOption].as<std::string>().c_str()));
+	bias_ = vm[BinaryLinearModel::kBiasOption].as<double>();
+	BOOST_LOG_TRIVIAL(info) << "Bias           : " << bias_;
+}
+
+void BinaryLinearModel::InitFromData(DataIterator& iterator)
+{
+	featdim_ = iterator.MaxFeatureId() + 1;
+	param_.reset(new DenseVector(featdim_));
+	BOOST_LOG_TRIVIAL(info) << "param dimension " << featdim_;
+	if (param_.get() == nullptr) {
+		BOOST_LOG_TRIVIAL(error) << "Allocate parameter vector for binary model failed";
+	}
+	else {
+		param_->setZero();
 	}
 }
 

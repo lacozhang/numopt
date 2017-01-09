@@ -2,17 +2,38 @@
 #include "sgd.h"
 #include "util.h"
 
-StochasticGD::StochasticGD(LearnParameters& learn, DataIterator& trainiter, DataIterator& testiter, BinaryLinearModel& model) :
-	OptMethodBase(learn), trainiter_(trainiter), testiter_(testiter), model_(model)
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kLearningRateOption = "sgd.lr";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kLearningRateDecayOption = "sgd.lrd";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kAverageGradientOption = "sgd.avg";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::~StochasticGD() {}
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitFromCmd(int argc, const char * argv[])
 {
-	learnrateiter_ = 0;
-	itercount_ = 0;
-	epochcount_ = 0;
+	boost::program_options::options_description alloptions("Available options for SGD optimizer");
+	alloptions.add(basedesc_);
+	alloptions.add(sgdesc_);
+
+	auto vm = ParseArgs(argc, argv, alloptions, true);
+	learn_.l1_ = vm[kBaseL1RegOption].as<double>();
+	learn_.l2_ = vm[kBaseL2RegOption].as<double>();
+	learn_.learningrate_ = vm[kLearningRateOption].as<double>();
+	learn_.learningratedecay_ = vm[kLearningRateDecayOption].as<double>();
+	learn_.maxiter_ = vm[kBaseMaxItersOption].as<int>();
+	learn_.funceps_ = vm[kBaseFunctionEpsOption].as<double>();
+	learn_.gradeps_ = vm[kBaseGradEpsOption].as<double>();
+	learn_.averge_ = vm[kAverageGradientOption].as<bool>();
 }
 
-StochasticGD::~StochasticGD() {}
-
-void StochasticGD::Train()
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Train()
 {
 	learnrateiter_ = LearningRate();
 	itercount_ = 0;
@@ -20,7 +41,7 @@ void StochasticGD::Train()
 
 	for (epochcount_ = 0; epochcount_ < MaxIter(); ++epochcount_) {
 		BOOST_LOG_TRIVIAL(info) << "epoch " << epochcount_ << " start";
-		trainiter_.ResetBatch();
+		trainiter_->ResetBatch();
 
 		timer.tic();
 		TrainOneEpoch();
@@ -28,16 +49,26 @@ void StochasticGD::Train()
 		BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
 
 		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
-		EvaluateOnSet(trainiter_.GetAllData(), trainiter_.GetAllLabel());
+		EvaluateOnSet(trainiter_->GetAllData(), trainiter_->GetAllLabel());
 
-		if (testiter_.IsValid()) {
+		if (testiter_->IsValid()) {
 			BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
-			EvaluateOnSet(testiter_.GetAllData(), testiter_.GetAllLabel());
+			EvaluateOnSet(testiter_->GetAllData(), testiter_->GetAllLabel());
 		}
 	}
 }
 
-void StochasticGD::EvaluateOnSet(DataSamples & samples, LabelVector & labels)
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+boost::program_options::options_description StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Options()
+{
+	boost::program_options::options_description all("Combined options for SGD");
+	all.add(basedesc_);
+	all.add(sgdesc_);
+	return all;
+}
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::EvaluateOnSet(SampleType & samples, LabelType& labels)
 {
 	std::string message;
 	double correct = 0, total = 0;
@@ -45,13 +76,14 @@ void StochasticGD::EvaluateOnSet(DataSamples & samples, LabelVector & labels)
 	BOOST_LOG_TRIVIAL(info) << message << std::endl;
 }
 
-void StochasticGD::TrainOneEpoch()
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::TrainOneEpoch()
 {
-	DenseVector& param = model_.GetParameters();
-	SparseVector paramgrad;
-	DataSamples minibatchdata;
-	LabelVector minibatchlabel;
-	size_t epochsize = trainiter_.GetAllData().rows();
+	ParameterType& param = model_.GetParameters();
+	SparseGradientType paramgrad;
+	SampleType minibatchdata;
+	LabelType minibatchlabel;
+	size_t epochsize = trainiter_->GetSampleSize();
 
 	if (learn_.averge_ && epochcount_ == 1) {
 		BOOST_LOG_TRIVIAL(trace) << "copy param to averaged param, start to averaging";
@@ -63,7 +95,7 @@ void StochasticGD::TrainOneEpoch()
 		avgparam_.swap(param);
 	}
 
-	while (trainiter_.GetNextBatch(minibatchdata, minibatchlabel)) {
+	while (trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
 
 		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
 		if (learn_.averge_) {
@@ -78,7 +110,6 @@ void StochasticGD::TrainOneEpoch()
 			for (int featidx = 0; featidx < param.size(); ++featidx) {
 				param.coeffRef(featidx) *= (1 - L2RegVal() * learnrateiter_);
 			}
-			// param *= (1 - L2RegVal() * learnrateiter_);
 		}
 
 		// for sparse data, accelerate the speed
@@ -104,3 +135,22 @@ void StochasticGD::TrainOneEpoch()
 
 	BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();
 }
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitCmdDescription()
+{
+	sgdesc_.add_options()
+		(kLearningRateOption, boost::program_options::value<double>()->default_value(1e-6), "Learning rate for sgd")
+		(kLearningRateDecayOption, boost::program_options::value<double>()->default_value(1e-6), "Learning rate decay for learning rate")
+		(kAverageGradientOption, boost::program_options::value<bool>()->default_value(false), "Enable gradient averaging or not");
+}
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::ResetState()
+{
+	learnrateiter_ = 0;
+	itercount_ = 0;
+	epochcount_ = 0;
+}
+
+template StochasticGD<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;

@@ -4,25 +4,43 @@
 #include "DataIterator.h"
 #include "linearmodel.h"
 
-class StochasticGD : public OptMethodBase {
-public:
-	StochasticGD(LearnParameters &learn, DataIterator& trainiter, DataIterator& testiter, BinaryLinearModel& model);
-	~StochasticGD();
+template<class ParameterType,
+	class SampleType, class LabelType,
+	class SparseGradientType, class DenseGradientType>
+	class StochasticGD : public OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType> {
+	public:
 
-	void Train();
-	void EvaluateOnSet(DataSamples& samples, LabelVector& labels);
+		typedef OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType> OptMethodBaseType;
+		typedef DataIteratorBase<SampleType, LabelType> DataIterator;
 
-private:
-	void TrainOneEpoch();
+		StochasticGD(typename OptMethodBaseType::ModelSpecType& model) : OptMethodBaseType(model), sgdesc_("Options for sGD") {
+			InitCmdDescription();
+			ResetState();
+		}
 
-	double learnrateiter_;
-	size_t itercount_;
-	size_t epochcount_;
-	DataIterator& trainiter_;
-	DataIterator& testiter_;
-	BinaryLinearModel& model_;
+		~StochasticGD();
 
-	DenseVector avgparam_;
+		virtual void InitFromCmd(int argc, const char* argv[]) override;
+		virtual void Train() override;
+		virtual boost::program_options::options_description Options() override;
+
+		void EvaluateOnSet(SampleType& samples, LabelType& labels);
+
+	private:
+		void TrainOneEpoch();
+		void InitCmdDescription();
+		void ResetState();
+
+		double learnrateiter_;
+		size_t itercount_;
+		size_t epochcount_;
+		DenseVector avgparam_;
+
+		static const char* kLearningRateOption;
+		static const char* kLearningRateDecayOption;
+		static const char* kAverageGradientOption;
+
+		boost::program_options::options_description sgdesc_;
 };
 
 #endif // __SGD_H__

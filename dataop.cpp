@@ -527,3 +527,6 @@ void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featd
 	specifyfeatdim_ = true;
 	maxfeatid_ = featdim;
 }
+
+
+template DataLoader<kLibSVM, DataSamples, LabelVector>;

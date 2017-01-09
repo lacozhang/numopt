@@ -2,49 +2,83 @@
 #define __OPT_H__
 
 // header file for optimization algorithm like GD, SGD, CG, LBFGS, Proximal SGD, GD
-
+#include <boost/program_options.hpp>
 #include "typedef.h"
 #include "parameter.h"
+#include "AbstractModel.h"
+#include "DataIterator.h"
 
-class OptMethodBase {
-public:
-	OptMethodBase(LearnParameters& learn);
-	virtual ~OptMethodBase();
+template<class ParameterType,
+	class SampleType, class LabelType,
+	class SparseGradientType, class DenseGradientType>
+	class OptMethodBase {
+	public:
 
-	int MaxIter() const {
-		return learn_.maxiter_;
-	}
+		typedef AbstractModel<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType> ModelSpecType;
+		typedef DataIteratorBase<SampleType, LabelType> DataIteratorType;
 
-	double LearningRate() const {
-		return learn_.learningrate_;
-	}
+		OptMethodBase(ModelSpecType& model) : model_(model), basedesc_("General command line options for optimimizatioin method") {
+			ConstructBaseCmdOptions();
+		}
 
-	double LearningRateDecay() const {
-		return learn_.learningratedecay_;
-	}
+		virtual ~OptMethodBase();
 
-	double FunctionEpsilon() const {
-		return learn_.funceps_;
-	}
+		virtual void InitFromCmd(int argc, const char* argv[]) = 0;
 
-	double GradEpsilon() const {
-		return learn_.gradeps_;
-	}
+		virtual void Train() = 0;
+		virtual boost::program_options::options_description Options() = 0;
 
-	double BatchSize() const {
-		return learn_.batchsize_;
-	}
+		void SetTrainData(boost::shared_ptr<DataIteratorType>& dat) {
+			trainiter_ = dat;
+		}
 
-	double L2RegVal() const {
-		return learn_.l2_;
-	}
+		void SetTestData(boost::shared_ptr<DataIteratorType>& dat) {
+			testiter_ = dat;
+		}
 
-	double L1RegVal() const {
-		return learn_.l1_;
-	}
+		int MaxIter() const {
+			return learn_.maxiter_;
+		}
 
-protected:
-	LearnParameters learn_;
+		double LearningRate() const {
+			return learn_.learningrate_;
+		}
+
+		double LearningRateDecay() const {
+			return learn_.learningratedecay_;
+		}
+
+		double FunctionEpsilon() const {
+			return learn_.funceps_;
+		}
+
+		double GradEpsilon() const {
+			return learn_.gradeps_;
+		}
+
+		double L2RegVal() const {
+			return learn_.l2_;
+		}
+
+		double L1RegVal() const {
+			return learn_.l1_;
+		}
+
+	protected:
+		LearnParameters learn_;
+		ModelSpecType& model_;
+		boost::program_options::options_description basedesc_;
+		boost::shared_ptr<DataIteratorType> trainiter_;
+		boost::shared_ptr<DataIteratorType> testiter_;
+
+		static const char* kBaseL1RegOption;
+		static const char* kBaseL2RegOption;
+		static const char* kBaseMaxItersOption;
+		static const char* kBaseFunctionEpsOption;
+		static const char* kBaseGradEpsOption;
+
+	private:
+		void ConstructBaseCmdOptions();
 };
 
 #endif // __OPT_H__

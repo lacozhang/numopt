@@ -107,7 +107,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>D:\zhangyu\src\tools\boostx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\reflib;D:\zhangyu\src\tools\boostx64\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+      </AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -156,10 +158,16 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\DataIterator.h" />
     <ClInclude Include="..\..\dataop.h" />
+    <ClInclude Include="..\..\IndexData.h" />
+    <ClInclude Include="..\..\ModelData.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\DataIterator.cpp" />
     <ClCompile Include="..\..\dataop.cpp" />
+    <ClCompile Include="..\..\IndexData.cpp" />
+    <ClCompile Include="..\..\ModelData.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

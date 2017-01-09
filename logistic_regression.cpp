@@ -1,71 +1,106 @@
 #include <iostream>
-#include "dataop.h"
-#include "DataIterator.h"
-#include "cmdline.h"
-#include "linearmodel.h"
-#include "parameter.h"
-#include "sgd.h"
+#include "RunModel.h"
+
+void PrintGeneralUsage() {
+	std::cout << "General Options linearmodel.exe [ModelType] [Optimization Method]"
+		<< "                [ModelType]           : linear, lccrf, smcrf" << std::endl
+		<< "                [Optimization Method] : sgd, pgd, cg, lbfgs, cd, bcd";
+	std::cout << "For more information on specific model & optimization method "
+		<< "Plase use follow command linearmodel.exe linear sgd -h";
+}
 
 int main(int argc, const char *argv[]) {
 
-  Parameter param;
-  bool ret = cmd_line_parse(argc, argv, param);
-  if (!ret) {
-	  return 0;
-  }
-  
-  BOOST_LOG_TRIVIAL(info) << "load data";
-  DataLoader<TrainDataType::kLibSVM, DataSamples, LabelVector> trainset(param.io_.train_);
-  DataLoader<TrainDataType::kLibSVM, DataSamples, LabelVector> testset(param.io_.test_);
+	boost::program_options::options_description desc("General command line options");
+	boost::program_options::positional_options_description posdesc;
+	posdesc.add("model", 1);
+	posdesc.add("opt", 1);
+	desc.add_options()
+		("help,h", "display help message")
+		("opt", boost::program_options::value<std::string>()->default_value(""), "optimization method want to use: sgd")
+		("model", boost::program_options::value<std::string>()->default_value(""), "model type specification: linear,lccrf,smcrf");
 
-  trainset.LoadData();
-  testset.SetMaxFeatureId(trainset.GetMaxFeatureId());
-  testset.LoadData();
-  
-  DataIterator traindataiter(param.learn_.batchsize_, param.learn_.seed_);
-  DataIterator testdataiter(param.learn_.batchsize_, param.learn_.seed_);
-  
-  BOOST_LOG_TRIVIAL(info) << "load finished";
-  if (!trainset.IsValidDatset()) {
-	  BOOST_LOG_TRIVIAL(fatal) << "load train set failed";
-	  return 1;
-  }
-  else {
-	  traindataiter.SetDataSet(trainset.GetData(), trainset.GetLabels());
-  }
+	boost::program_options::variables_map vm;
 
-  if (testset.IsValidDatset()) {
-	  testdataiter.SetDataSet(testset.GetData(), testset.GetLabels());
-  }
+	try
+	{
+		boost::program_options::store(
+			boost::program_options::command_line_parser(argc, argv).options(desc).positional(posdesc).run(),
+			vm);
+		boost::program_options::notify(vm);
+	}
+	catch (boost::program_options::required_option& e)
+	{
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
+	catch (boost::program_options::error& e) {
+		std::cout << e.what() << std::endl;
+		return 1;
+	}
 
-  BinaryLinearModel model(param.loss_, trainset.GetMaxFeatureId() + 1, 1.0);
+	std::string modelstr, optimstr;
+	if (vm.count("model")) {
+		modelstr = vm["model"].as<std::string>();
+	}
+	else {
+		modelstr = "";
+	}
+	optimstr = vm["opt"].as<std::string>();
 
-  switch (param.opt_) {
-    case SGD:  // Stochastic Gradient Descent
-    {
-		StochasticGD sgd(param.learn_, traindataiter, testdataiter, model);
-		sgd.Train();
-		if (!param.io_.model_.empty()) {
-			BOOST_LOG_TRIVIAL(trace) << "save model to file " << param.io_.model_;
-			model.SaveModel(param.io_.model_);
+	ModelType model = parsemodel(modelstr.c_str());
+	OptMethod optim = parseopt(optimstr.c_str());
+
+	if (vm.count("help") ||
+		(model == ModelType::None) ||
+		(optim == OptMethod::None)) {
+
+		if ((model == ModelType::None) ||
+			(optim == OptMethod::None)) {
+			PrintGeneralUsage();
 		}
-    } break;
-    case PGD:  // Proximal Gradient Descent
-    {
-    } break;
-    case GD:  // Gradient Descent
-      break;
-    case CG:  // Conjugate Gradient
-      break;
-    case LBFGS:  // Limited BFGS
-      break;
-    case CD:  // Coordinate Descent
-      break;
-    case BCD:  // Block Coordinate Descent
-      break;
-    default:
-      break;
-  }
+		else {
 
-  return 0;
+			std::cout << "Model     : " << modelstr << std::endl;
+			std::cout << "Optimizer : " << optimstr << std::endl;
+			switch (model)
+			{
+			case ModelType::Linear:
+			{
+				boost::shared_ptr<BinaryLinearModel> linearmodel;
+				linearmodel.reset(new BinaryLinearModel());
+				RunModelHelp<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(optim, linearmodel);
+			}
+			break;
+			case ModelType::LCCRF:
+				break;
+			case ModelType::SMCRF:
+				break;
+			case ModelType::None:
+			{
+				BOOST_LOG_TRIVIAL(fatal) << "ModelType " << modelstr << " do no exist!!!";
+			}
+			break;
+			}
+		}
+		return 0;
+	}
+
+	switch (model)
+	{
+	case Linear:
+	{
+		boost::shared_ptr<BinaryLinearModel> linearmodel;
+		linearmodel.reset(new BinaryLinearModel());
+		RunModel<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(argc, argv, optim, linearmodel);
+	}
+	break;
+	case LCCRF:
+		break;
+	case SMCRF:
+		break;
+	default:
+		break;
+	}
+	return 0;
 }

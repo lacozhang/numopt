@@ -1,19 +1,32 @@
+#pragma once
 #ifndef __LOGISTIC_MODEL_H__
 #define __LOGISTIC_MODEL_H__
 #include <boost/shared_ptr.hpp>
+#include "AbstractModel.h"
+#include "typedef.h"
+#include "DataIterator.h"
 #include "parameter.h"
 #include "lossfunc.h"
-#include "typedef.h"
 
-class BinaryLinearModel
+class BinaryLinearModel : public AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>
 {
 public:
-	BinaryLinearModel(LossFunc loss, size_t featdim, float bias);
+
+	typedef AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector> BaseModelType;
+
+	BinaryLinearModel();
 	~BinaryLinearModel();
 
 	void SetLoss(LossFunc loss);
 
-	DenseVector& GetParameters() const {
+	virtual void InitFromCmd(int argc, const char* argv[]) override;
+	virtual void InitFromData(DataIterator& iterator) override;
+
+	virtual DenseVector& GetParameters() const override {
+		return *param_;
+	}
+
+	virtual DenseVector& GetParameters() override {
 		return *param_;
 	}
 
@@ -21,22 +34,25 @@ public:
 		return featdim_;
 	}
 
-	bool LoadModel(std::string model);
-	bool SaveModel(std::string model);
+	virtual bool LoadModel(std::string model) override;
+	virtual bool SaveModel(std::string model) override;
 
-	void Learn(DataSamples& samples, LabelVector& labels, SparseVector& grad);
-	void Learn(DataSamples& samples, LabelVector& labels, DenseVector& grad);
+	virtual void Learn(DataSamples& samples, LabelVector& labels, SparseVector& grad) override;
+	virtual void Learn(DataSamples& samples, LabelVector& labels, DenseVector& grad) override;
 
-	void Inference(DataSamples& samples, LabelVector& labels);
+	virtual void Inference(DataSamples& samples, LabelVector& labels) override;
 
-	void Evaluate(DataSamples& samples, LabelVector& labels, std::string& summary);
+	virtual void Evaluate(DataSamples& samples, LabelVector& labels, std::string& summary) override;
 
 private:
-	void Init();
 
 	boost::shared_ptr<lossbase> loss_;
 	boost::shared_ptr<DenseVector> param_;
 	size_t featdim_;
+	double bias_;
+
+	static const char* kLossOption;
+	static const char* kBiasOption;
 };
 
 #endif // __LOGISTIC_MODEL_H__

@@ -13,7 +13,15 @@ enum OptMethod {
   LBFGS,  // Limited BFGS
   PGD,    // Proximal Gradient Descent
   CD,     // coordinate descent
-  BCD     // block coordinate descent
+  BCD,     // block coordinate descent
+  None
+};
+
+enum ModelType {
+	Linear,
+	LCCRF,
+	SMCRF,
+	None
 };
 
 struct LearnParameters {
