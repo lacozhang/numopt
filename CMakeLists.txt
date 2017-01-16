@@ -6,9 +6,21 @@ PROJECT(NumOpt C CXX)
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
+if(MSVC)
+    add_definitions(-D_SCL_SECURE_NO_WARNINGS)
+    add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+else(MSVC)
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-std=c++11"    SUPPORT_CXX11)
+    set(CMAKE_CXX_FLAGS "-Wall -Wno-unknown-pragmas")
+    if(SUPPORT_CXX11)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    endif()
+endif(MSVC)
+
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.56 COMPONENTS log
+find_package(Boost 1.54 COMPONENTS log
                                    program_options
                                    system
                                    filesystem
