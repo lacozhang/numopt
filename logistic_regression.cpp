@@ -88,16 +88,16 @@ int main(int argc, const char *argv[]) {
 
 	switch (model)
 	{
-	case Linear:
+	case ModelType::Linear:
 	{
 		boost::shared_ptr<BinaryLinearModel> linearmodel;
 		linearmodel.reset(new BinaryLinearModel());
 		RunModel<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(argc, argv, optim, linearmodel);
 	}
 	break;
-	case LCCRF:
+	case ModelType::LCCRF:
 		break;
-	case SMCRF:
+	case ModelType::SMCRF:
 		break;
 	default:
 		break;

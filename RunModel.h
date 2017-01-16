@@ -15,24 +15,24 @@ boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, Sp
 
 	boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> optimizer;
 	switch (optimtype) {
-	case SGD:  // Stochastic Gradient Descent
+	case OptMethod::SGD:  // Stochastic Gradient Descent
 	{
 		optimizer.reset(new  StochasticGD<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
 	}
 	break;
-	case PGD:  // Proximal Gradient Descent
+	case OptMethod::PGD:  // Proximal Gradient Descent
 		break;
-	case GD:  // Gradient Descent
+	case OptMethod::GD:  // Gradient Descent
 		break;
-	case CG:  // Conjugate Gradient
+	case OptMethod::CG:  // Conjugate Gradient
 		break;
-	case LBFGS:  // Limited BFGS
+	case OptMethod::LBFGS:  // Limited BFGS
 		break;
-	case CD:  // Coordinate Descent
+	case OptMethod::CD:  // Coordinate Descent
 		break;
-	case BCD:  // Block Coordinate Descent
+	case OptMethod::BCD:  // Block Coordinate Descent
 		break;
-	case None:
+	case OptMethod::None:
 	{
 
 	}

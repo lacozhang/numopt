@@ -6,7 +6,7 @@
 #include <iostream>
 #include "lossfunc.h"
 
-enum OptMethod {
+enum class OptMethod {
   GD = 2, // Gradient Descent
   SGD,    // Stochastic Gradient Descent
   CG,     // Conjugate Gradient
@@ -17,7 +17,7 @@ enum OptMethod {
   None
 };
 
-enum ModelType {
+enum class ModelType {
 	Linear,
 	LCCRF,
 	SMCRF,

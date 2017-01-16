@@ -3,6 +3,6 @@
 
 Parameter::Parameter(){
     
-    opt_ = GD;
-    loss_ = Squared;
+    opt_ = OptMethod::GD;
+    loss_ = LossFunc::Squared;
 }
