@@ -61,7 +61,7 @@ set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h)
 add_library(model ${MODELSRC} ${MODELHEADER})
 
 add_executable(datacache datacache.cpp)
-target_link_libraries(datacache ${Boost_LIBRARIES} utils dataop)
+target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 
 set(GENERALHEADER RunModel.h)
 add_executable(mltools logistic_regression.cpp ${GENERALHEADER})
