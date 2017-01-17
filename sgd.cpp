@@ -22,13 +22,13 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 	alloptions.add(this->sgdesc_);
 
 	auto vm = ParseArgs(argc, argv, alloptions, true);
-	this->learn_.l1_ = vm[typename OptMethodBaseType::kBaseL1RegOption].as<double>();
-	this->learn_.l2_ = vm[this->kBaseL2RegOption].as<double>();
+	this->learn_.l1_ = vm[this->kBaseL1RegOption].template as<double>();
+	this->learn_.l2_ = vm[this->kBaseL2RegOption].template as<double>();
 	this->learn_.learningrate_ = vm[kLearningRateOption].as<double>();
 	this->learn_.learningratedecay_ = vm[kLearningRateDecayOption].as<double>();
-	this->learn_.maxiter_ = vm[this->kBaseMaxItersOption].as<int>();
-	this->learn_.funceps_ = vm[this->kBaseFunctionEpsOption].as<double>();
-	this->learn_.gradeps_ = vm[this->kBaseGradEpsOption].as<double>();
+	this->learn_.maxiter_ = vm[this->kBaseMaxItersOption].template as<int>();
+	this->learn_.funceps_ = vm[this->kBaseFunctionEpsOption].template as<double>();
+	this->learn_.gradeps_ = vm[this->kBaseGradEpsOption].template as<double>();
 	this->learn_.averge_ = vm[kAverageGradientOption].as<bool>();
 }
 
