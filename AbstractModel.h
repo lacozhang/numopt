@@ -39,4 +39,4 @@ protected:
 	boost::program_options::options_description optionsdesc_;
 };
 
-template AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;

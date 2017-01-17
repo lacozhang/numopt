@@ -153,4 +153,4 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 	epochcount_ = 0;
 }
 
-template StochasticGD<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class StochasticGD<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;

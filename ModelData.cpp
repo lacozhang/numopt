@@ -78,4 +78,4 @@ void ModelData<DataType, DataSampleType, DataLabelType>::ConstructCmdOptions()
 		(kIoModelPathOptions, po::value<std::string>(), "model file path for save or load");
 }
 
-template ModelData<TrainDataType::kLibSVM, DataSamples, LabelVector>;
+template class ModelData<TrainDataType::kLibSVM, DataSamples, LabelVector>;

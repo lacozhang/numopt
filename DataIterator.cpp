@@ -101,4 +101,4 @@ void DataIteratorBase<SampleType, LabelType>::ConstructCmdOptions()
 }
 
 
-template DataIteratorBase<DataSamples, LabelVector>;
+template class DataIteratorBase<DataSamples, LabelVector>;

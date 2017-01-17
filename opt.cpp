@@ -33,4 +33,4 @@ void OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, Den
 }
 
 
-template OptMethodBase<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class OptMethodBase<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;

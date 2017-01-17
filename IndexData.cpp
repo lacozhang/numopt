@@ -40,4 +40,4 @@ void IndexData<DataSamples, LabelVector>::ResizeLabel(LabelVector& target, size_
 }
 
 
-template IndexData<DataSamples, LabelVector>;
+template class IndexData<DataSamples, LabelVector>;

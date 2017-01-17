@@ -529,4 +529,4 @@ void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featd
 }
 
 
-template DataLoader<kLibSVM, DataSamples, LabelVector>;
+template class DataLoader<kLibSVM, DataSamples, LabelVector>;
