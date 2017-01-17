@@ -28,11 +28,11 @@ template<class ParameterType,
 		virtual void Train() = 0;
 		virtual boost::program_options::options_description Options() = 0;
 
-		void SetTrainData(boost::shared_ptr<DataIteratorType>& dat) {
+		void SetTrainData(boost::shared_ptr<DataIteratorType> dat) {
 			trainiter_ = dat;
 		}
 
-		void SetTestData(boost::shared_ptr<DataIteratorType>& dat) {
+		void SetTestData(boost::shared_ptr<DataIteratorType> dat) {
 			testiter_ = dat;
 		}
 
