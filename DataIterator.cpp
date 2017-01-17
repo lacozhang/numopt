@@ -35,7 +35,7 @@ void DataIteratorBase<SampleType, LabelType>::InitFromCmd(int argc, const char *
 }
 
 template <class SampleType, class LabelType>
-void DataIteratorBase<SampleType, LabelType>::SetDataSet(boost::shared_ptr<IndexDataType>& dataset)
+void DataIteratorBase<SampleType, LabelType>::SetDataSet(boost::shared_ptr<IndexDataType> dataset)
 {
 	if (dataset.get() == nullptr) {
 		BOOST_LOG_TRIVIAL(warning) << "dataset is null";

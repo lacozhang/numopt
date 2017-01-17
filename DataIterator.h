@@ -22,7 +22,7 @@ public:
 		return batchdesc_;
 	}
 
-	void SetDataSet(boost::shared_ptr<IndexDataType>& dat);	
+	void SetDataSet(boost::shared_ptr<IndexDataType> dat);	
 	void ResetBatch();
 
 	bool GetNextBatch(SampleType& batch, LabelType& label);
