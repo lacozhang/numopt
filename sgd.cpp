@@ -22,13 +22,13 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 	alloptions.add(this->sgdesc_);
 
 	auto vm = ParseArgs(argc, argv, alloptions, true);
-	this->learn_.l1_ = vm[kBaseL1RegOption].as<double>();
-	this->learn_.l2_ = vm[kBaseL2RegOption].as<double>();
+	this->learn_.l1_ = vm[this->kBaseL1RegOption].as<double>();
+	this->learn_.l2_ = vm[this->kBaseL2RegOption].as<double>();
 	this->learn_.learningrate_ = vm[kLearningRateOption].as<double>();
 	this->learn_.learningratedecay_ = vm[kLearningRateDecayOption].as<double>();
-	this->learn_.maxiter_ = vm[kBaseMaxItersOption].as<int>();
-	this->learn_.funceps_ = vm[kBaseFunctionEpsOption].as<double>();
-	this->learn_.gradeps_ = vm[kBaseGradEpsOption].as<double>();
+	this->learn_.maxiter_ = vm[this->kBaseMaxItersOption].as<int>();
+	this->learn_.funceps_ = vm[this->kBaseFunctionEpsOption].as<double>();
+	this->learn_.gradeps_ = vm[this->kBaseGradEpsOption].as<double>();
 	this->learn_.averge_ = vm[kAverageGradientOption].as<bool>();
 }
 
@@ -79,7 +79,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::TrainOneEpoch()
 {
-	ParameterType& param = model_.GetParameters();
+	ParameterType& param = this->model_.GetParameters();
 	SparseGradientType paramgrad;
 	SampleType minibatchdata;
 	LabelType minibatchlabel;
@@ -95,7 +95,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		avgparam_.swap(param);
 	}
 
-	while (trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
+	while (this->trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
 
 		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
 		if (this->learn_.averge_) {
@@ -104,7 +104,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		else {
 			learnrateiter_ = this->LearningRate() / (1 + this->LearningRateDecay() * itercount_);
 		}
-		if (L2RegVal() > 0) {
+		if (this->L2RegVal() > 0) {
 
 #pragma omp parallel for
 			for (int featidx = 0; featidx < param.size(); ++featidx) {
@@ -119,7 +119,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 
 		// get average work now.
 		if (this->learn_.averge_ && epochcount_ >= 1) {
-			double mu = 1.0 / (1 + LearningRateDecay() * (itercount_ - epochsize));
+			double mu = 1.0 / (1 + this->LearningRateDecay() * (itercount_ - epochsize));
 #pragma omp parallel for
 			for (int featidx = 0; featidx < avgparam_.size(); ++featidx) {
 				avgparam_.coeffRef(featidx) += mu * (param.coeff(featidx) - avgparam_.coeff(featidx));
