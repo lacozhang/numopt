@@ -1,3 +1,4 @@
+#include <cstring>
 #include "cmdline.h"
 
 LossFunc parselossfunc(const char *loss) {
