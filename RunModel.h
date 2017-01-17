@@ -57,16 +57,11 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 	testset->SetMaxFeatureId(trainset->GetMaxFeatureId());
 	testset->LoadData();
 
-	boost::shared_ptr<IndexData<DataSampleType, DataLabelType>> trainidx;
-	trainidx.reset(new IndexData<DataSampleType, DataLabelType>(trainset->GetData(), trainset->GetLabels()));
-	boost::shared_ptr<IndexData<DataSampleType, DataLabelType>> testidx;
-	testidx.reset(new IndexData<DataSampleType, DataLabelType>(testset->GetData(), testset->GetLabels()));
-
 	DataIteratorBase<DataSampleType, DataLabelType> trainiter, testiter;
 	trainiter.InitFromCmd(argc, argv);
 	testiter.InitFromCmd(argc, argv);
-	trainiter.SetDataSet(trainidx);
-	testiter.SetDataSet(testidx);
+	trainiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(trainset->GetData(), trainset->GetLabels()));
+	testiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(testset->GetData(), testset->GetLavels()));
 
 	model->InitFromCmd(argc, argv);
 	model->InitFromData(trainiter);
