@@ -18,30 +18,30 @@ template<class ParameterType, class SampleType, class LabelType, class SparseGra
 void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitFromCmd(int argc, const char * argv[])
 {
 	boost::program_options::options_description alloptions("Available options for SGD optimizer");
-	alloptions.add(basedesc_);
-	alloptions.add(sgdesc_);
+	alloptions.add(this->basedesc_);
+	alloptions.add(this->sgdesc_);
 
 	auto vm = ParseArgs(argc, argv, alloptions, true);
-	learn_.l1_ = vm[kBaseL1RegOption].as<double>();
-	learn_.l2_ = vm[kBaseL2RegOption].as<double>();
-	learn_.learningrate_ = vm[kLearningRateOption].as<double>();
-	learn_.learningratedecay_ = vm[kLearningRateDecayOption].as<double>();
-	learn_.maxiter_ = vm[kBaseMaxItersOption].as<int>();
-	learn_.funceps_ = vm[kBaseFunctionEpsOption].as<double>();
-	learn_.gradeps_ = vm[kBaseGradEpsOption].as<double>();
-	learn_.averge_ = vm[kAverageGradientOption].as<bool>();
+	this->learn_.l1_ = vm[kBaseL1RegOption].as<double>();
+	this->learn_.l2_ = vm[kBaseL2RegOption].as<double>();
+	this->learn_.learningrate_ = vm[kLearningRateOption].as<double>();
+	this->learn_.learningratedecay_ = vm[kLearningRateDecayOption].as<double>();
+	this->learn_.maxiter_ = vm[kBaseMaxItersOption].as<int>();
+	this->learn_.funceps_ = vm[kBaseFunctionEpsOption].as<double>();
+	this->learn_.gradeps_ = vm[kBaseGradEpsOption].as<double>();
+	this->learn_.averge_ = vm[kAverageGradientOption].as<bool>();
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Train()
 {
-	learnrateiter_ = LearningRate();
+	learnrateiter_ = this->LearningRate();
 	itercount_ = 0;
 	timeutil timer;
 
-	for (epochcount_ = 0; epochcount_ < MaxIter(); ++epochcount_) {
+	for (epochcount_ = 0; epochcount_ < this->MaxIter(); ++epochcount_) {
 		BOOST_LOG_TRIVIAL(info) << "epoch " << epochcount_ << " start";
-		trainiter_->ResetBatch();
+		this->trainiter_->ResetBatch();
 
 		timer.tic();
 		TrainOneEpoch();
@@ -49,11 +49,11 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
 
 		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
-		EvaluateOnSet(trainiter_->GetAllData(), trainiter_->GetAllLabel());
+		EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 
-		if (testiter_->IsValid()) {
+		if (this->testiter_->IsValid()) {
 			BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
-			EvaluateOnSet(testiter_->GetAllData(), testiter_->GetAllLabel());
+			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 	}
 }
@@ -62,8 +62,8 @@ template<class ParameterType, class SampleType, class LabelType, class SparseGra
 boost::program_options::options_description StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Options()
 {
 	boost::program_options::options_description all("Combined options for SGD");
-	all.add(basedesc_);
-	all.add(sgdesc_);
+	all.add(this->basedesc_);
+	all.add(this->sgdesc_);
 	return all;
 }
 
@@ -72,7 +72,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 {
 	std::string message;
 	double correct = 0, total = 0;
-	model_.Evaluate(samples, labels, message);
+	this->model_.Evaluate(samples, labels, message);
 	BOOST_LOG_TRIVIAL(info) << message << std::endl;
 }
 
@@ -83,32 +83,32 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 	SparseGradientType paramgrad;
 	SampleType minibatchdata;
 	LabelType minibatchlabel;
-	size_t epochsize = trainiter_->GetSampleSize();
+	size_t epochsize = this->trainiter_->GetSampleSize();
 
-	if (learn_.averge_ && epochcount_ == 1) {
+	if (this->learn_.averge_ && epochcount_ == 1) {
 		BOOST_LOG_TRIVIAL(trace) << "copy param to averaged param, start to averaging";
 		avgparam_.resizeLike(param);
 		avgparam_.setZero();
 		avgparam_ = param;
 	}
-	else if (learn_.averge_ && epochcount_ > 1) {
+	else if (this->learn_.averge_ && epochcount_ > 1) {
 		avgparam_.swap(param);
 	}
 
 	while (trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
 
 		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
-		if (learn_.averge_) {
-			learnrateiter_ = LearningRate() / std::pow(1 + LearningRateDecay()*itercount_, 0.75);
+		if (this->learn_.averge_) {
+			learnrateiter_ = this->LearningRate() / std::pow(1 + this->LearningRateDecay()*itercount_, 0.75);
 		}
 		else {
-			learnrateiter_ = LearningRate() / (1 + LearningRateDecay() * itercount_);
+			learnrateiter_ = this->LearningRate() / (1 + this->LearningRateDecay() * itercount_);
 		}
 		if (L2RegVal() > 0) {
 
 #pragma omp parallel for
 			for (int featidx = 0; featidx < param.size(); ++featidx) {
-				param.coeffRef(featidx) *= (1 - L2RegVal() * learnrateiter_);
+				param.coeffRef(featidx) *= (1 - this->L2RegVal() * learnrateiter_);
 			}
 		}
 
@@ -118,7 +118,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		}
 
 		// get average work now.
-		if (learn_.averge_ && epochcount_ >= 1) {
+		if (this->learn_.averge_ && epochcount_ >= 1) {
 			double mu = 1.0 / (1 + LearningRateDecay() * (itercount_ - epochsize));
 #pragma omp parallel for
 			for (int featidx = 0; featidx < avgparam_.size(); ++featidx) {
@@ -129,7 +129,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		itercount_ += 1;
 	}
 
-	if (learn_.averge_ && epochcount_ >= 1) {
+	if (this->learn_.averge_ && epochcount_ >= 1) {
 		param.swap(avgparam_);
 	}
 
