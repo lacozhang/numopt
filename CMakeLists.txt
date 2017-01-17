@@ -64,5 +64,6 @@ add_executable(datacache datacache.cpp)
 target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 
 set(GENERALHEADER RunModel.h)
-add_executable(mltools logistic_regression.cpp ${GENERALHEADER})
+set(MLTOOLSRC mltools.cpp)
+add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
 target_link_libraries(mltools ${Boost_LIBRARIES} dataop model opt utils)

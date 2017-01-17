@@ -61,7 +61,7 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 	trainiter.InitFromCmd(argc, argv);
 	testiter.InitFromCmd(argc, argv);
 	trainiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(trainset->GetData(), trainset->GetLabels()));
-	testiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(testset->GetData(), testset->GetLavels()));
+	testiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(testset->GetData(), testset->GetLabels()));
 
 	model->InitFromCmd(argc, argv);
 	model->InitFromData(trainiter);
