@@ -21,7 +21,7 @@ bool IndexData<DataSamples, LabelVector>::FeatureCopyAtIndex(DataSamples& target
 template<>
 bool IndexData<DataSamples, LabelVector>::LabelCopyAtIndex(LabelVector& target, size_t topos, size_t frompos) {
 	if ((frompos < labels_->rows()) && (topos < target.rows())) {
-		target.row(topos) = features_->row(frompos);
+		target.row(topos) = labels_->row(frompos);
 		return true;
 	}
 	else {
