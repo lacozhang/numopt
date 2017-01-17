@@ -97,7 +97,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 
 	while (this->trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
 
-		model_.Learn(minibatchdata, minibatchlabel, paramgrad);
+		this->model_.Learn(minibatchdata, minibatchlabel, paramgrad);
 		if (this->learn_.averge_) {
 			learnrateiter_ = this->LearningRate() / std::pow(1 + this->LearningRateDecay()*itercount_, 0.75);
 		}
