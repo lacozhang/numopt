@@ -11,7 +11,7 @@ template<TrainDataType DataType, class DataSampleType, class DataLabelType>
 const char* const ModelData<DataType, DataSampleType, DataLabelType>::kIoModelPathOptions = "data.model";
 
 template<TrainDataType DataType, class DataSampleType, class DataLabelType>
-ModelData<DataType, DataSampleType, DataLabelType>::ModelData()
+ModelData<DataType, DataSampleType, DataLabelType>::ModelData() : iodesc_("Model data operations")
 {
 	ConstructCmdOptions();
 }
