@@ -63,6 +63,12 @@ add_library(model ${MODELSRC} ${MODELHEADER})
 add_executable(datacache datacache.cpp)
 target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 
+find_package(OpenMP)
+if(OPENMP_FOUND)
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif(OPENMP_FOUND)
+
 set(GENERALHEADER RunModel.h)
 set(MLTOOLSRC mltools.cpp)
 add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})

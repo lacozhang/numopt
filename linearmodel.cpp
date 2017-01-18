@@ -19,7 +19,7 @@ BinaryLinearModel::BinaryLinearModel()
 			boost::program_options::value<std::string>()->default_value("logistic"),
 			"loss function: squared/hinge/logistic/squaredhinge\nsquared: used for regression.\nhinge,logistic,squaredhinge: used for classification")
 		(BinaryLinearModel::kBiasOption,
-			boost::program_options::value<float>()->default_value(0),
+			boost::program_options::value<double>()->default_value(0),
 			"bias for linear model");
 }
 
@@ -47,11 +47,28 @@ void BinaryLinearModel::SetLoss(LossFunc loss) {
 void BinaryLinearModel::InitFromCmd(int argc, const char * argv[])
 {
 	auto vm = ParseArgs(argc, argv, optionsdesc_, true);
-	std::string lossoption = vm[BinaryLinearModel::kLossOption].as<std::string>();
-	BOOST_LOG_TRIVIAL(info) << "Loss Function : " << lossoption;
-	SetLoss(parselossfunc(vm[BinaryLinearModel::kLossOption].as<std::string>().c_str()));
-	bias_ = vm[BinaryLinearModel::kBiasOption].as<double>();
-	BOOST_LOG_TRIVIAL(info) << "Bias           : " << bias_;
+	try
+	{
+		std::string lossoption = vm[BinaryLinearModel::kLossOption].as<std::string>();
+		BOOST_LOG_TRIVIAL(info) << "Loss Function : " << lossoption;
+		SetLoss(parselossfunc(vm[BinaryLinearModel::kLossOption].as<std::string>().c_str()));
+	}
+	catch (const std::exception& e)
+	{
+		BOOST_LOG_TRIVIAL(error) << e.what();
+		throw e;
+	}
+
+	try
+	{
+		bias_ = vm[BinaryLinearModel::kBiasOption].as<double>();
+		BOOST_LOG_TRIVIAL(info) << "Bias           : " << bias_;
+	}
+	catch (const std::exception& e)
+	{
+		BOOST_LOG_TRIVIAL(error) << e.what();
+		throw e;
+	}
 }
 
 void BinaryLinearModel::InitFromData(DataIterator& iterator)

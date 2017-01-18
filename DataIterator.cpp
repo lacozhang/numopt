@@ -54,8 +54,10 @@ void DataIteratorBase<SampleType, LabelType>::SetDataSet(boost::shared_ptr<Index
 		for (size_t i = 0; i < data_->SampleSize(); ++i) {
 			datapointers_.push_back(i);
 		}
+
+		valid_ = true;
+		maxfeatid_ = dataset->MaxFeatureId();
 	}
-	valid_ = true;
 }
 
 template <class SampleType, class LabelType>

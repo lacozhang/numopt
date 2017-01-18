@@ -39,5 +39,14 @@ void IndexData<DataSamples, LabelVector>::ResizeLabel(LabelVector& target, size_
 	target.resize(samplecnt);
 }
 
+template<>
+size_t IndexData<DataSamples, LabelVector>::FeatureSize() {
+	return features_->cols();
+}
+
+template<>
+size_t IndexData<DataSamples, LabelVector>::MaxFeatureId() {
+	return (features_->cols() - 1);
+}
 
 template class IndexData<DataSamples, LabelVector>;
