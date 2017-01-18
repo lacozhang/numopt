@@ -3,10 +3,10 @@
 #include "util.h"
 
 void PrintGeneralUsage() {
-	std::cout << "General Options linearmodel.exe [ModelType] [Optimization Method]"
+	std::cout << "General Options linearmodel.exe [ModelType] [Optimization Method]" << std::endl
 		<< "                [ModelType]           : linear, lccrf, smcrf" << std::endl
 		<< "                [Optimization Method] : sgd, pgd, cg, lbfgs, cd, bcd";
-	std::cout << "For more information on specific model & optimization method "
+	std::cout << "For more information on specific model & optimization method " << std::endl
 		<< "Plase use follow command linearmodel.exe linear sgd -h";
 }
 
