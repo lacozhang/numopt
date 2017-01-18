@@ -63,6 +63,11 @@ add_library(model ${MODELSRC} ${MODELHEADER})
 add_executable(datacache datacache.cpp)
 target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 
+# support CRF featurizer
+FILE(GLOB CRFEATHEADER "lccrf//*.h")
+FILE(GLOB CRFEATSRC "lccrf//*.cpp")
+add_executable(lcrfeat ${CRFEATSRC} ${CRFEATHEADER})
+
 find_package(OpenMP)
 if(OPENMP_FOUND)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
