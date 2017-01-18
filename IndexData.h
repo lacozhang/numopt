@@ -23,20 +23,25 @@ public:
 
 	size_t SampleSize() {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return 0;
 	}
 
 	size_t FeatureSize() {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return 0;
 	}
 	size_t MaxFeatureId() {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return 0;
 	}
 
 	bool FeatureCopyAtIndex(FeatureType& target, size_t topos, size_t frompos) {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return false;
 	}
 	bool LabelCopyAtIndex(LabelType& target, size_t topos, size_t frompos) {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return false;
 	}
 
 	inline FeatureType& RetrieveAllFeature() {
@@ -60,6 +65,7 @@ private:
 	boost::shared_ptr<LabelType> labels_;
 };
 
+// specialization for liblinear type data
 template<> 
 void IndexData<DataSamples, LabelVector>::ResizeFeature(DataSamples& feature, size_t sample);
 
