@@ -29,18 +29,10 @@ void CrfTemplate::ExtractUnigramFeatures(const std::vector<std::vector<std::stri
 		for (int i = 0; i < raw.size(); ++i) {
 
 			std::vector<std::string> currfeats;
-			for (const std::vector<std::tuple<int, int>>& templatelines : unigrams_) {
+			for (const LccrfTemplateLine& templatelines : unigrams_) {
 
 				std::vector<std::string> currfeat;
 				currfeat.push_back("U");
-				for (const std::tuple<int, int>& item : templatelines) {
-					int rowidx = i + std::get<0>(item), colidx = std::get<1>(item);
-					if (rowidx < raw.size() && rowidx >= 0) {
-						if (colidx >= 0 && colidx < raw[rowidx].size()) {
-							currfeat.push_back(raw[rowidx][colidx]);
-						}
-					}
-				}
 
 				if (currfeat.size() > 1) {
 					currfeats.push_back((boost::algorithm::join(currfeat, "_")));
@@ -55,7 +47,6 @@ void CrfTemplate::ExtractUnigramFeatures(const std::vector<std::vector<std::stri
 	}
 }
 
-void 
 
 bool CrfTemplate::LoadTemplate(std::string crftemplates)
 {
@@ -67,13 +58,12 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates)
 	}
 	else {
 		std::getline(src, line);
-		std::vector<std::tuple<int, int>> featspec;
-		featspec.clear();
 		while (src.good())
 		{
+
 			boost::algorithm::erase_all(line, " \n\r\t");
 			if (!boost::algorithm::starts_with(line, "#")) {
-
+				LccrfTemplateLine featspec;
 				if (IsLccrfTemplate(line)) {
 					HandleLCCRFTemplateLine(line, featspec);
 				}
@@ -96,10 +86,10 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates)
 	return succ;
 }
 
-void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, std::vector<std::tuple<int, int>>& featspec)
+void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, LccrfTemplateLine& featspec)
 {
 	ParseLCCRFTemplateLine(line, featspec);
-	if (featspec.size() > 0) {
+	if (featspec.RetrieveTemplate().size() > 0) {
 		switch (line[0])
 		{
 		case 'U':
@@ -114,7 +104,19 @@ void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, std::vector<std::t
 	}
 }
 
-void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, std::vector<std::tuple<int, int>>& featspecs)
+void CrfTemplate::ExtractAsTemplateLine(const std::vector<std::vector<std::string>>& rawfeatures, std::vector<std::string>& extracted, const LccrfTemplateLine & line, int currentpos)
+{
+	for (const std::tuple<int, int>& item : line.RetrieveTemplate()) {
+		int rowidx = currentpos + std::get<0>(item), colidx = std::get<1>(item);
+		if (rowidx < rawfeatures.size() && rowidx >= 0) {
+			if (colidx >= 0 && colidx < rawfeatures[rowidx].size()) {
+				extracted.push_back(rawfeatures[rowidx][colidx]);
+			}
+		}
+	}
+}
+
+void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, LccrfTemplateLine& featspecs)
 {
 	if (line[0] != 'U' && line[0] != 'B') {
 		BOOST_LOG_TRIVIAL(fatal) << "LCCRF tempalte line format error : " << line;
@@ -123,12 +125,13 @@ void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, std::vector<st
 
 	std::vector<std::string> comps;
 	std::vector<std::string> featspecstrs;
-	featspecs.clear();
+	featspecs.Clear();
 
 	boost::algorithm::split(comps, line, boost::algorithm::is_any_of(":"));
 
+	featspecs.SetFeaturePrefix(comps[0]);
 	if (comps.size() == 1) {
-		featspecs.push_back(std::tuple<int, int>(std::numeric_limits<int>::max(), std::numeric_limits<int>::max()));
+		featspecs.AddTemplatePart(std::numeric_limits<int>::max(), std::numeric_limits<int>::max());
 		return;
 	}
 
@@ -149,7 +152,7 @@ void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, std::vector<st
 		if (m.ready() && (!m.empty()) && (m.size() == 3)) {
 			int rowidx = -1, colidx = -1;
 			bool safe = false;
-			try{
+			try {
 				rowidx = boost::lexical_cast<int>(m[1].str());
 				colidx = boost::lexical_cast<int>(m[2].str());
 				safe = true;
@@ -159,7 +162,7 @@ void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, std::vector<st
 			}
 
 			if (safe) {
-				featspecs.push_back(std::make_tuple(rowidx, colidx));
+				featspecs.AddTemplatePart(rowidx, colidx);
 			}
 		}
 		else {
