@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 2.8.7)
 
 PROJECT(NumOpt C CXX)
 
+option(ENABLE_PREFIX_TREE "enable doubld array trie with prefix" OFF)
+
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
 
 if(MSVC)
@@ -67,6 +69,10 @@ target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 FILE(GLOB CRFEATHEADER "lccrf//*.h")
 FILE(GLOB CRFEATSRC "lccrf//*.cpp")
 add_executable(lcrfeat ${CRFEATSRC} ${CRFEATHEADER})
+target_link_libraries(lcrfeat ${Boost_LIBRARIES})
+if(ENABLE_PREFIX_TREE)
+	add_definitions(-DUSE_PREFIX_TREE)
+endif(ENABLE_PREFIX_TREE)
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
