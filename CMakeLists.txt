@@ -3,6 +3,7 @@
 cmake_minimum_required(VERSION 2.8.7)
 
 PROJECT(NumOpt C CXX)
+enable_testing()
 
 option(ENABLE_PREFIX_TREE "enable doubld array trie with prefix" OFF)
 
@@ -28,6 +29,7 @@ find_package(Boost 1.54 COMPONENTS log
                                    filesystem
                                    date_time
                                    thread
+				   unit_test_framework
                         REQUIRED)
 
 if(Boost_FOUND)
@@ -66,9 +68,10 @@ add_executable(datacache datacache.cpp)
 target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 
 # support CRF featurizer
-FILE(GLOB CRFEATHEADER "lccrf//*.h")
-FILE(GLOB CRFEATSRC "lccrf//*.cpp")
-add_executable(lcrfeat ${CRFEATSRC} ${CRFEATHEADER})
+file(GLOB CRFEATHEADER "lccrf//*.h")
+file(GLOB CRFEATSRC "lccrf//crftemplate.cpp" "lccrf//lccrfeaturizer.cpp")
+list(APPEND CRFEATMAIN "lccrf/crfeaturize.cpp")
+add_executable(lcrfeat ${CRFEATMAIN} ${CRFEATSRC} ${CRFEATHEADER})
 target_link_libraries(lcrfeat ${Boost_LIBRARIES})
 if(ENABLE_PREFIX_TREE)
 	add_definitions(-DUSE_PREFIX_TREE)
@@ -84,3 +87,20 @@ set(GENERALHEADER RunModel.h)
 set(MLTOOLSRC mltools.cpp)
 add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
 target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
+
+file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
+foreach(testSrc ${TEST_SRCS})
+	get_filename_component(testName ${testSrc} NAME_WE)
+	add_executable(${testName} ${testSrc} ${CRFEATSRC})
+	target_link_libraries(${testName} ${Boost_LIBRARIES})
+    set_target_properties(${testName} 
+			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
+			${CMAKE_CURRENT_SOURCE_DIR}/testbin)
+	add_test(NAME ${testName} 
+                 WORKING_DIRECTORY 
+				 ${CMAKE_CURRENT_SOURCE_DIR}/testbin 
+                 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/testbin/${testName})
+	configure_file(${PROJECT_SOURCE_DIR}/test/template 
+				 ${CMAKE_CURRENT_BINARY_DIR} 
+				 COPYONLY)
+endforeach(testSrc)

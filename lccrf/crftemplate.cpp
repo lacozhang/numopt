@@ -23,8 +23,11 @@ CrfTemplate::CrfTemplate(std::string filepath)
 	}
 }
 
-void CrfTemplate::ExtractUnigramFeatures(const std::vector<std::vector<std::string>>& raw, std::vector<std::vector<std::string>>& features)
+bool CrfTemplate::ExtractUnigramFeatures(
+	const std::vector<std::vector<std::string>>& raw, 
+	std::vector<std::vector<std::string>>& features)
 {
+	features.clear();
 	if (valid_) {
 		for (int i = 0; i < raw.size(); ++i) {
 
@@ -32,8 +35,9 @@ void CrfTemplate::ExtractUnigramFeatures(const std::vector<std::vector<std::stri
 			for (const LccrfTemplateLine& templatelines : unigrams_) {
 
 				std::vector<std::string> currfeat;
-				currfeat.push_back("U");
-
+				currfeat.clear();
+				currfeat.push_back(templatelines.RetrieveFeaturePrefix());
+				ExtractAsTemplateLine(raw, currfeat, templatelines, i);
 				if (currfeat.size() > 1) {
 					currfeats.push_back((boost::algorithm::join(currfeat, "_")));
 				}
@@ -43,10 +47,39 @@ void CrfTemplate::ExtractUnigramFeatures(const std::vector<std::vector<std::stri
 	}
 	else {
 		BOOST_LOG_TRIVIAL(fatal) << "Load tempalte failed!!!";
-		std::exit(1);
+		return false;
 	}
+	return true;
 }
 
+bool CrfTemplate::ExtractBigramFeatures(
+	const std::vector<std::vector<std::string>>& raw, 
+	std::vector<std::vector<std::string>>& features){
+	if (valid_){
+		features.clear();
+		
+		for (int currpos = 0; currpos < raw.size(); ++currpos){
+			std::vector<std::string> currfeats;
+			currfeats.clear();
+			for (const LccrfTemplateLine& templine : bigrams_){
+				std::vector<std::string> currfeat;
+				currfeat.clear();
+				currfeat.push_back(templine.RetrieveFeaturePrefix());
+				ExtractAsTemplateLine(raw, currfeat, templine, currpos);
+
+				if (currfeat.size() > 1){
+					currfeats.push_back(boost::algorithm::join(currfeat, "_"));
+				}
+			}
+			features.push_back(currfeats);
+		}
+	}
+	else {
+		BOOST_LOG_TRIVIAL(fatal) << "Load template failed!!!";
+		return false;
+	}
+	return true;
+}
 
 bool CrfTemplate::LoadTemplate(std::string crftemplates)
 {

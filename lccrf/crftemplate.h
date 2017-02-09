@@ -12,9 +12,11 @@ class CrfTemplate {
 public:
 	CrfTemplate(std::string filepath);
 	~CrfTemplate() {}
-	void ExtractUnigramFeatures(const std::vector<std::vector<std::string>>& raw, std::vector<std::vector<std::string>>& features);
-	void ExtractBigramFeatures(const std::vector<std::string>& raw, std::vector<std::vector<std::string>>& features);
-
+	bool ExtractUnigramFeatures(const std::vector<std::vector<std::string>>& raw, std::vector<std::vector<std::string>>& features);
+	bool ExtractBigramFeatures(const std::vector<std::vector<std::string>>& raw, std::vector<std::vector<std::string>>& features);
+	bool IsValid() const{
+		return valid_;
+	}
 	class LccrfTemplateLine {
 	public:
 		LccrfTemplateLine() {
@@ -28,7 +30,11 @@ public:
 			featprefix_ = featname;
 		}
 
-		std::string& RetrieveFeaturePrefix() {
+		const std::string& RetrieveFeaturePrefix() {
+			return featprefix_;
+		}
+
+		const std::string& RetrieveFeaturePrefix() const {
 			return featprefix_;
 		}
 
@@ -37,6 +43,10 @@ public:
 		}
 		
 		const std::vector<std::tuple<int, int>>& RetrieveTemplate() const {
+			return featemplates_;
+		}
+
+		const std::vector<std::tuple<int, int>>& RetrieveTemplate() {
 			return featemplates_;
 		}
 
