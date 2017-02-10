@@ -119,6 +119,28 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates)
 	return succ;
 }
 
+void CrfTemplate::SaveToFile(const std::string & filepath)
+{
+	std::ofstream sink(filepath, std::ios_base::out | std::ios_base::trunc);
+	if (!sink.is_open()) {
+		BOOST_LOG_TRIVIAL(fatal) << "failed to open " << filepath;
+		return;
+	}
+
+	for (const LccrfTemplateLine& line : unigrams_) {
+		sink.write(line.RetrieveFeaturePrefix().c_str(), line.RetrieveFeaturePrefix().size());
+		sink.write(":", 1);
+		for (const std::tuple<int, int>& item : line.RetrieveTemplate()) {
+			int row = std::get<0>(item), col = std::get<1>(item);
+			std::string stritem;
+			stritem = "%x";
+			stritem.push_back('[');
+			stritem.push_back(boost::lexical_cast<)
+			
+		}
+	}
+}
+
 void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, LccrfTemplateLine& featspec)
 {
 	ParseLCCRFTemplateLine(line, featspec);

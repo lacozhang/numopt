@@ -17,6 +17,9 @@ public:
 	bool IsValid() const{
 		return valid_;
 	}
+	bool LoadTemplate(std::string);
+	void SaveToFile(const std::string& filepath);
+
 	class LccrfTemplateLine {
 	public:
 		LccrfTemplateLine() {
@@ -62,7 +65,6 @@ public:
 
 private:
 
-	bool LoadTemplate(std::string);
 	bool IsLccrfTemplate(std::string& line);
 	bool IsTriggerConstantFeature(const std::tuple<int, int>& featsepc);
 
