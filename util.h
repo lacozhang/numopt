@@ -20,6 +20,11 @@ private:
 class BinaryFileHandler {
 public:
 	BinaryFileHandler(std::fstream& sink) : sink_(sink) {}
+	~BinaryFileHandler() {
+		if (sink_.is_open()) {
+			sink_.close();
+		}
+	}
 
 	bool WriteInt(int val) {
 		return WriteSimpleType<int>(sink_, val);

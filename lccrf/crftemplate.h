@@ -72,7 +72,7 @@ private:
 	void HandleLCCRFTemplateLine(std::string& line, LccrfTemplateLine& feats);
 
 	void ExtractAsTemplateLine(const std::vector<std::vector<std::string>>& rawfeatures, std::vector<std::string>& extracted, const LccrfTemplateLine & line, int currentpos);
-
+	bool SaveTemplateSet(std::ofstream& sink, const std::vector<LccrfTemplateLine>& featspecs);
 	bool valid_;
 	std::vector<LccrfTemplateLine> unigrams_;
 	std::vector<LccrfTemplateLine> bigrams_;

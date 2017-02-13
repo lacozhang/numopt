@@ -95,7 +95,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates)
 		{
 
 			boost::algorithm::erase_all(line, " \n\r\t");
-			if (!boost::algorithm::starts_with(line, "#")) {
+			if ((line.size() > 0) && !boost::algorithm::starts_with(line, "#")) {
 				LccrfTemplateLine featspec;
 				if (IsLccrfTemplate(line)) {
 					HandleLCCRFTemplateLine(line, featspec);
@@ -116,6 +116,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates)
 		}
 	}
 
+	src.close();
 	return succ;
 }
 
@@ -127,18 +128,15 @@ void CrfTemplate::SaveToFile(const std::string & filepath)
 		return;
 	}
 
-	for (const LccrfTemplateLine& line : unigrams_) {
-		sink.write(line.RetrieveFeaturePrefix().c_str(), line.RetrieveFeaturePrefix().size());
-		sink.write(":", 1);
-		for (const std::tuple<int, int>& item : line.RetrieveTemplate()) {
-			int row = std::get<0>(item), col = std::get<1>(item);
-			std::string stritem;
-			stritem = "%x";
-			stritem.push_back('[');
-			stritem.push_back(boost::lexical_cast<)
-			
-		}
-	}
+	const char* unicomment = "# Unigram\n\n";
+	const char* bicomment = "# Bigram\n\n";
+	sink.write(unicomment, std::strlen(unicomment));
+	SaveTemplateSet(sink, unigrams_);
+
+	sink.write(bicomment, std::strlen(bicomment));
+	SaveTemplateSet(sink, bigrams_);
+
+	sink.close();
 }
 
 void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, LccrfTemplateLine& featspec)
@@ -162,13 +160,52 @@ void CrfTemplate::HandleLCCRFTemplateLine(std::string & line, LccrfTemplateLine&
 void CrfTemplate::ExtractAsTemplateLine(const std::vector<std::vector<std::string>>& rawfeatures, std::vector<std::string>& extracted, const LccrfTemplateLine & line, int currentpos)
 {
 	for (const std::tuple<int, int>& item : line.RetrieveTemplate()) {
-		int rowidx = currentpos + std::get<0>(item), colidx = std::get<1>(item);
-		if (rowidx < rawfeatures.size() && rowidx >= 0) {
-			if (colidx >= 0 && colidx < rawfeatures[rowidx].size()) {
-				extracted.push_back(rawfeatures[rowidx][colidx]);
+
+		if (IsTriggerConstantFeature(item)) {
+			extracted.push_back("$const$");
+		}
+		else {
+			int rowidx = currentpos + std::get<0>(item), colidx = std::get<1>(item);
+			if (rowidx < rawfeatures.size() && rowidx >= 0) {
+				if (colidx >= 0 && colidx < rawfeatures[rowidx].size()) {
+					extracted.push_back(rawfeatures[rowidx][colidx]);
+				}
 			}
 		}
 	}
+}
+
+bool CrfTemplate::SaveTemplateSet(std::ofstream & sink, const std::vector<LccrfTemplateLine>& featspecs)
+{
+	for (const LccrfTemplateLine& line : featspecs) {
+		sink.write(line.RetrieveFeaturePrefix().c_str(), line.RetrieveFeaturePrefix().size());
+
+		bool constfeature = false;
+		for (const std::tuple<int, int>& feat : line.RetrieveTemplate()) {
+			if (IsTriggerConstantFeature(feat)) {
+				constfeature = true;
+			}
+		}
+		if ((line.RetrieveTemplate().size() > 0) && (!constfeature)) {
+			sink.write(":", 1);
+			std::vector<std::string> comps;
+			for (const std::tuple<int, int>& item : line.RetrieveTemplate()) {
+				int row = std::get<0>(item), col = std::get<1>(item);
+				std::string stritem;
+				stritem = "%x";
+				stritem.push_back('[');
+				stritem += boost::lexical_cast<std::string>(row);
+				stritem += ",";
+				stritem += boost::lexical_cast<std::string>(col);
+				stritem.push_back(']');
+				comps.push_back(stritem);
+			}
+			std::string line = boost::algorithm::join(comps, "/");
+			sink.write(line.c_str(), line.size());
+		}
+		sink.write("\n", 1);
+	}
+	return false;
 }
 
 void CrfTemplate::ParseLCCRFTemplateLine(const std::string& line, LccrfTemplateLine& featspecs)

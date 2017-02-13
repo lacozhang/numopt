@@ -2,15 +2,19 @@
 #include <fstream>
 #include <string>
 #include <cctype>
+#include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include "lccrfeaturizer.h"
 #include "../util.h"
 
-bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc) {
-
+bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc, int unifeatcut, int bifeatcut) {
 	namespace fs = boost::filesystem;
+
+	BOOST_ASSERT_MSG(unifeatcut >= 1, "unigram feature cutoff value less than 1");
+	BOOST_ASSERT_MSG(bifeatcut >= 1, "bigram feature cutoff value less than 1");
+
 	if (!crftemplates_.IsValid()) {
 		BOOST_LOG_TRIVIAL(fatal) << "Crf templates load failed";
 		return false;
@@ -33,6 +37,9 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc) {
 	std::vector<std::string> rawlabels;
 	std::vector<std::vector<std::string>> rawtexts;
 	std::vector<std::vector<std::string>> textfeats;
+	trie_t unifeatcache, bifeatcache;
+	unifeatcache.clear();
+	bifeatcache.clear();
 
 	sentence.clear();
 	ReadOneSentence(src, sentence);
@@ -41,9 +48,9 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc) {
 		if (sentence.size() > 0) {
 			FromLineToRawFeatures(sentence, rawtexts, rawlabels);
 			crftemplates_.ExtractUnigramFeatures(rawtexts, textfeats);
-			AccumulateFeatureFromLine(unifeat2id_, textfeats);
+			AccumulateFeatureCountFromLine(unifeatcache, textfeats);
 			crftemplates_.ExtractBigramFeatures(rawtexts, textfeats);
-			AccumulateFeatureFromLine(bifeat2id_, textfeats);
+			AccumulateFeatureCountFromLine(bifeatcache, textfeats);
 			AccumulateLabelFromLine(rawlabels);
 			sentence.clear();
 		}
@@ -55,6 +62,10 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc) {
 		BOOST_LOG_TRIVIAL(error) << "file " << featsrc << " ended unexpectedly";
 		return false;
 	}
+	src.close();
+
+	FilterFeatureWithCount(unifeatcache, unifeat2id_, unifeatcut);
+	FilterFeatureWithCount(bifeatcache, bifeat2id_, bifeatcut);
 	return true;
 }
 
@@ -132,7 +143,7 @@ bool LccrFeaturizer::FeaturizeFile(const std::string & featsrc, const std::strin
 
 	BOOST_LOG_TRIVIAL(info) << "Samples             : " << numsentences;
 	BOOST_LOG_TRIVIAL(info) << "Max Unigram Feat Id : " << maxunifeatid;
-	BOOST_LOG_TRIVIAL(info) << "Max Bigram Feat Id  : " << maxunifeatid;
+	BOOST_LOG_TRIVIAL(info) << "Max Bigram Feat Id  : " << maxbifeatid;
 	BOOST_LOG_TRIVIAL(info) << "Max Label Id        : " << maxlabelid;
 
 	std::vector<std::string> sentence;
@@ -178,6 +189,41 @@ bool LccrFeaturizer::FeaturizeFile(const std::string & featsrc, const std::strin
 		ReadOneSentence(src, sentence);
 	}
 
+	src.close();
+	sink.close();
+	return true;
+}
+
+bool LccrFeaturizer::Save(const std::string & featprefix)
+{
+	std::string unifeatpath = featprefix + ".1gram.bin";
+	std::string bifeatpath = featprefix + ".2gram.bin";
+	std::string label2idpath = featprefix + ".label.bin";
+	std::string templatepath = featprefix + ".template.txt";
+
+	unifeat2id_.save(unifeatpath.c_str());
+	bifeat2id_.save(bifeatpath.c_str());
+	label2id_.save(label2idpath.c_str());
+	crftemplates_.SaveToFile(templatepath);
+	return true;
+}
+
+bool LccrFeaturizer::Load(const std::string & featprefix)
+{
+	std::string unifeatpath = featprefix + ".1gram.bin";
+	std::string bifeatpath = featprefix + ".2gram.bin";
+	std::string label2idpath = featprefix + ".label.bin";
+	std::string templatepath = featprefix + ".template.txt";
+
+	unifeat2id_.open(unifeatpath.c_str());
+	bifeat2id_.open(bifeatpath.c_str());
+	label2id_.open(label2idpath.c_str());
+	crftemplates_.LoadTemplate(templatepath);
+
+	BOOST_LOG_TRIVIAL(info) << "Max Unigram Feat Id : " << unifeat2id_.num_keys() - 1;
+	BOOST_LOG_TRIVIAL(info) << "Max Bigram Feat Id  : " << bifeat2id_.num_keys() - 1;
+	BOOST_LOG_TRIVIAL(info) << "Max Label Id        : " << label2id_.num_keys() - 1;
+
 	return true;
 }
 
@@ -222,14 +268,11 @@ bool LccrFeaturizer::FromLineToRawFeatures(
 	return true;
 }
 
-bool LccrFeaturizer::AccumulateFeatureFromLine(trie_t& trie, const std::vector<std::vector<std::string>>& textfeats)
+bool LccrFeaturizer::AccumulateFeatureCountFromLine(trie_t& trie, const std::vector<std::vector<std::string>>& textfeats)
 {
 	for (const std::vector<std::string>& posfeat : textfeats) {
 		for (const std::string& feat : posfeat) {
-			if (cedar::da<int>::CEDAR_NO_VALUE == trie.exactMatchSearch<int>(feat.c_str(), feat.size(), 0)) {
-				int keys = trie.num_keys();
-				trie.update(feat.c_str(), feat.size(), 0) = keys;
-			}
+			trie.update(feat.c_str(), feat.size(), 1);
 		}
 	}
 	return true;
@@ -244,6 +287,21 @@ bool LccrFeaturizer::AccumulateLabelFromLine(const std::vector<std::string>& tex
 		}
 	}
 	return true;
+}
+
+void LccrFeaturizer::FilterFeatureWithCount(trie_t & raw, trie_t & filtered, int cutoff)
+{
+	namespace signal = boost::signals2::detail;
+	size_t from(0), p(0);
+	signal::auto_buffer<char, signal::store_n_bytes<LccrFeaturizer::MAXFEATLEN>> buffer(LccrFeaturizer::MAXFEATLEN, '\0');
+	int featcnt;
+	for (featcnt = raw.begin(from, p); featcnt != trie_t::CEDAR_NO_PATH; featcnt = raw.next(from, p)) {
+		if (featcnt >= cutoff) {
+			raw.suffix(buffer.data(), p, from);
+			int key = filtered.num_keys();
+			filtered.update(buffer.data(), p, 0) = key;
+		}
+	}
 }
 
 

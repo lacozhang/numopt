@@ -26,15 +26,16 @@ public:
 	~LccrFeaturizer() {
 	}
 
-	bool AccumulateFeatures(const std::string& featsrc);
+	bool AccumulateFeatures(const std::string& featsrc, int unifeatcut = 1, int bifeatcut = 1);
 	bool FeaturizeSentence(const std::vector<std::string>& lines, std::vector<std::vector<int>>& unigramfeats, std::vector<std::vector<int>>& bigramfeats, std::vector<int>& labels);
 	bool FeaturizeFile(const std::string& featsrc, const std::string& featbin);
 	bool Save(const std::string& featprefix);
 	bool Load(const std::string& featprefix);
 private:
 	bool FromLineToRawFeatures(const std::vector<std::string>& lines, std::vector<std::vector<std::string>>& rawfeats, std::vector<std::string>& rawlabels);
-	bool AccumulateFeatureFromLine(trie_t& trie, const std::vector<std::vector<std::string>>& textfeats);
+	bool AccumulateFeatureCountFromLine(trie_t& trie, const std::vector<std::vector<std::string>>& textfeats);
 	bool AccumulateLabelFromLine(const std::vector<std::string>& textlabels);
+	void FilterFeatureWithCount(trie_t& raw, trie_t& filtered, int cutoff);
 	int CountSamples(const std::string& featsrc);
 	bool ReadOneSentence(std::ifstream& src, std::vector<std::string>& sentence);
 	bool FeaturizeWithTrie(const trie_t& trie, const std::vector<std::string>& textfeats, std::vector<int>& feats);
@@ -44,6 +45,8 @@ private:
 	cedar::da<int> bifeat2id_;
 	cedar::da<int> label2id_;
 	CrfTemplate crftemplates_;
+
+	static const unsigned int MAXFEATLEN = 1024 * 10;
 };
 
 #endif // !__LCCRFEATURIZER_H__

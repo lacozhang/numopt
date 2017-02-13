@@ -60,8 +60,8 @@ set(OPTMETHODSRC opt.cpp sgd.cpp)
 set(OPTMETHODHEADER opt.h sgd.h)
 add_library(opt ${OPTMETHODSRC} ${OPTMETHODHEADER})
 
-set(MODELSRC lossfunc.cpp linearmodel.cpp)
-set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h)
+set(MODELSRC lossfunc.cpp linearmodel.cpp LccrfModel.cpp)
+set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h LccrfModel.h)
 add_library(model ${MODELSRC} ${MODELHEADER})
 
 add_executable(datacache datacache.cpp)
@@ -89,18 +89,19 @@ add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
 target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
 
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
-foreach(testSrc ${TEST_SRCS})
-	get_filename_component(testName ${testSrc} NAME_WE)
-	add_executable(${testName} ${testSrc} ${CRFEATSRC})
-	target_link_libraries(${testName} ${Boost_LIBRARIES})
-    set_target_properties(${testName} 
+
+add_executable(lccrf_test "test//lccrf_test.cpp" ${CRFEATSRC})
+target_link_libraries(lccrf_test ${Boost_LIBRARIES})
+set_target_properties(lccrf_test 
 			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
-			${CMAKE_CURRENT_SOURCE_DIR}/testbin)
-	add_test(NAME ${testName} 
-                 WORKING_DIRECTORY 
-				 ${CMAKE_CURRENT_SOURCE_DIR}/testbin 
-                 COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/testbin/${testName})
-	configure_file(${PROJECT_SOURCE_DIR}/test/template 
-				 ${CMAKE_CURRENT_BINARY_DIR} 
-				 COPYONLY)
-endforeach(testSrc)
+			${CMAKE_CURRENT_BINARY_DIR}/testbin)
+add_test(NAME lccrf_test 
+            WORKING_DIRECTORY 
+			${CMAKE_CURRENT_BINARY_DIR}/testbin 
+            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testbin/lccrf_test)
+configure_file(${PROJECT_SOURCE_DIR}/test/template 
+			${CMAKE_CURRENT_BINARY_DIR} 
+			COPYONLY)
+configure_file(${PROJECT_SOURCE_DIR}/test/lccrf_test.txt 
+			${CMAKE_CURRENT_BINARY_DIR} 
+			COPYONLY)

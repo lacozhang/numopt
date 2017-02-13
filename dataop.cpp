@@ -510,6 +510,9 @@ DataLoader<kLibSVM, DataSamples, LabelVector>::DataLoader(std::string srcfile) {
 }
 
 template<>
+DataLoader<kLCCRF, 
+
+template<>
 bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
 	if (filepath_.empty()) {
 		valid_ = false;
