@@ -47,11 +47,13 @@ int main(int argc, const char* argv[]) {
 
 	LccrFeaturizer featurizer(featemplate);
 	for (const std::string& src : featsrcs) {
+		BOOST_LOG_TRIVIAL(info) << "Extract feature from " << src;
 		featurizer.AccumulateFeatures(src, cutoff, cutoff);
 	}
 
 	for (std::string& src : inputfiles) {
 		std::string binfilepath = src + ".bin";
+		BOOST_LOG_TRIVIAL(info) << "Featurize file " << src;
 		featurizer.FeaturizeFile(src, binfilepath);
 	}
 

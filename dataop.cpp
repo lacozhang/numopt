@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <algorithm>
 #include <set>
 #include <fstream>
 #include <boost/filesystem.hpp>
@@ -10,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 #include "dataop.h"
 #include "util.h"
+#include "LccrfDataType.h"
 
 namespace {
 
@@ -501,16 +503,133 @@ bool load_libsvm_data(
 	return ret;
 }
 
-template<>
-DataLoader<kLibSVM, DataSamples, LabelVector>::DataLoader(std::string srcfile) {
-	filepath_ = srcfile;
-	specifyfeatdim_ = false;
-	maxfeatid_ = 0;
-	valid_ = false;
-}
+bool load_lccrf_data_bin(std::string srcfilepath,
+	boost::shared_ptr<LccrfSamples>& samples,
+	boost::shared_ptr<LccrfLabels>& labels,
+	bool estimate,
+	size_t maxunifeatid, size_t maxbifeatid, size_t maxlabelid) {
 
-template<>
-DataLoader<kLCCRF, 
+	bool binary = false;
+	binary = boost::algorithm::ends_with(srcfilepath, ".bin");
+
+	if (!binary) {
+		BOOST_LOG_TRIVIAL(error) << "For lccrf, binary file only";
+		return false;
+	}
+
+	std::vector<std::vector<int>> currunifeats, currbifeats;
+	std::vector<int> currlabels, currunifeatcnts, currbifeatcnts;
+
+	std::fstream src(srcfilepath, std::ios_base::in | std::ios_base::binary);
+	if (!src.is_open()) {
+		BOOST_LOG_TRIVIAL(error) << "Failed to open file " << srcfilepath;
+		return false;
+	}
+
+	BinaryFileHandler reader(src);
+	int numsamples = 0;
+	size_t wordcount;
+	int tmp;
+
+	if (!reader.ReadInt(tmp)) {
+		BOOST_LOG_TRIVIAL(error) << "Error when read max unigram feature id";
+		return false;
+	}
+	if (!estimate) {
+		maxunifeatid = tmp;
+	}
+
+	if (!reader.ReadInt(tmp)) {
+		BOOST_LOG_TRIVIAL(error) << "Error when read max bigram feature id";
+		return false;
+	}
+	if (!estimate) {
+		maxbifeatid = tmp;
+	}
+
+	if (!reader.ReadInt(tmp)) {
+		BOOST_LOG_TRIVIAL(error) << "Error when read max label id";
+		return false;
+	}
+	if (!estimate) {
+		maxlabelid = tmp;
+	}
+	
+	if (!reader.ReadInt(numsamples)) {
+		BOOST_LOG_TRIVIAL(error) << "Error when read number of samples";
+		return false;
+	}
+
+	BOOST_LOG_TRIVIAL(info) << "Number of Samples      : " << numsamples;
+	BOOST_LOG_TRIVIAL(info) << "Max Unigram Feature Id : " << maxunifeatid;
+	BOOST_LOG_TRIVIAL(info) << "Max Bigram Feature Id  : " << maxbifeatid;
+	BOOST_LOG_TRIVIAL(info) << "Max Label Id           : " << maxlabelid;
+
+	samples.reset(new LccrfSamples());
+	labels.reset(new LccrfLabels());
+
+	samples->SetMaxUnigramFeatureId(maxunifeatid);
+	samples->SetMaxBigramFeatureId(maxbifeatid);
+	labels->SetMaxLabelId(maxlabelid);
+
+	auto unigramfeatures = samples->UnigramFeature();
+	auto bigramfeatures = samples->BigramFeature();
+	auto labelvals = labels->Labels();
+
+	unigramfeatures.resize(numsamples);
+	bigramfeatures.resize(numsamples);
+	labelvals.resize(numsamples);
+	
+	for (int i = 0; i < numsamples; ++i) {
+
+		reader.ReadSizeT(wordcount);
+		currunifeats.resize(wordcount);
+		currbifeats.resize(wordcount);
+		currlabels.resize(wordcount);
+		currunifeatcnts.resize(wordcount);
+		currbifeatcnts.resize(wordcount);
+
+		for (size_t pos = 0; pos < wordcount; ++pos) {
+			reader.ReadInt(currlabels[pos]);
+			reader.ReadInt(currunifeatcnts[pos]);
+			int featid;
+			for (int idx = 0; idx < currunifeatcnts[pos]; ++idx) {
+				reader.ReadInt(featid);
+				currunifeats[pos].push_back(featid);
+			}
+
+			reader.ReadInt(currbifeatcnts[pos]);
+			for (int idx = 0; idx < currbifeatcnts[pos]; ++idx) {
+				reader.ReadInt(featid);
+				currbifeats[pos].push_back(featid);
+			}
+
+			std::sort(currunifeats[pos].begin(), currunifeatcnts.end());
+			std::sort(currbifeats[pos].begin(), currbifeats[pos].end());
+		}
+
+		unigramfeatures[i].reset(new DataSamples(wordcount, maxunifeatid + 1));
+		bigramfeatures[i].reset(new DataSamples(wordcount, maxbifeatid + 1));
+		labelvals[i].reset(new LabelVector(wordcount));
+
+		unigramfeatures[i]->reserve(currunifeatcnts);
+		bigramfeatures[i]->reserve(currbifeatcnts);
+
+		for (size_t pos = 0; pos < wordcount; ++pos) {
+
+			for (int i = 0; i < currunifeatcnts[pos]; ++i) {
+				unigramfeatures[i]->insert(pos, currunifeats[pos][i]) = 1;
+			}
+
+			for (int i = 0; i < currbifeatcnts[pos]; ++i) {
+				bigramfeatures[i]->insert(pos, currbifeats[pos][i]) = 1;
+			}
+
+			labelvals[i]->coeffRef(pos) = currlabels[pos];
+		}
+	}
+	return true;
+}
 
 template<>
 bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
@@ -524,6 +643,21 @@ bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
 	return valid_;
 }
 
+template<>
+bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData() {
+	if (filepath_.empty()) {
+		valid_ = false;
+	}
+	else {
+		valid_ = load_lccrf_data_bin(filepath_, features_, labels_, !specifyfeatdim_,
+			maxunifeatid_, maxbifeatid_, maxlabelid_);
+
+		maxunifeatid_ = features_->GetMaxUnigramFeatureId();
+		maxbifeatid_ = features_->GetMaxBigramFeatureId();
+		maxlabelid_ = labels_->GetMaxLabelId();
+	}
+	return valid_;
+}
 
 template<>
 void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featdim) {
@@ -533,3 +667,4 @@ void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featd
 
 
 template class DataLoader<kLibSVM, DataSamples, LabelVector>;
+template class DataLoader<kLCCRF, LccrfSamples, LccrfLabels>;

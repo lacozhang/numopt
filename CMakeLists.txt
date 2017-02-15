@@ -61,7 +61,7 @@ set(OPTMETHODHEADER opt.h sgd.h)
 add_library(opt ${OPTMETHODSRC} ${OPTMETHODHEADER})
 
 set(MODELSRC lossfunc.cpp linearmodel.cpp LccrfModel.cpp)
-set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h LccrfModel.h)
+set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h LccrfModel.h LccrfDataType.h)
 add_library(model ${MODELSRC} ${MODELHEADER})
 
 add_executable(datacache datacache.cpp)

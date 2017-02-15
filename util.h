@@ -29,9 +29,19 @@ public:
 	bool WriteInt(int val) {
 		return WriteSimpleType<int>(sink_, val);
 	}
+
+	bool ReadInt(int& val) {
+		return ReadSimpleType<int>(sink_, val);
+	}
+
 	bool WriteSizeT(size_t val) {
 		return WriteSimpleType<size_t>(sink_, val);
 	}
+
+	bool ReadSizeT(size_t& val) {
+		return ReadSimpleType<size_t>(sink_, val);
+	}
+
 
 private:
 
@@ -42,6 +52,15 @@ private:
 		}
 		return sink.good();
 	}
+
+	template <class Type>
+	bool ReadSimpleType(std::fstream& src, Type& val) {
+		if (src.good()) {
+			src.read((char*)&val, sizeof(Type));
+		}
+		return src.good();
+	}
+
 	std::fstream& sink_;
 };
 

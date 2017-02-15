@@ -1,6 +1,7 @@
 #include "DataIterator.h"
 #include "typedef.h"
 #include "util.h"
+#include "LccrfDataType.h"
 
 
 template<class SampleType, class LabelType>
@@ -104,3 +105,4 @@ void DataIteratorBase<SampleType, LabelType>::ConstructCmdOptions()
 
 
 template class DataIteratorBase<DataSamples, LabelVector>;
+template class DataIteratorBase<LccrfSamples, LccrfLabels>;

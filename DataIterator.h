@@ -50,6 +50,15 @@ public:
 			return -1;
 		}
 	}
+
+	size_t ModelSizeFromData() const {
+		if (valid_) {
+			return data_->ModelSize();
+		}
+		else {
+			return -1;
+		}
+	}
 	
 private:
 

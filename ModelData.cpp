@@ -1,4 +1,5 @@
 #include "ModelData.h"
+#include "LccrfDataType.h"
 #include "util.h"
 
 template<TrainDataType DataType, class DataSampleType, class DataLabelType>
@@ -53,7 +54,7 @@ boost::shared_ptr<DataLoader<DataType, DataSampleType, DataLabelType>> ModelData
 	if (trainpath_.empty()) {
 		return train;
 	}
-	train.reset(new DataLoader<DataType, DataSamples, DataLabelType>(trainpath_));
+	train.reset(new DataLoader<DataType, DataSampleType, DataLabelType>(trainpath_));
 	return train;
 }
 
@@ -79,3 +80,4 @@ void ModelData<DataType, DataSampleType, DataLabelType>::ConstructCmdOptions()
 }
 
 template class ModelData<TrainDataType::kLibSVM, DataSamples, LabelVector>;
+template class ModelData<TrainDataType::kLCCRF, LccrfSamples, LccrfLabels>;

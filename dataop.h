@@ -15,13 +15,46 @@ template <TrainDataType T, class Feat, class Label>
 class DataLoader {
 
 public:
-	DataLoader(std::string);
+	DataLoader(std::string srcfile) {
+		filepath_ = srcfile;
+		specifyfeatdim_ = false;
+		maxfeatid_ = 0;
+		valid_ = false;
+
+		// init for lccrf
+		maxunifeatid_ = 0;
+		maxbifeatid_ = 0;
+		maxlabelid_ = 0;
+	}
+
 	bool LoadData();
 	void SetMaxFeatureId(size_t featdim);
+
 	size_t GetMaxFeatureId() const {
 		return maxfeatid_;
 	}
 
+	// for lccrf
+	int GetMaxUnigramFeatureId() const {
+		return maxunifeatid_;
+	}
+
+	int GetMaxBigramFeatureId() const {
+		return maxbifeatid_;
+	}
+
+	int GetMaxLabelId() const {
+		return maxlabelid_;
+	}
+
+	void SetLccrfInfo(int unifeatid, int bifeatid, int labelid) {
+		maxunifeatid_ = unifeatid;
+		maxbifeatid_ = bifeatid;
+		maxlabelid_ = labelid;
+		specifyfeatdim_ = true;
+	}
+
+	// for all
 	boost::shared_ptr<Feat>& GetData() {
 		return features_;
 	}
@@ -36,10 +69,18 @@ public:
 
 private:
 
+	// for all models
 	boost::shared_ptr<Feat> features_;
 	boost::shared_ptr<Label> labels_;
 
+	// for svm model
 	size_t maxfeatid_;
+
+	// for lccrf
+	int maxunifeatid_;
+	int maxbifeatid_;
+	int maxlabelid_;
+
 	std::string filepath_;
 
 	bool specifyfeatdim_;

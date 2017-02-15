@@ -3,6 +3,7 @@
 #define __INDEX_DATA_H__
 #include<boost/shared_ptr.hpp>
 #include "typedef.h"
+#include "LccrfDataType.h"
 
 template <class FeatureType, class LabelType>
 class IndexData {
@@ -60,6 +61,11 @@ public:
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
 	}
 
+	size_t ModelSize() {
+		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
+		return 0;
+	}
+
 private:
 	boost::shared_ptr<FeatureType> features_;
 	boost::shared_ptr<LabelType> labels_;
@@ -87,4 +93,28 @@ size_t IndexData<DataSamples, LabelVector>::MaxFeatureId();
 template<>
 size_t IndexData<DataSamples, LabelVector>::FeatureSize();
 
+// specialization for lccrf type data
+template<>
+void IndexData<LccrfSamples, LccrfLabels>::ResizeFeature(LccrfSamples& feature, size_t sample);
+
+template<>
+void IndexData<LccrfSamples, LccrfLabels>::ResizeLabel(LccrfLabels& label, size_t sample);
+
+template<>
+bool IndexData<LccrfSamples, LccrfLabels>::FeatureCopyAtIndex(LccrfSamples& target, size_t topos, size_t frompos);
+
+template<>
+bool IndexData<LccrfSamples, LccrfLabels>::LabelCopyAtIndex(LccrfLabels& target, size_t topos, size_t frompos);
+
+template<>
+size_t IndexData<LccrfSamples, LccrfLabels>::SampleSize();
+
+template<>
+size_t IndexData<LccrfSamples, LccrfLabels>::MaxFeatureId();
+
+template<>
+size_t IndexData<LccrfSamples, LccrfLabels>::FeatureSize();
+
+template<>
+size_t IndexData<LccrfSamples, LccrfLabels>::ModelSize();
 #endif // !__INDEX_DATA_H__
