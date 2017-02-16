@@ -54,7 +54,7 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 	auto testset = modeldata.RetrieveTest();
 
 	trainset->LoadData();
-	testset->SetMaxFeatureId(trainset->GetMaxFeatureId());
+	testset->SetModelMetaInfo(trainset);
 	testset->LoadData();
 
 	DataIteratorBase<DataSampleType, DataLabelType> trainiter, testiter;

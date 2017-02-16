@@ -11,7 +11,6 @@
 #include <boost/algorithm/string.hpp>
 #include "dataop.h"
 #include "util.h"
-#include "LccrfDataType.h"
 
 namespace {
 
@@ -535,7 +534,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 		BOOST_LOG_TRIVIAL(error) << "Error when read max unigram feature id";
 		return false;
 	}
-	if (!estimate) {
+	if (estimate) {
 		maxunifeatid = tmp;
 	}
 
@@ -543,7 +542,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 		BOOST_LOG_TRIVIAL(error) << "Error when read max bigram feature id";
 		return false;
 	}
-	if (!estimate) {
+	if (estimate) {
 		maxbifeatid = tmp;
 	}
 
@@ -551,7 +550,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 		BOOST_LOG_TRIVIAL(error) << "Error when read max label id";
 		return false;
 	}
-	if (!estimate) {
+	if (estimate) {
 		maxlabelid = tmp;
 	}
 	
@@ -572,15 +571,11 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 	samples->SetMaxBigramFeatureId(maxbifeatid);
 	labels->SetMaxLabelId(maxlabelid);
 
-	auto unigramfeatures = samples->UnigramFeature();
-	auto bigramfeatures = samples->BigramFeature();
-	auto labelvals = labels->Labels();
-
-	unigramfeatures.resize(numsamples);
-	bigramfeatures.resize(numsamples);
-	labelvals.resize(numsamples);
+	samples->UnigramFeature().resize(numsamples);
+	samples->BigramFeature().resize(numsamples);
+	labels->Labels().resize(numsamples);
 	
-	for (int i = 0; i < numsamples; ++i) {
+	for (int sampleidx = 0; sampleidx < numsamples; ++sampleidx) {
 
 		reader.ReadSizeT(wordcount);
 		currunifeats.resize(wordcount);
@@ -604,29 +599,35 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 				currbifeats[pos].push_back(featid);
 			}
 
-			std::sort(currunifeats[pos].begin(), currunifeatcnts.end());
+			std::sort(currunifeats[pos].begin(), currunifeats[pos].end());
 			std::sort(currbifeats[pos].begin(), currbifeats[pos].end());
 		}
 
-		unigramfeatures[i].reset(new DataSamples(wordcount, maxunifeatid + 1));
-		bigramfeatures[i].reset(new DataSamples(wordcount, maxbifeatid + 1));
-		labelvals[i].reset(new LabelVector(wordcount));
+		samples->UnigramFeature()[sampleidx].reset(new DataSamples(wordcount, maxunifeatid + 1));
+		samples->BigramFeature()[sampleidx].reset(new DataSamples(wordcount, maxbifeatid + 1));
+		labels->Labels()[sampleidx].reset(new LabelVector(wordcount));
 
-		unigramfeatures[i]->reserve(currunifeatcnts);
-		bigramfeatures[i]->reserve(currbifeatcnts);
+		samples->UnigramFeature()[sampleidx]->reserve(currunifeatcnts);
+		samples->BigramFeature()[sampleidx]->reserve(currbifeatcnts);
 
 		for (size_t pos = 0; pos < wordcount; ++pos) {
 
 			for (int i = 0; i < currunifeatcnts[pos]; ++i) {
-				unigramfeatures[i]->insert(pos, currunifeats[pos][i]) = 1;
+				samples->UnigramFeature()[sampleidx]->insert(pos, currunifeats[pos][i]) = 1;
 			}
 
 			for (int i = 0; i < currbifeatcnts[pos]; ++i) {
-				bigramfeatures[i]->insert(pos, currbifeats[pos][i]) = 1;
+				samples->BigramFeature()[sampleidx]->insert(pos, currbifeats[pos][i]) = 1;
 			}
 
-			labelvals[i]->coeffRef(pos) = currlabels[pos];
+			labels->Labels()[sampleidx]->coeffRef(pos) = currlabels[pos];
 		}
+
+		currunifeats.clear();
+		currbifeats.clear();
+		currunifeatcnts.clear();
+		currbifeatcnts.clear();
+		currlabels.clear();
 	}
 	return true;
 }
@@ -660,11 +661,20 @@ bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData() {
 }
 
 template<>
-void DataLoader<kLibSVM, DataSamples, LabelVector>::SetMaxFeatureId(size_t featdim) {
+void DataLoader<kLibSVM, DataSamples, LabelVector>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kLibSVM, DataSamples, LabelVector>>& infosrc) {
 	specifyfeatdim_ = true;
-	maxfeatid_ = featdim;
+	maxfeatid_ = infosrc->maxfeatid_;
 }
 
+template<>
+void DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kLCCRF, LccrfSamples, LccrfLabels>>& infosrc) {
+	specifyfeatdim_ = true;
+	maxunifeatid_ = infosrc->maxunifeatid_;
+	maxbifeatid_ = infosrc->maxbifeatid_;
+	maxlabelid_ = infosrc->maxlabelid_;
+}
 
 template class DataLoader<kLibSVM, DataSamples, LabelVector>;
 template class DataLoader<kLCCRF, LccrfSamples, LccrfLabels>;

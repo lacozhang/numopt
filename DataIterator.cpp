@@ -57,7 +57,6 @@ void DataIteratorBase<SampleType, LabelType>::SetDataSet(boost::shared_ptr<Index
 		}
 
 		valid_ = true;
-		maxfeatid_ = dataset->MaxFeatureId();
 	}
 }
 

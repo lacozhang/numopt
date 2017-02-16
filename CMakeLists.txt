@@ -91,7 +91,7 @@ target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 
 add_executable(lccrf_test "test//lccrf_test.cpp" ${CRFEATSRC})
-target_link_libraries(lccrf_test ${Boost_LIBRARIES})
+target_link_libraries(lccrf_test ${Boost_LIBRARIES} dataop utils)
 set_target_properties(lccrf_test 
 			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
 			${CMAKE_CURRENT_BINARY_DIR}/testbin)

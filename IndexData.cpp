@@ -79,21 +79,6 @@ void IndexData<LccrfSamples, LccrfLabels>::ResizeLabel(LccrfLabels& target, size
 }
 
 template<>
-size_t IndexData<DataSamples, LabelVector>::FeatureSize() {
-	return features_->cols();
-}
-
-template<>
-size_t IndexData<LccrfSamples, LccrfLabels>::FeatureSize() {
-	return 0;
-}
-
-template<>
-size_t IndexData<DataSamples, LabelVector>::MaxFeatureId() {
-	return (features_->cols() - 1);
-}
-
-template<>
 size_t IndexData<LccrfSamples, LccrfLabels>::ModelSize() {
 	size_t lccrfsize = 0;
 	size_t labelsize = labels_->GetMaxLabelId() + 1;

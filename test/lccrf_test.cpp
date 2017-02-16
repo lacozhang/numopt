@@ -3,9 +3,11 @@
 #include <boost/test/unit_test.hpp>
 #include "../lccrf/crftemplate.h"
 #include "../lccrf/lccrfeaturizer.h"
+#include "../ModelData.h"
+#include "../LccrfDataType.h"
 
-BOOST_AUTO_TEST_CASE(LoadTemplates)
-{
+BOOST_AUTO_TEST_CASE(LoadTemplates){
+
 	CrfTemplate lccrf("template");
 	std::vector<std::vector<std::string>> sentence{{"The", "DT", "B-NP"},
 	{"Los", "NNP", "I-NP" },
@@ -36,11 +38,21 @@ BOOST_AUTO_TEST_CASE(LoadTemplates)
 	lccrf.SaveToFile("template.test.out.txt");
 }
 
-BOOST_AUTO_TEST_CASE(LccrfFeaturizer) 
-{
+
+BOOST_AUTO_TEST_CASE(LccrfFeaturizer) {
 	LccrFeaturizer featurizer("template");
-	featurizer.AccumulateFeatures("lccrf_test.txt", 1, 1);
+	featurizer.AccumulateFeatures("lccrf_test.txt", 3, 3);
 	featurizer.FeaturizeFile("lccrf_test.txt", "lccrf_test.bin");
 	featurizer.Save("lccrf");
 	featurizer.Load("lccrf");
+}
+
+BOOST_AUTO_TEST_CASE(LccrfModelLoad) {
+	ModelData<TrainDataType::kLCCRF, LccrfSamples, LccrfLabels> dat;
+	const char* argv[] = { "test", "--data.train", "lccrf_test.bin" };
+	dat.InitFromCmd(3, argv);
+	auto train = dat.RetrieveTrain();
+	train->LoadData();
+	auto samples=train->GetData();
+	auto label = train->GetLabels();
 }

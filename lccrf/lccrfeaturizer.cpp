@@ -93,14 +93,40 @@ bool LccrFeaturizer::FeaturizeSentence(
 	crftemplates_.ExtractUnigramFeatures(rawtexts, textfeats);
 	for (const std::vector<std::string>& feat : textfeats) {
 		FeaturizeWithTrie(unifeat2id_, feat, featids);
+
+#ifdef _DEBUG
+		std::sort(featids.begin(), featids.end());
+		bool duplicatefeature = false;
+		for (int i = 0; i < featids.size() - 1; ++i) {
+			if (featids[i] == featids[i + 1]) {
+				duplicatefeature = true;
+			}
+		}
+		BOOST_ASSERT(!duplicatefeature);
+
+#endif // _DEBUG
+
 		unigramfeats.push_back(featids);
 	}
+
 
 	crftemplates_.ExtractBigramFeatures(rawtexts, textfeats);
 	for (const std::vector<std::string>& feat : textfeats) {
 		FeaturizeWithTrie(bifeat2id_, feat, featids);
+#ifdef _DEBUG
+		std::sort(featids.begin(), featids.end());
+		bool duplicatefeature = false;
+		for (int i = 0; i < featids.size() - 1; ++i) {
+			if (featids[i] == featids[i + 1]) {
+				duplicatefeature = true;
+			}
+		}
+		BOOST_ASSERT(!duplicatefeature);
+#endif // _DEBUG
 		bigramfeats.push_back(featids);
 	}
+
+
 
 	for (const std::string& label : rawlabels) {
 		labelid = label2id_.exactMatchSearch<int>(label.c_str());

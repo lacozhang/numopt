@@ -42,15 +42,6 @@ public:
 		return data_->SampleSize();
 	}
 
-	size_t MaxFeatureId() const {
-		if (valid_) {
-			return maxfeatid_;
-		}
-		else {
-			return -1;
-		}
-	}
-
 	size_t ModelSizeFromData() const {
 		if (valid_) {
 			return data_->ModelSize();
@@ -68,7 +59,6 @@ private:
 	int batchsize_;
 	int seed_;
 	bool valid_;
-	size_t maxfeatid_;
 
 	// set iteration info
 	size_t dataindex_;

@@ -27,15 +27,6 @@ public:
 		return 0;
 	}
 
-	size_t FeatureSize() {
-		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
-		return 0;
-	}
-	size_t MaxFeatureId() {
-		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
-		return 0;
-	}
-
 	bool FeatureCopyAtIndex(FeatureType& target, size_t topos, size_t frompos) {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
 		return false;
@@ -87,11 +78,6 @@ bool IndexData<DataSamples, LabelVector>::LabelCopyAtIndex(LabelVector& target, 
 template<>
 size_t IndexData<DataSamples, LabelVector>::SampleSize();
 
-template<>
-size_t IndexData<DataSamples, LabelVector>::MaxFeatureId();
-
-template<>
-size_t IndexData<DataSamples, LabelVector>::FeatureSize();
 
 // specialization for lccrf type data
 template<>
@@ -108,12 +94,6 @@ bool IndexData<LccrfSamples, LccrfLabels>::LabelCopyAtIndex(LccrfLabels& target,
 
 template<>
 size_t IndexData<LccrfSamples, LccrfLabels>::SampleSize();
-
-template<>
-size_t IndexData<LccrfSamples, LccrfLabels>::MaxFeatureId();
-
-template<>
-size_t IndexData<LccrfSamples, LccrfLabels>::FeatureSize();
 
 template<>
 size_t IndexData<LccrfSamples, LccrfLabels>::ModelSize();

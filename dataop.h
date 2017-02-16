@@ -1,6 +1,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "typedef.h"
+#include "LccrfDataType.h"
 
 #ifndef __DATA_OP_H__
 #define __DATA_OP_H__
@@ -28,7 +29,12 @@ public:
 	}
 
 	bool LoadData();
-	void SetMaxFeatureId(size_t featdim);
+
+	size_t MaxFeatureId() {
+		return maxfeatid_;
+	}
+
+	void SetModelMetaInfo(const boost::shared_ptr<DataLoader<T, Feat, Label>>& infosrc);
 
 	size_t GetMaxFeatureId() const {
 		return maxfeatid_;
@@ -45,13 +51,6 @@ public:
 
 	int GetMaxLabelId() const {
 		return maxlabelid_;
-	}
-
-	void SetLccrfInfo(int unifeatid, int bifeatid, int labelid) {
-		maxunifeatid_ = unifeatid;
-		maxbifeatid_ = bifeatid;
-		maxlabelid_ = labelid;
-		specifyfeatdim_ = true;
 	}
 
 	// for all
@@ -87,6 +86,20 @@ private:
 	bool valid_;
 };
 
+template<>
+bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData();
+
+template<>
+bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData();
+
+template<>
+void DataLoader<kLibSVM, DataSamples, LabelVector>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kLibSVM, DataSamples, LabelVector>>& infosrc);
+
+template<>
+void DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kLCCRF, LccrfSamples, LccrfLabels>>& infosrc);
+
 bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
                             int &row, int &col);
 
@@ -101,5 +114,6 @@ bool save_libsvm_data_bin(std::string filepath,
 
 void parselibsvmline(char *line, std::vector<std::pair<size_t, float>> &feats,
 	int &label, bool parse = true);
+
 
 #endif

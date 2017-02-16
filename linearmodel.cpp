@@ -73,7 +73,8 @@ void BinaryLinearModel::InitFromCmd(int argc, const char * argv[])
 
 void BinaryLinearModel::InitFromData(DataIterator& iterator)
 {
-	featdim_ = iterator.MaxFeatureId() + 1;
+	auto dat = iterator.GetAllData();
+	featdim_ = dat.cols();
 	param_.reset(new DenseVector(featdim_));
 	BOOST_LOG_TRIVIAL(info) << "param dimension " << featdim_;
 	if (param_.get() == nullptr) {

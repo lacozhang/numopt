@@ -1,5 +1,11 @@
 #include <fstream>
 #include <limits>
+
+#ifdef _DEBUG
+#include <unordered_set>
+#endif // DEUG
+
+
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
@@ -42,6 +48,19 @@ bool CrfTemplate::ExtractUnigramFeatures(
 					currfeats.push_back((boost::algorithm::join(currfeat, "_")));
 				}
 			}
+
+#ifdef _DEBUG
+			std::unordered_set<std::string> uniquefeats;
+			for (std::string& f : currfeats) {
+				if (uniquefeats.count(f) > 0) {
+					BOOST_LOG_TRIVIAL(info) << f << " appear multiple times";
+				}
+				else {
+					uniquefeats.insert(f);
+				}
+			}
+#endif // _DEBUG
+
 			features.push_back(currfeats);
 		}
 	}
@@ -71,6 +90,21 @@ bool CrfTemplate::ExtractBigramFeatures(
 					currfeats.push_back(boost::algorithm::join(currfeat, "_"));
 				}
 			}
+
+#ifdef _DEBUG
+			std::unordered_set<std::string> uniquefeats;
+			for (std::string& f : currfeats) {
+				if (uniquefeats.count(f) > 0) {
+					BOOST_LOG_TRIVIAL(info) << f << " appear multiple times";
+				}
+				else {
+					uniquefeats.insert(f);
+				}
+			}
+
+#endif // _DEBUG
+
+
 			features.push_back(currfeats);
 		}
 	}
