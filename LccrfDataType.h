@@ -59,6 +59,7 @@ class LccrfLabels {
 public:
 	LccrfLabels() {
 		labels_.clear();
+		maxlabelid_ = 0;
 	}
 	std::vector<boost::shared_ptr<LabelVector>>& Labels() {
 		return labels_;

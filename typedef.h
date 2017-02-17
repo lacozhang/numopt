@@ -9,3 +9,4 @@ typedef Eigen::SparseVector<float, Eigen::ColMajor> SparseVector;
 typedef Eigen::VectorXf DenseVector;
 typedef Eigen::VectorXi LabelVector;
 typedef Eigen::SparseMatrix<float, Eigen::RowMajor> DataSamples;
+typedef Eigen::MatrixXd DenseMatrix;

@@ -1,10 +1,14 @@
 #define BOOST_TEST_MODULE "LccrfTester"
-
+#include <iostream>
 #include <boost/test/unit_test.hpp>
+#include <boost/make_shared.hpp>
+#include "../LccrfModel.h"
 #include "../lccrf/crftemplate.h"
 #include "../lccrf/lccrfeaturizer.h"
 #include "../ModelData.h"
 #include "../LccrfDataType.h"
+#include "../DataIterator.h"
+#include "../util.h"
 
 BOOST_AUTO_TEST_CASE(LoadTemplates){
 
@@ -38,7 +42,7 @@ BOOST_AUTO_TEST_CASE(LoadTemplates){
 	lccrf.SaveToFile("template.test.out.txt");
 }
 
-
+/*
 BOOST_AUTO_TEST_CASE(LccrfFeaturizer) {
 	LccrFeaturizer featurizer("template");
 	featurizer.AccumulateFeatures("lccrf_test.txt", 3, 3);
@@ -46,13 +50,59 @@ BOOST_AUTO_TEST_CASE(LccrfFeaturizer) {
 	featurizer.Save("lccrf");
 	featurizer.Load("lccrf");
 }
+*/
 
 BOOST_AUTO_TEST_CASE(LccrfModelLoad) {
 	ModelData<TrainDataType::kLCCRF, LccrfSamples, LccrfLabels> dat;
-	const char* argv[] = { "test", "--data.train", "lccrf_test.bin" };
-	dat.InitFromCmd(3, argv);
+	const char* argv[] = { "test", "--data.train", "lccrf_test.bin", "--batch", "1" };
+	int argc = 5;
+	dat.InitFromCmd(argc, argv);
 	auto train = dat.RetrieveTrain();
 	train->LoadData();
 	auto samples=train->GetData();
 	auto label = train->GetLabels();
+	
+	DataIteratorBase<LccrfSamples, LccrfLabels> iterator;
+	IndexData<LccrfSamples, LccrfLabels> indexdata(samples, label);
+
+	iterator.InitFromCmd(argc, argv);
+	iterator.SetDataSet(boost::make_shared<IndexData<LccrfSamples, LccrfLabels>>(samples, label));
+
+	iterator.ResetBatch();
+
+	LccrfSamples batchsample;
+	LccrfLabels batchlabel, inferresult;
+
+	LccrfModel model;
+	model.InitFromData(iterator);
+
+	model.GetParameters().setRandom();
+
+	DenseVector densegrad;
+	SparseVector sparsegrad;
+	std::string summary;
+
+	timeutil t;
+	while (iterator.GetNextBatch(batchsample, batchlabel)) {
+
+		t.tic();
+		model.Learn(batchsample, batchlabel, densegrad);
+		std::cout << "dense learn " << t.toc() << " ticks " << std::endl;
+
+		t.tic();
+		model.Learn(batchsample, batchlabel, sparsegrad);
+		std::cout << "sparse learn " << t.toc() << " ticks " << std::endl;
+
+		t.tic();
+		model.Inference(batchsample, inferresult);
+		std::cout << "inference " << t.toc() << " ticks " << std::endl;
+
+		t.tic();
+		model.Evaluate(batchsample, batchlabel, summary);
+		std::cout << "evaluate " << t.toc() << " ticks " << std::endl;
+		std::cout << summary << std::endl;
+	}
+
+	model.SaveModel("lccrf.test.model.bin");
+	model.LoadModel("lccrf.test.model.bin");
 }

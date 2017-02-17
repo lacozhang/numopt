@@ -11,6 +11,8 @@ public:
 
 	typedef DataIteratorBase<SampleType, LabelType> DataIterator;
 
+	AbstractModel() : optionsdesc_("Model spec options") {}
+
 	virtual void InitFromCmd(int argc, const char* argv[]) = 0;
 	virtual void InitFromData(DataIterator& iterator) = 0;
 	virtual boost::program_options::options_description& Options() {
@@ -40,3 +42,4 @@ protected:
 };
 
 template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class AbstractModel<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;

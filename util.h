@@ -42,6 +42,14 @@ public:
 		return ReadSimpleType<size_t>(sink_, val);
 	}
 
+	bool WriteFloat(float val) {
+		return WriteSimpleType<float>(sink_, val);
+	}
+
+	bool ReadFloat(float& val) {
+		return ReadSimpleType<float>(sink_, val);
+	}
+
 
 private:
 

@@ -66,6 +66,8 @@ template<>
 void IndexData<LccrfSamples, LccrfLabels>::ResizeFeature(LccrfSamples& target, size_t samplecnt) {
 	target.UnigramFeature().resize(samplecnt);
 	target.BigramFeature().resize(samplecnt);
+	target.SetMaxUnigramFeatureId(features_->GetMaxUnigramFeatureId());
+	target.SetMaxBigramFeatureId(features_->GetMaxBigramFeatureId());
 }
 
 template<>
@@ -76,6 +78,7 @@ void IndexData<DataSamples, LabelVector>::ResizeLabel(LabelVector& target, size_
 template<>
 void IndexData<LccrfSamples, LccrfLabels>::ResizeLabel(LccrfLabels& target, size_t samplecnt) {
 	target.Labels().resize(samplecnt);
+	target.SetMaxLabelId(labels_->GetMaxLabelId());
 }
 
 template<>
