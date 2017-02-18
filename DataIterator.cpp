@@ -43,6 +43,13 @@ void DataIteratorBase<SampleType, LabelType>::SetDataSet(boost::shared_ptr<Index
 		valid_ = false;
 		return;
 	}
+
+	if (!dataset->IsValid()) {
+		BOOST_LOG_TRIVIAL(warning) << "dataset is in valid";
+		valid_ = false;
+		return;
+	}
+
 	data_ = dataset;
 	if (data_.get() != nullptr) {
 		if (batchsize_ == -1) {

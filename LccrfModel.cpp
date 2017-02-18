@@ -1,4 +1,3 @@
-#include <unordered_map>
 #include <unordered_set>
 #include <boost/filesystem.hpp>
 #include <Eigen/Dense>
@@ -58,6 +57,8 @@ void LccrfModel::InitFromData(DataIterator & iterator)
 
 	uniweightsize_ = (maxunigramid_ + 1)*(maxlabelid_ + 1);
 	param_->setZero();
+	sparsefeat2vals_.reserve(modelsize_ / 2);
+	sparsekeys_.reserve(modelsize_);
 }
 
 bool LccrfModel::LoadModel(std::string model)
@@ -122,7 +123,7 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 		grad.resize(modelsize_);
 
 	int labelcount = maxlabelid_ + 1;
-	std::unordered_map<int, float> featvals;
+	sparsefeat2vals_.clear();
 
 #ifdef _DEBUG
 	std::unordered_set<int> uniqunifeats, uniqbifeats;
@@ -160,11 +161,11 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 
 
 				int index = GetUnigramFeatureIndex(iter.col(), label.coeff(wordpos));
-				featvals[index] -= iter.value();
+				sparsefeat2vals_[index] -= iter.value();
 
 				for (int unilabel = 0; unilabel <= maxlabelid_; ++unilabel) {
 					index = GetUnigramFeatureIndex(iter.col(), unilabel);
-					featvals[index] += nodeprob(unilabel, wordpos)*iter.value();
+					sparsefeat2vals_[index] += nodeprob(unilabel, wordpos)*iter.value();
 				}
 			}
 
@@ -176,13 +177,13 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 #endif // _DEBUG
 
 					int index = GetBigramFeatureIndex(iter.col(), label.coeff(wordpos), label.coeff(wordpos + 1));
-					featvals[index] -= iter.value();
+					sparsefeat2vals_[index] -= iter.value();
 
 					for (int fromlabel = 0; fromlabel <= maxlabelid_; ++fromlabel) {
 						for (int tolabel = 0; tolabel <= maxlabelid_; ++tolabel) {
 							index = GetBigramFeatureIndex(iter.col(), fromlabel, tolabel);
 							int edgeindex = fromlabel * (maxlabelid_ + 1) + tolabel;
-							featvals[index] += edgeprob(edgeindex, wordpos) * iter.value();
+							sparsefeat2vals_[index] += edgeprob(edgeindex, wordpos) * iter.value();
 						}
 					}
 				}
@@ -190,24 +191,31 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 		}
 	}
 
-	std::vector<int> keys;
-	keys.reserve(featvals.size());
-	for (std::unordered_map<int, float>::iterator iter = featvals.begin(); iter != featvals.end(); ++iter) {
-		keys.push_back(iter->first);
+	int index = 0;
+	sparsekeys_.resize(sparsefeat2vals_.size());
+	for (std::unordered_map<int, float>::iterator iter = sparsefeat2vals_.begin();
+		iter != sparsefeat2vals_.end(); ++iter, ++index) {
+		sparsekeys_[index] = iter->first;
 	}
 
-	// std::sort(keys.begin(), keys.end());
+	std::sort(sparsekeys_.begin(), sparsekeys_.end());
 #ifdef _DEBUG
-	BOOST_LOG_TRIVIAL(info) << "key count " << keys.size();
+	BOOST_LOG_TRIVIAL(info) << "key count " << sparsekeys_.size();
 	BOOST_LOG_TRIVIAL(info) << "uniq unigram keys " << uniqunifeats.size();
 	BOOST_LOG_TRIVIAL(info) << "uniq bigram keys" << uniqbifeats.size();
 #endif // _DEBUG
 
-	grad.reserve(featvals.size());
-	for (int i = 0; i < keys.size(); ++i) {
-		grad.insert(keys[i]) = featvals[keys[i]];
+	grad.reserve(sparsefeat2vals_.size());
+	grad.setZero();
+
+	int* innerindex=grad.innerIndexPtr();
+	float* innervals = grad.valuePtr();
+	for (int i = 0; i < sparsefeat2vals_.size(); ++i) {
+		innerindex[i] = sparsekeys_[i];
+		innervals[i] = sparsefeat2vals_[sparsekeys_[i]];
 	}
 
+	grad.resizeNonZeros(sparsefeat2vals_.size());
 	grad /= samples.NumSamples();
 }
 
@@ -540,7 +548,7 @@ void LccrfModel::Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcoun
 
 	// backtrack stage
 	int bestpath = 0;
-	int maxscore = std::numeric_limits<double>::min();
+	double maxscore = std::numeric_limits<double>::min();
 	for (int label = 0; label <= maxlabelid_; ++label) {
 		if (maxpath(label, wordcount - 1) > maxscore) {
 			bestpath = label;

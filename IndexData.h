@@ -9,22 +9,46 @@ template <class FeatureType, class LabelType>
 class IndexData {
 public:
 	IndexData(boost::shared_ptr<FeatureType>& feature, boost::shared_ptr<LabelType>& label) {
-		features_ = feature;
-		labels_ = label;
+
+		if (feature.get() != nullptr && label.get() != nullptr) {
+			valid_ = true;
+			features_ = feature;
+			labels_ = label;
+		}
+		else {
+			valid_ = false;
+		}
 	}
 	virtual ~IndexData() {}
 
 	inline void SetFeature(boost::shared_ptr<FeatureType>& feature) {
-		features_ = feature;
+		if (feature.get() != nullptr) {
+			features_ = feature;
+			valid_ = true;
+		}
+		else {
+			valid_ = false;
+		}
 	}
 
 	inline void SetLabel(boost::shared_ptr<LabelType>& label) {
-		labels_ = label;
+		if (label.get() != nullptr) {
+			labels_ = label;
+			valid_ = true;
+		}
+		else {
+			labels_.reset();
+			valid_ = false;
+		}
 	}
 
 	size_t SampleSize() {
 		BOOST_ASSERT_MSG(false, "Error, no specialization for this type");
 		return 0;
+	}
+
+	bool IsValid() {
+		return valid_;
 	}
 
 	bool FeatureCopyAtIndex(FeatureType& target, size_t topos, size_t frompos) {
@@ -60,6 +84,7 @@ public:
 private:
 	boost::shared_ptr<FeatureType> features_;
 	boost::shared_ptr<LabelType> labels_;
+	bool valid_;
 };
 
 // specialization for liblinear type data
