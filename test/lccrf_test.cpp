@@ -93,6 +93,9 @@ BOOST_AUTO_TEST_CASE(LccrfModelLoad) {
 		model.Learn(batchsample, batchlabel, sparsegrad);
 		std::cout << "sparse learn " << t.toc() << " ticks " << std::endl;
 
+		std::cout << "dense grad norm  " << densegrad.norm() << std::endl;
+		std::cout << "sparse grad norm " << sparsegrad.norm() << std::endl;
+
 		t.tic();
 		model.Inference(batchsample, inferresult);
 		std::cout << "inference " << t.toc() << " ticks " << std::endl;

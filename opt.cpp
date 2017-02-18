@@ -34,3 +34,4 @@ void OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, Den
 
 
 template class OptMethodBase<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class OptMethodBase<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;

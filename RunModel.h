@@ -5,6 +5,7 @@
 #include "DataIterator.h"
 #include "cmdline.h"
 #include "linearmodel.h"
+#include "LccrfModel.h"
 #include "parameter.h"
 #include "sgd.h"
 
@@ -53,15 +54,24 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 	auto trainset = modeldata.RetrieveTrain();
 	auto testset = modeldata.RetrieveTest();
 
+	if (trainset == nullptr){
+		BOOST_LOG_TRIVIAL(fatal) << "Train set not set, failed";
+		return;
+	}
+
 	trainset->LoadData();
-	testset->SetModelMetaInfo(trainset);
-	testset->LoadData();
+	if (testset != nullptr){
+		testset->SetModelMetaInfo(trainset);
+		testset->LoadData();
+	}
 
 	DataIteratorBase<DataSampleType, DataLabelType> trainiter, testiter;
 	trainiter.InitFromCmd(argc, argv);
-	testiter.InitFromCmd(argc, argv);
 	trainiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(trainset->GetData(), trainset->GetLabels()));
-	testiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(testset->GetData(), testset->GetLabels()));
+
+	if (testset != nullptr){
+		testiter.SetDataSet(boost::make_shared<IndexData<DataSampleType, DataLabelType>>(testset->GetData(), testset->GetLabels()));
+	}
 
 	model->InitFromCmd(argc, argv);
 	model->InitFromData(trainiter);

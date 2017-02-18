@@ -123,7 +123,11 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 
 	int labelcount = maxlabelid_ + 1;
 	std::unordered_map<int, float> featvals;
+
+#ifdef _DEBUG
 	std::unordered_set<int> uniqunifeats, uniqbifeats;
+#endif // _DEBUG
+
 	for (int i = 0; i < samples.NumSamples(); ++i) {
 
 		DataSamples& unigramfeature = *(samples.UnigramFeature()[i]);
@@ -135,8 +139,6 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 		BOOST_LOG_TRIVIAL(info) << "bigram count " << bigramfeature.nonZeros();
 #endif // _DEBUG
 
-
-		int labelcount = maxlabelid_ + 1;
 		int wordcount = unigramfeature.rows();
 		int uniscoresize = wordcount * labelcount;
 		int biscoresize = (wordcount - 1) * labelcount * labelcount;
@@ -158,20 +160,10 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 
 
 				int index = GetUnigramFeatureIndex(iter.col(), label.coeff(wordpos));
-
-				if (!featvals.count(index)) {
-					featvals[index] = 0;
-				}
-
 				featvals[index] -= iter.value();
 
 				for (int unilabel = 0; unilabel <= maxlabelid_; ++unilabel) {
 					index = GetUnigramFeatureIndex(iter.col(), unilabel);
-
-					if (!featvals.count(index)) {
-						featvals[index] = 0;
-					}
-
 					featvals[index] += nodeprob(unilabel, wordpos)*iter.value();
 				}
 			}
@@ -184,20 +176,13 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 #endif // _DEBUG
 
 					int index = GetBigramFeatureIndex(iter.col(), label.coeff(wordpos), label.coeff(wordpos + 1));
-					if (!featvals.count(index)) {
-						featvals[index] = 0;
-					}
 					featvals[index] -= iter.value();
 
 					for (int fromlabel = 0; fromlabel <= maxlabelid_; ++fromlabel) {
 						for (int tolabel = 0; tolabel <= maxlabelid_; ++tolabel) {
 							index = GetBigramFeatureIndex(iter.col(), fromlabel, tolabel);
 							int edgeindex = fromlabel * (maxlabelid_ + 1) + tolabel;
-
-							if (!featvals.count(index)) {
-								featvals[index] = 0;
-							}
-							featvals[index] += edgeprob(edgeindex, wordpos)*iter.value();
+							featvals[index] += edgeprob(edgeindex, wordpos) * iter.value();
 						}
 					}
 				}
@@ -206,12 +191,12 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 	}
 
 	std::vector<int> keys;
-	keys.resize(featvals.size());
+	keys.reserve(featvals.size());
 	for (std::unordered_map<int, float>::iterator iter = featvals.begin(); iter != featvals.end(); ++iter) {
 		keys.push_back(iter->first);
 	}
 
-	std::sort(keys.begin(), keys.end());
+	// std::sort(keys.begin(), keys.end());
 #ifdef _DEBUG
 	BOOST_LOG_TRIVIAL(info) << "key count " << keys.size();
 	BOOST_LOG_TRIVIAL(info) << "uniq unigram keys " << uniqunifeats.size();
@@ -240,7 +225,6 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& 
 		DataSamples& bigramfeature = *(samples.BigramFeature()[i]);
 		LabelVector& label = *(labels.Labels()[i]);
 
-		int labelcount = maxlabelid_ + 1;
 		int wordcount = unigramfeature.rows();
 		int uniscoresize = wordcount * labelcount;
 		int biscoresize = (wordcount - 1) * labelcount * labelcount;
@@ -557,7 +541,7 @@ void LccrfModel::Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcoun
 	// backtrack stage
 	int bestpath = 0;
 	int maxscore = std::numeric_limits<double>::min();
-	for (int label = 0; label < maxlabelid_; ++label) {
+	for (int label = 0; label <= maxlabelid_; ++label) {
 		if (maxpath(label, wordcount - 1) > maxscore) {
 			bestpath = label;
 		}

@@ -154,3 +154,4 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 }
 
 template class StochasticGD<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+template class StochasticGD<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;

@@ -49,7 +49,11 @@ int main(int argc, const char *argv[]) {
 				RunModelHelp<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(optim, linearmodel);
 			}
 			break;
-			case ModelType::LCCRF:
+			case ModelType::LCCRF:{
+				boost::shared_ptr<LccrfModel> lccrf;
+				lccrf.reset(new LccrfModel());
+				RunModelHelp<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(optim, lccrf);
+			}
 				break;
 			case ModelType::SMCRF:
 				break;
@@ -73,6 +77,11 @@ int main(int argc, const char *argv[]) {
 	}
 	break;
 	case ModelType::LCCRF:
+	{
+		 boost::shared_ptr<LccrfModel> lccrf;
+		 lccrf.reset(new LccrfModel());
+		 RunModel<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(argc, argv, optim, lccrf);
+	}
 		break;
 	case ModelType::SMCRF:
 		break;
