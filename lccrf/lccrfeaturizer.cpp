@@ -134,7 +134,18 @@ bool LccrFeaturizer::FeaturizeSentence(
 			labels.push_back(labelid);
 		}
 		else {
-			BOOST_LOG_TRIVIAL(fatal) << "unrecognized label " << label;
+
+			labelid = label2id_.exactMatchSearch<int>("O");
+			if (trie_t::CEDAR_NO_VALUE == labelid) {
+				labelid = label2id_.exactMatchSearch<int>("o");
+			}
+
+			if (trie_t::CEDAR_NO_VALUE != labelid) {
+				labels.push_back(labelid);
+			}
+			else {
+				BOOST_LOG_TRIVIAL(fatal) << "unrecognized label " << label;
+			}
 		}
 	}
 

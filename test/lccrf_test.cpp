@@ -96,6 +96,8 @@ BOOST_AUTO_TEST_CASE(LccrfModelLoad) {
 		std::cout << "dense grad norm  " << densegrad.norm() << std::endl;
 		std::cout << "sparse grad norm " << sparsegrad.norm() << std::endl;
 
+		BOOST_ASSERT((densegrad - sparsegrad).norm() < 1e-3, "Error, difference between dense & sparse gradient");
+
 		t.tic();
 		model.Inference(batchsample, inferresult);
 		std::cout << "inference " << t.toc() << " ticks " << std::endl;

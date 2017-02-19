@@ -2,7 +2,7 @@
 #ifndef __LCCRF_MODEL_H__
 #define __LCCRF_MODEL_H__
 
-#include <unordered_map>
+#include <unordered_set>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include "AbstractModel.h"
 
@@ -86,8 +86,10 @@ private:
 	boost::shared_ptr<DenseVector> param_;
 
 	// set data members for keys and hash table
-	std::unordered_map<int, float> sparsefeat2vals_;
-	std::vector<int> sparsekeys_;
+	std::unordered_set<size_t> sparseunikeys_;
+	std::unordered_set<size_t> sparsebikeys_;
+	boost::shared_ptr<DenseVector> sparseparam_;
+	std::vector<size_t> sparsekeys_;
 
 	size_t maxunigramid_, maxbigramid_, maxlabelid_;
 	size_t uniweightsize_;
