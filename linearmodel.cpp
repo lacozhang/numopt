@@ -119,8 +119,9 @@ bool BinaryLinearModel::SaveModel(std::string model)
 	return true;
 }
 
-void BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, SparseVector & grad)
+double BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, SparseVector & grad)
 {
+	double avgloss = 0.0;
 	grad.resize(featdim_);
 	DenseVector xtw = samples * (*param_);
 	grad.resizeNonZeros(samples.nonZeros());
@@ -129,24 +130,30 @@ void BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, Spars
 	size_t featcnt = 0;
 	for (int i = 0; i < samples.rows(); ++i) {
 		double loss = loss_->dloss(xtw.coeff(i), labels.coeff(i));
-
+		avgloss += loss_->loss(xtw.coeff(i), labels.coeff(i));
 		for (DataSamples::InnerIterator it(samples, i); it; ++it) {
 			grad.coeffRef(it.col()) += loss * it.value();
 		}
 	}
 	grad /= samples.rows();
+	avgloss /= samples.rows();
+	return avgloss;
 }
 
-void BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, DenseVector & grad)
+double BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, DenseVector & grad)
 {
+	double avgloss = 0;
 	DenseVector xtw = samples * (*param_);
 	grad.resize(featdim_);
 	grad.setZero();
 
 	for (int i = 0; i < labels.rows(); ++i) {
 		grad += samples.row(i) * loss_->dloss(xtw.coeff(i), labels.coeff(i));
+		avgloss += loss_->loss(xtw.coeff(i), labels.coeff(i));
 	}
 	grad /= samples.rows();
+	avgloss /= samples.rows();
+	return avgloss;
 }
 
 void BinaryLinearModel::Inference(DataSamples & samples, LabelVector & labels)

@@ -13,7 +13,7 @@ template<class ParameterType,
 		typedef OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType> OptMethodBaseType;
 		typedef DataIteratorBase<SampleType, LabelType> DataIterator;
 
-		StochasticGD(typename OptMethodBaseType::ModelSpecType& model) : OptMethodBaseType(model), sgdesc_("Options for sGD") {
+		StochasticGD(typename OptMethodBaseType::ModelSpecType& model) : OptMethodBaseType(model), sgdesc_("Options for Sgd") {
 			InitCmdDescription();
 			ResetState();
 		}

@@ -60,8 +60,8 @@ set(DATAOPSRC DataIterator.cpp dataop.cpp IndexData.cpp ModelData.cpp)
 set(DATAOPHEADER DataIterator.h dataop.h IndexData.h ModelData.h)
 add_library(dataop ${DATAOPSRC} ${DATAOPHEADER})
 
-set(OPTMETHODSRC opt.cpp sgd.cpp)
-set(OPTMETHODHEADER opt.h sgd.h)
+set(OPTMETHODSRC opt.cpp sgd.cpp "optimizer/lbfgs.cpp" "optimizer/cg.cpp")
+set(OPTMETHODHEADER opt.h sgd.h "optimizer/lbfgs.h" "optimizer/cg.h")
 add_library(opt ${OPTMETHODSRC} ${OPTMETHODHEADER})
 
 set(MODELSRC lossfunc.cpp linearmodel.cpp LccrfModel.cpp)

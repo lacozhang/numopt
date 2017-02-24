@@ -37,8 +37,8 @@ public:
 	virtual bool LoadModel(std::string model) override;
 	virtual bool SaveModel(std::string model) override;
 
-	virtual void Learn(DataSamples& samples, LabelVector& labels, SparseVector& grad) override;
-	virtual void Learn(DataSamples& samples, LabelVector& labels, DenseVector& grad) override;
+	virtual double Learn(DataSamples& samples, LabelVector& labels, SparseVector& grad) override;
+	virtual double Learn(DataSamples& samples, LabelVector& labels, DenseVector& grad) override;
 
 	virtual void Inference(DataSamples& samples, LabelVector& labels) override;
 

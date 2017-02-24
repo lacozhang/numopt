@@ -33,8 +33,8 @@ public:
 	virtual bool LoadModel(std::string model) override;
 	virtual bool SaveModel(std::string model) override;
 
-	virtual void Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector& grad) override;
-	virtual void Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& grad) override;
+	virtual double Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector& grad) override;
+	virtual double Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& grad) override;
 
 	virtual void Inference(LccrfSamples& samples, LccrfLabels& labels) override;
 
@@ -79,7 +79,8 @@ private:
 	void NodeProb(DenseMatrix& alpha, DenseMatrix& beta, int wordcount, DenseMatrix& nodeprob);
 	void EdgeProb(DenseMatrix& alpha, DenseMatrix& beta, DenseMatrix& node, DenseMatrix& edge, int wordcount, DenseMatrix& edgeprob);
 	void Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcount, LabelVector& path);
-	void GetNodeAndEdgeProb(DataSamples& unifeatues, DataSamples& bifeatures, DenseMatrix& nodeprob, DenseMatrix& edgeprob);
+	double GetNodeAndEdgeProb(DataSamples& unifeatues, DataSamples& bifeatures, DenseMatrix& nodeprob, DenseMatrix& edgeprob, LabelVector& labels);
+	double LogLikelihood(Eigen::VectorXd& lastalpha, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount);
 
 	double LogSumExp(Eigen::VectorXd& v);
 

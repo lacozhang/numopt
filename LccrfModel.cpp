@@ -121,13 +121,14 @@ bool LccrfModel::SaveModel(std::string model)
 	return true;
 }
 
-void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector& grad)
+double LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector& grad)
 {
 	namespace signal = boost::signals2::detail;
 
 	if (grad.size() < modelsize_)
 		grad.resize(modelsize_);
 
+	double avgloss = 0.0;
 	int labelcount = maxlabelid_ + 1;
 	int index = 0;
 	sparseunikeys_.clear();
@@ -158,7 +159,7 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 		Eigen::MatrixXd nodeprob = Eigen::Map<Eigen::MatrixXd>(nodeprobuffer.data(), labelcount, wordcount);
 		Eigen::MatrixXd edgeprob = Eigen::Map<Eigen::MatrixXd>(edgeprobuffer.data(), labelcount*labelcount, wordcount - 1);
 
-		GetNodeAndEdgeProb(unigramfeature, bigramfeature, nodeprob, edgeprob);
+		avgloss += GetNodeAndEdgeProb(unigramfeature, bigramfeature, nodeprob, edgeprob, label);
 
 		for (int wordpos = 0; wordpos < wordcount; ++wordpos) {
 			for (DataSamples::InnerIterator iter(unigramfeature, wordpos); iter; ++iter) {
@@ -258,11 +259,14 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, SparseVector&
 
 	grad.resizeNonZeros(nonzeros);
 	grad /= samples.NumSamples();
+	avgloss /= samples.NumSamples();
+	return avgloss;
 }
 
-void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& grad)
+double LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& grad)
 {
 	namespace signal = boost::signals2::detail;
+	double avgloss = 0.0;
 	int labelcount = maxlabelid_ + 1;
 
 	grad.resize(modelsize_);
@@ -283,7 +287,7 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& 
 		Eigen::MatrixXd nodeprob = Eigen::Map<Eigen::MatrixXd>(nodeprobuffer.data(), labelcount, wordcount);
 		Eigen::MatrixXd edgeprob = Eigen::Map<Eigen::MatrixXd>(edgeprobuffer.data(), labelcount*labelcount, wordcount - 1);
 
-		GetNodeAndEdgeProb(unigramfeature, bigramfeature, nodeprob, edgeprob);
+		avgloss += GetNodeAndEdgeProb(unigramfeature, bigramfeature, nodeprob, edgeprob, label);
 
 		for (int wordpos = 0; wordpos < wordcount; ++wordpos) {
 			for (DataSamples::InnerIterator iter(unigramfeature, wordpos); iter; ++iter) {
@@ -312,6 +316,8 @@ void LccrfModel::Learn(LccrfSamples& samples, LccrfLabels& labels, DenseVector& 
 	}
 
 	grad /= samples.NumSamples();
+	avgloss /= samples.NumSamples();
+	return avgloss;
 }
 
 void LccrfModel::Inference(LccrfSamples& samples, LccrfLabels& labels)
@@ -388,19 +394,7 @@ void LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::strin
 		Viterbi1Best(uniscore, biscore, wordcount, predictlabels);
 
 		lastalpha = alpha.col(wordcount - 1);
-		double logpartion = LogSumExp(lastalpha);
-
-		int prevlabel = label.coeff(0);
-		logpartion -= uniscore.coeff(prevlabel, 0);
-		for (int wordpos = 1; wordpos < wordcount; ++wordpos) {
-			int labelid = label.coeff(wordpos);
-			int index = prevlabel * (maxlabelid_ + 1) + labelid;
-			logpartion -= biscore.coeff(index, wordpos - 1);
-			logpartion -= uniscore.coeff(labelid, wordpos);
-		}
-
-		logli += logpartion;
-
+		logli += LogLikelihood(lastalpha, uniscore, biscore, label, wordcount);
 		totalcounts += wordcount;
 		for (int wordpos = 0; wordpos < wordcount; ++wordpos) {
 			if (predictlabels.coeff(wordpos) == label.coeff(wordpos)) {
@@ -614,7 +608,9 @@ void LccrfModel::Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcoun
 	}
 }
 
-void LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples & bigramfeature, DenseMatrix & nodeprob, DenseMatrix & edgeprob)
+double LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples & bigramfeature,
+	DenseMatrix & nodeprob, DenseMatrix & edgeprob,
+	LabelVector& labels)
 {
 	namespace signal = boost::signals2::detail;
 
@@ -625,6 +621,7 @@ void LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples & 
 
 	signal::auto_buffer<double, signal::store_n_objects<kTokenBufferCount*kLabelBufferCount>> uniscorebuffer(uniscoresize);
 	signal::auto_buffer<double, signal::store_n_objects<kTokenBufferCount*kLabelBufferCount*kLabelBufferCount>> biscorebuffer(biscoresize);
+	signal::auto_buffer<double, signal::store_n_objects<kLabelBufferCount>> partionbuffer(maxlabelid_ + 1);
 
 	signal::auto_buffer<double, signal::store_n_objects<kTokenBufferCount*kLabelBufferCount>> alphabuffer(uniscoresize);
 	signal::auto_buffer<double, signal::store_n_objects<kTokenBufferCount*kLabelBufferCount>> betabuffer(uniscoresize);
@@ -635,6 +632,8 @@ void LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples & 
 	Eigen::MatrixXd alpha = Eigen::Map<Eigen::MatrixXd>(alphabuffer.data(), labelcount, wordcount);
 	Eigen::MatrixXd beta = Eigen::Map<Eigen::MatrixXd>(betabuffer.data(), labelcount, wordcount);
 
+	Eigen::VectorXd lastalpha = Eigen::Map<Eigen::VectorXd>(partionbuffer.data(), maxlabelid_ + 1);
+
 	CalculateUnigramScore(unigramfeature, uniscore);
 	CalculateBigramScore(bigramfeature, biscore);
 
@@ -643,6 +642,24 @@ void LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples & 
 
 	NodeProb(alpha, beta, wordcount, nodeprob);
 	EdgeProb(alpha, beta, uniscore, biscore, wordcount, edgeprob);
+
+	lastalpha = alpha.col(wordcount - 1);
+	return LogLikelihood(lastalpha, uniscore, biscore, labels, wordcount);
+}
+
+double LccrfModel::LogLikelihood(Eigen::VectorXd& lastalpha, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount)
+{
+	double logpartion = LogSumExp(lastalpha);
+
+	int prevlabel = labels.coeff(0);
+	logpartion -= node.coeff(prevlabel, 0);
+	for (int wordpos = 1; wordpos < wordcount; ++wordpos) {
+		int labelid = labels.coeff(wordpos);
+		int index = prevlabel * (maxlabelid_ + 1) + labelid;
+		logpartion -= edge.coeff(index, wordpos - 1);
+		logpartion -= edge.coeff(labelid, wordpos);
+	}
+	return logpartion;
 }
 
 double LccrfModel::LogSumExp(Eigen::VectorXd & v)

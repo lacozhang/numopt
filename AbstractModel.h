@@ -28,8 +28,8 @@ public:
 	virtual bool SaveModel(std::string model) = 0;
 
 	// calculate the gradient with respect to data samples
-	virtual void Learn(SampleType& samples, LabelType& labels, SparseGradientType& grad) = 0;
-	virtual void Learn(SampleType& samples, LabelType& labels, DenseGradientType& grad) = 0;
+	virtual double Learn(SampleType& samples, LabelType& labels, SparseGradientType& grad) = 0;
+	virtual double Learn(SampleType& samples, LabelType& labels, DenseGradientType& grad) = 0;
 
 	// inference model on new samples
 	virtual void Inference(SampleType& samples, LabelType& labels) = 0;
