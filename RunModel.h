@@ -7,7 +7,7 @@
 #include "linearmodel.h"
 #include "LccrfModel.h"
 #include "parameter.h"
-#include "sgd.h"
+#include "optimizer/sgd.h"
 
 
 template<class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>

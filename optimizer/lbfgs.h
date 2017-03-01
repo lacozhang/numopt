@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __LBFGS_H__
 #define __LBFGS_H__
-#include "../opt.h"
+#include "opt.h"
 
 template<class ParameterType,
 	class SampleType, class LabelType,
@@ -14,7 +14,8 @@ template<class ParameterType,
 
 		LBFGS(typename OptMethodBaseType::ModelSpecType& model)
 			: OptMethodBaseType(model), lbfgsdesc_("") {
-
+			InitCmdDescription();
+			ResetState();
 		}
 
 		virtual void InitFromCmd(int argc, const char* argv[]) override;

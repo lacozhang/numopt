@@ -3,10 +3,10 @@
 
 // header file for optimization algorithm like GD, SGD, CG, LBFGS, Proximal SGD, GD
 #include <boost/program_options.hpp>
-#include "typedef.h"
-#include "parameter.h"
-#include "AbstractModel.h"
-#include "DataIterator.h"
+#include "../typedef.h"
+#include "../parameter.h"
+#include "../AbstractModel.h"
+#include "../DataIterator.h"
 
 template<class ParameterType,
 	class SampleType, class LabelType,
@@ -80,5 +80,20 @@ template<class ParameterType,
 	private:
 		void ConstructBaseCmdOptions();
 };
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseL1RegOption = "l1";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseL2RegOption = "l2";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseMaxItersOption = "maxiter";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseFunctionEpsOption = "feps";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseGradEpsOption = "geps";
 
 #endif // __OPT_H__

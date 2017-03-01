@@ -1,8 +1,24 @@
 #include "lbfgs.h"
+#include "../util.h"
 
 
 
 
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitFromCmd(int argc, const char * argv[])
+{
+	boost::program_options::options_description alldesc;
+	alldesc.add(this->basedesc_);
+	alldesc.add(this->lbfgsdesc_);
+
+	auto vm = ParseArgs(argc, argv, alldesc, true);
+	if (this->historycnt_ < 1) {
+		BOOST_LOG_TRIVIAL(error) << "History count less than 1";
+		return;
+	}
+
+
+}
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 boost::program_options::options_description LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Options()

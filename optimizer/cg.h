@@ -1,7 +1,7 @@
 #pragma once
 #ifndef __CG_H__
 #define __CG_H__
-#include "../opt.h"
+#include "opt.h"
 template<class ParameterType,
 	class SampleType, class LabelType,
 	class SparseGradientType, class DenseGradientType>

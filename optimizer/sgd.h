@@ -1,8 +1,8 @@
 #ifndef __SGD_H__
 #define __SGD_H__
 #include "opt.h"
-#include "DataIterator.h"
-#include "linearmodel.h"
+#include "../DataIterator.h"
+#include "../linearmodel.h"
 
 template<class ParameterType,
 	class SampleType, class LabelType,
@@ -42,5 +42,15 @@ template<class ParameterType,
 
 		boost::program_options::options_description sgdesc_;
 };
+
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kLearningRateOption = "sgd.lr";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kLearningRateDecayOption = "sgd.lrd";
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kAverageGradientOption = "sgd.avg";
 
 #endif // __SGD_H__

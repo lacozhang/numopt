@@ -14,7 +14,7 @@ double timeutil::toc(){
 
 
 boost::program_options::variables_map ParseArgs(int argc, const char* argv[],
-	boost::program_options::options_description optionsdesc, bool allowunreg) {
+	boost::program_options::options_description& optionsdesc, bool allowunreg) {
 	boost::program_options::variables_map vm;
 	try {
 		if (allowunreg) {
