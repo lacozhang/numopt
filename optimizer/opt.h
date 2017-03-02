@@ -64,6 +64,13 @@ template<class ParameterType,
 			return learn_.l1_;
 		}
 
+		virtual double EvaluateOnSet(SampleType& samples, LabelType& labels) {
+			std::string message;
+			double funcval = this->model_.Evaluate(samples, labels, message);
+			BOOST_LOG_TRIVIAL(info) << message << std::endl;
+			return funcval;
+		}
+
 	protected:
 		LearnParameters learn_;
 		ModelSpecType& model_;
@@ -76,6 +83,7 @@ template<class ParameterType,
 		static const char* kBaseMaxItersOption;
 		static const char* kBaseFunctionEpsOption;
 		static const char* kBaseGradEpsOption;
+		static const char* kBaseMaxLineSearchTriesOption;
 
 	private:
 		void ConstructBaseCmdOptions();
@@ -96,4 +104,6 @@ const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientTy
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseGradEpsOption = "geps";
 
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+const char* OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::kBaseMaxLineSearchTriesOption = "mlt";
 #endif // __OPT_H__

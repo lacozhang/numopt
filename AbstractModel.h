@@ -35,7 +35,7 @@ public:
 	virtual void Inference(SampleType& samples, LabelType& labels) = 0;
 
 	// evaluate model performance
-	virtual void Evaluate(SampleType& samples, LabelType& labels, std::string& summary) = 0;
+	virtual double Evaluate(SampleType& samples, LabelType& labels, std::string& summary) = 0;
 
 protected:
 	boost::program_options::options_description optionsdesc_;

@@ -24,8 +24,6 @@ template<class ParameterType,
 		virtual void Train() override;
 		virtual boost::program_options::options_description Options() override;
 
-		void EvaluateOnSet(SampleType& samples, LabelType& labels);
-
 	private:
 		void TrainOneEpoch();
 		void InitCmdDescription();

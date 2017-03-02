@@ -353,7 +353,7 @@ void LccrfModel::Inference(LccrfSamples& samples, LccrfLabels& labels)
 	}
 }
 
-void LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::string& summary)
+double LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::string& summary)
 {
 	namespace signal = boost::signals2::detail;
 
@@ -408,6 +408,7 @@ void LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::strin
 	strout << "Average log-likelihood " << logli << " over " << samples.NumSamples() << " samples" << std::endl;
 	strout << "Accuracy rate " << (rightcount / totalcounts) * 100;
 	summary = strout.str();
+	return logli;
 }
 
 void LccrfModel::CalculateUnigramScore(DataSamples& sample, DenseMatrix& val)

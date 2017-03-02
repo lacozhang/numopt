@@ -38,7 +38,7 @@ public:
 
 	virtual void Inference(LccrfSamples& samples, LccrfLabels& labels) override;
 
-	virtual void Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::string& summary) override;
+	virtual double Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::string& summary) override;
 
 private:
 

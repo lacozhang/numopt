@@ -42,7 +42,7 @@ public:
 
 	virtual void Inference(DataSamples& samples, LabelVector& labels) override;
 
-	virtual void Evaluate(DataSamples& samples, LabelVector& labels, std::string& summary) override;
+	virtual double Evaluate(DataSamples& samples, LabelVector& labels, std::string& summary) override;
 
 private:
 

@@ -54,15 +54,6 @@ boost::program_options::options_description StochasticGD<ParameterType, SampleTy
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
-void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::EvaluateOnSet(SampleType & samples, LabelType& labels)
-{
-	std::string message;
-	double correct = 0, total = 0;
-	this->model_.Evaluate(samples, labels, message);
-	BOOST_LOG_TRIVIAL(info) << message << std::endl;
-}
-
-template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::TrainOneEpoch()
 {
 	ParameterType& param = this->model_.GetParameters();

@@ -165,7 +165,7 @@ void BinaryLinearModel::Inference(DataSamples & samples, LabelVector & labels)
 	}
 }
 
-void BinaryLinearModel::Evaluate(DataSamples & samples, LabelVector& labels, std::string& summary)
+double BinaryLinearModel::Evaluate(DataSamples & samples, LabelVector& labels, std::string& summary)
 {
 	std::stringstream sout;
 	DenseVector xtw = samples * (*param_);
@@ -206,4 +206,5 @@ void BinaryLinearModel::Evaluate(DataSamples & samples, LabelVector& labels, std
 
 	sout << "avg loss: " << losses << "/precision: " << precision << "/recall: " << recall << "/accu: " << (correct / samples.rows());
 	summary = sout.str();
+	return losses;
 }

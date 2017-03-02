@@ -2,6 +2,7 @@
 #ifndef __LBFGS_H__
 #define __LBFGS_H__
 #include "opt.h"
+#include "linesearch.h"
 
 template<class ParameterType,
 	class SampleType, class LabelType,
@@ -22,18 +23,24 @@ template<class ParameterType,
 		virtual void Train() override;
 		virtual boost::program_options::options_description Options() override;
 
-		enum class LineSearchOption {
-			BackTracking,
-			FullLineSearch
-		};
-
-		enum class LineSearchStopCondition {
-			SufficientDecrease,
-			Wolfe,
-			StrongWolfe
-		};
-
 	private:
+
+		double EvaluateValueAndGrad(ParameterType& modelparam, DenseGradientType& grad) {
+			this->model_.GetParameters().swap(modelparam);
+			double funcval = this->model_.Learn(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel(), grad);
+			this->model_.GetParameters().swap(modelparam);
+			if (this->learn_.l2_ > 0) {
+				grad += this->learn_.l2_ * modelparam;
+				funcval += 0.5*this->learn_.l2_ * modelparam.dot(modelparam);
+			}
+
+			if (this->learn_.l1_ > 0) {
+				BOOST_ASSERT(false);
+				funcval += this->learn_.l1_ * modelparam.lpNorm<1>();
+			}
+			return funcval;
+		}
+
 		void InitCmdDescription();
 		void ResetState();
 
@@ -45,11 +52,13 @@ template<class ParameterType,
 		std::string lsconfstr_;
 		int historycnt_;
 
-		std::vector<boost::shared_ptr<DenseGradientType>> gradhistory_;
-		std::vector<boost::shared_ptr<ParameterType>> paramhistory_;
+		std::vector<DenseGradientType> gradhistory_;
+		std::vector<ParameterType> paramhistory_;
 		std::vector<double> alphas_;
 		std::vector<double> betas_;
 		std::vector<double> rhos_;
+		boost::shared_ptr<LineSearcher> lsearch_;
+		int itercnt_;
 
 		boost::program_options::options_description lbfgsdesc_;
 };

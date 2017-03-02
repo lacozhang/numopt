@@ -30,6 +30,7 @@ struct LearnParameters {
   double learningratedecay_;
   int batchsize_;
   int maxiter_;
+  int maxlinetries_;
   double funceps_, gradeps_;
   int seed_;
   bool averge_;

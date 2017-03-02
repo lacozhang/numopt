@@ -8,7 +8,7 @@
 #include "LccrfModel.h"
 #include "parameter.h"
 #include "optimizer/sgd.h"
-
+#include "optimizer/lbfgs.h"
 
 template<class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>
 boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> CreateOptimizer(OptMethod optimtype,
@@ -28,6 +28,9 @@ boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, Sp
 	case OptMethod::CG:  // Conjugate Gradient
 		break;
 	case OptMethod::LBFGS:  // Limited BFGS
+	{
+		optimizer.reset(new LBFGS<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
+	}
 		break;
 	case OptMethod::CD:  // Coordinate Descent
 		break;
