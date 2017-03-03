@@ -35,11 +35,45 @@ template<class ParameterType,
 			}
 
 			if (this->learn_.l1_ > 0) {
-				BOOST_ASSERT(false);
 				funcval += this->learn_.l1_ * modelparam.lpNorm<1>();
 			}
 			return funcval;
 		}
+
+		void OwlqnPGradient(ParameterType& param, DenseGradientType& grad, DenseGradientType& pgrad) {
+			for (int i = 0; i < param.size(); ++i) {
+				if (param.coeff(i) < 0) {
+					pgrad.coeffRef(i) = grad.coeff(i) - this->learn_.l1_;
+				}
+				else if (param.coeff(i) > 0) {
+					pgrad.coeffRef(i) = grad.coeff(i) + this->learn_.l1_;
+				}
+				else {
+					if (grad.coeff(i) < -this->learn_.l1_) {
+						pgrad.coeffRef(i) = grad.coeff(i) + this->learn_.l1_;
+					}
+					else if (grad.coeff(i) > this->learn_.l1_) {
+						pgrad.coeffRef(i) = grad.coeff(i) - this->learn_.l1_;
+					}
+					else {
+						pgrad.coeffRef(i) = 0.0;
+					}
+				}
+			}
+		}
+
+		void OWLQNProject(ParameterType& param, const ParameterType& workorthant) {
+			for (int i = 0; i < param.size(); ++i) {
+				if (param.coeff(i)*workorthant.coeff(i) <= 0) {
+					param.coeffRef(i) = 0.0;
+				}
+			}
+		}
+
+		bool BackTrackForOWLQN(ParameterType& oriparam, double finit,
+			const ParameterType& direc, 
+			DenseGradientType& origrad, DenseGradientType& oripgrad, 
+			double& stepsize);
 
 		void InitCmdDescription();
 		void ResetState();
@@ -59,6 +93,10 @@ template<class ParameterType,
 		std::vector<double> rhos_;
 		boost::shared_ptr<LineSearcher> lsearch_;
 		int itercnt_;
+
+		// parameter for l1 reg
+		ParameterType workorthant_;
+		ParameterType paramnew_;
 
 		boost::program_options::options_description lbfgsdesc_;
 };

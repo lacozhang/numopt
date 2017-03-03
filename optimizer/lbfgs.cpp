@@ -41,6 +41,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 	ParameterType direction;
 
 	DenseGradientType grad;
+	DenseGradientType projgrad;
 	DenseGradientType pastgrad;
 	DenseGradientType gradiff;
 
@@ -60,13 +61,28 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 	gradiff.setZero();
 	direction.resize(param.size());
 	direction.setZero();
+	if (this->learn_.l1_ > 0) {
+		projgrad.resize(param.size());
+		projgrad.setZero();
+		workorthant_.resize(param.size());
+		workorthant_.setZero();
+		paramnew_.resize(param.size());
+		paramnew_.setZero();
+	}
 
 	funcval = EvaluateValueAndGrad(param, grad);
 	paramnorm = param.norm();
 	BOOST_LOG_TRIVIAL(info) << "Param norm " << paramnorm;
 	paramnorm = std::max(paramnorm, 1.0);
-	gradnorm = grad.norm();
-	BOOST_LOG_TRIVIAL(info) << "Gradient norm " << gradnorm;
+
+	if (this->learn_.l1_ > 0) {
+		OwlqnPGradient(param, grad, projgrad);
+		gradnorm = projgrad.norm();
+	}
+	else {
+		gradnorm = grad.norm();
+	}
+	BOOST_LOG_TRIVIAL(info) << "gradient norm " << gradnorm;
 
 	std::function<double(ParameterType&, DenseGradientType&)> evaluator = std::bind(&LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::EvaluateValueAndGrad,
 		this, std::placeholders::_1, std::placeholders::_2);
@@ -76,8 +92,14 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		return;
 	}
 
-	direction = -grad;
-	stepsize = 1;
+	if (this->learn_.l1_ > 0) {
+		direction = -projgrad;
+	}
+	else {
+		direction = -grad;
+	}
+
+	stepsize = 1 / direction.dot(direction);
 
 	for (int i = 0; i < this->historycnt_; ++i) {
 		this->gradhistory_[i].resize(param.size());
@@ -94,7 +116,8 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 			lsgood = lsearch_->BackTrackLineSearch(param, direction, grad, funcval, stepsize, evaluator);
 		}
 		else {
-			BOOST_ASSERT(false);
+			lsgood = BackTrackForOWLQN(param, funcval, direction, grad, projgrad, stepsize);
+			OwlqnPGradient(param, grad, projgrad);
 		}
 
 		BOOST_LOG_TRIVIAL(info) << "using step size " << stepsize;
@@ -124,7 +147,13 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		paramnorm = param.norm();
 		BOOST_LOG_TRIVIAL(info) << "Param norm " << paramnorm;
 		paramnorm = std::max(paramnorm, 1.0);
-		gradnorm = grad.norm();
+		if (this->learn_.l1_ > 0) {
+			gradnorm = projgrad.norm();
+		}
+		else {
+			gradnorm = grad.norm();
+		}
+
 		BOOST_LOG_TRIVIAL(info) << "Gradient norm " << gradnorm;
 		if (gradnorm / paramnorm < this->learn_.gradeps_) {
 			BOOST_LOG_TRIVIAL(info) << "optimization finished";
@@ -146,7 +175,11 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		index = (index + 1) % this->historycnt_;
 		++itercnt_;
 
-		direction = -grad;
+		if (this->learn_.l1_ > 0)
+			direction = -projgrad;
+		else
+			direction = -grad;
+
 
 		int i = 0, j = 0;
 		for (i = 0, j = index; i < bound; ++i) {
@@ -176,13 +209,25 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		}
 
 		if (this->learn_.l1_ > 0) {
-			BOOST_ASSERT(false);
 			funcval += this->learn_.l1_ * param.lpNorm<1>();
+			for (int i = 0; i < param.size(); ++i) {
+				if (direction.coeff(i)*projgrad.coeff(i) >= 0) {
+					direction.coeffRef(i) = 0.0;
+				}
+			}
 		}
 
 		BOOST_LOG_TRIVIAL(info) << "new direction norm " << direction.norm();
 		stepsize = 1.0;
 	}
+
+	double total = param.size(), zeros = 0;
+	for (int i = 0; i < param.size(); ++i) {
+		if (param.coeff(i) == 0) {
+			zeros += 1;
+		}
+	}
+	BOOST_LOG_TRIVIAL(info) << "sparsity rate " << (zeros / total);
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
@@ -192,6 +237,53 @@ boost::program_options::options_description LBFGS<ParameterType, SampleType, Lab
 	combined.add(this->basedesc_);
 	combined.add(this->lbfgsdesc_);
 	return combined;
+}
+
+template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
+bool LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::BackTrackForOWLQN(ParameterType& oriparam, double finit,
+	const ParameterType& direc,
+	DenseGradientType& origrad, DenseGradientType& oripgrad,
+	double& stepsize)
+{
+	double funcval;
+	if (stepsize < 0) {
+		BOOST_LOG_TRIVIAL(fatal) << "error, step size smaller than 0";
+		return false;
+	}
+	for (int i = 0; i < oriparam.size(); ++i) {
+		if (oriparam.coeff(i) == 0) {
+			workorthant_.coeffRef(i) = -oripgrad.coeff(i);
+		}
+		else {
+			workorthant_.coeffRef(i) = oriparam.coeff(i);
+		}
+	}
+	int iter = 0;
+	while (iter < this->learn_.maxlinetries_) {
+		paramnew_ = oriparam + stepsize*direc;
+		OWLQNProject(paramnew_, workorthant_);
+		funcval = EvaluateValueAndGrad(paramnew_, origrad);
+		double dgtest = oripgrad.dot(paramnew_ - oriparam);
+		if (funcval <= finit + 1e-4*dgtest) {
+			break;
+		}
+
+		if (stepsize < 1e-15) {
+			BOOST_LOG_TRIVIAL(error) << "stepsize too small";
+			return false;
+		}
+
+		stepsize *= 0.5;
+		++iter;
+	}
+
+	if (iter >= this->learn_.maxlinetries_) {
+		BOOST_LOG_TRIVIAL(error) << "exceed maximum number of tries";
+		return false;
+	}
+
+	oriparam.swap(paramnew_);
+	return true;
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
