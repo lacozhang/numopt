@@ -89,6 +89,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		pastparam = param;
 		pastgrad = grad;
 
+		BOOST_LOG_TRIVIAL(info) << "objective value " << funcval;
 		if (this->learn_.l1_ == 0) {
 			lsgood = lsearch_->BackTrackLineSearch(param, direction, grad, funcval, stepsize, evaluator);
 		}
@@ -108,7 +109,6 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		BOOST_ASSERT(!grad.hasNaN());
 
 		funcval = EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
-		BOOST_LOG_TRIVIAL(info) << "Loss value " << funcval;
 		if (this->testiter_->IsValid()) {
 			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
@@ -135,9 +135,8 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		gradiff = grad - pastgrad;
 		this->gradhistory_[index].swap(gradiff);
 		this->paramhistory_[index].swap(paramdiff);
-		this->rhos_[index] = paramdiff.dot(gradiff);
-		double scalar = this->rhos_[index] / gradiff.dot(gradiff);
-		BOOST_LOG_TRIVIAL(info) << "scaling factor " << scalar;
+		this->rhos_[index] = this->gradhistory_[index].dot(this->paramhistory_[index]);
+		double scalar = this->rhos_[index] / this->gradhistory_[index].dot(this->gradhistory_[index]);
 #ifdef _DEBUG
 		BOOST_ASSERT(!std::isnan(scalar));
 #endif // 
@@ -158,9 +157,10 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 #ifdef _DEBUG
 			BOOST_ASSERT(!direction.hasNaN());
 #endif // 
-
 		}
+
 		direction *= scalar;
+
 		for (int i = 0; i < bound; ++i) {
 			this->betas_[j] = this->gradhistory_[j].dot(direction);
 			this->betas_[j] /= this->rhos_[j];
@@ -180,7 +180,6 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 			funcval += this->learn_.l1_ * param.lpNorm<1>();
 		}
 
-		BOOST_ASSERT(!direction.hasNaN());
 		BOOST_LOG_TRIVIAL(info) << "new direction norm " << direction.norm();
 		stepsize = 1.0;
 	}

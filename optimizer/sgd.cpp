@@ -62,6 +62,11 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 	LabelType minibatchlabel;
 	size_t epochsize = this->trainiter_->GetSampleSize();
 
+#ifdef _DEBUG
+	DenseGradientType testgrad;
+#endif // _DEBUG
+
+
 	if (this->learn_.averge_ && epochcount_ == 1) {
 		BOOST_LOG_TRIVIAL(trace) << "copy param to averaged param, start to averaging";
 		avgparam_.resizeLike(param);
@@ -74,7 +79,8 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 
 	while (this->trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
 
-		this->model_.Learn(minibatchdata, minibatchlabel, paramgrad);
+		double sparseloss=this->model_.Learn(minibatchdata, minibatchlabel, paramgrad);
+
 		if (this->learn_.averge_) {
 			learnrateiter_ = this->LearningRate() / std::pow(1 + this->LearningRateDecay()*itercount_, 0.75);
 		}

@@ -43,21 +43,26 @@ public:
 private:
 
 	inline DenseVector::value_type GetUnigramWeight(int featid, int labelid) {
-		if (featid < maxunigramid_) {
+		if (featid <= maxunigramid_) {
 			int index = GetUnigramFeatureIndex(featid, labelid);
+			BOOST_ASSERT(index < param_->size());
 			return param_->coeff(index);
 		}
-		else
+		else {
+			BOOST_ASSERT_MSG(false, "access feature index larger than model");
 			return 0;
+		}
 	}
 
 
 	inline DenseVector::value_type GetBigramWeight(int featid, int fromlabelid, int tolabelid) {
-		if (featid < maxbigramid_) {
+		if (featid <= maxbigramid_) {
 			int index = GetBigramFeatureIndex(featid, fromlabelid, tolabelid);
+			BOOST_ASSERT(index < param_->size());
 			return param_->coeff(index);
 		}
 		else {
+			BOOST_ASSERT_MSG(false, "access bigram feature larger than model");
 			return 0;
 		}
 	}
@@ -68,7 +73,7 @@ private:
 	}
 
 	inline int GetBigramFeatureIndex(int featid, int fromlabel, int tolabel) {
-		return uniweightsize_ + fromlabel * (maxlabelid_ + 1) + tolabel;
+		return uniweightsize_ + featid*(maxlabelid_ + 1)*(maxlabelid_ + 1) + fromlabel * (maxlabelid_ + 1) + tolabel;
 	}
 
 	void CalculateUnigramScore(DataSamples& features, DenseMatrix& val);
@@ -80,7 +85,7 @@ private:
 	void EdgeProb(DenseMatrix& alpha, DenseMatrix& beta, DenseMatrix& node, DenseMatrix& edge, int wordcount, DenseMatrix& edgeprob);
 	void Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcount, LabelVector& path);
 	double GetNodeAndEdgeProb(DataSamples& unifeatues, DataSamples& bifeatures, DenseMatrix& nodeprob, DenseMatrix& edgeprob, LabelVector& labels);
-	double LogLikelihood(Eigen::VectorXd& lastalpha, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount);
+	double LogLikelihood(double logpartion, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount);
 
 	double LogSumExp(Eigen::VectorXd& v);
 

@@ -357,7 +357,7 @@ double LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::str
 {
 	namespace signal = boost::signals2::detail;
 
-	double logli = 0;
+	double logli = 0, samplescore;
 	float totalcounts = 0, rightcount = 0;
 	for (int i = 0; i < samples.NumSamples(); ++i) {
 
@@ -391,10 +391,26 @@ double LccrfModel::Evaluate(LccrfSamples& samples, LccrfLabels& labels, std::str
 		CalculateBigramScore(bigramfeature, biscore);
 
 		ForwardPass(uniscore, biscore, wordcount, alpha);
+		BackwardPass(uniscore, biscore, wordcount, beta);
 		Viterbi1Best(uniscore, biscore, wordcount, predictlabels);
 
-		lastalpha = alpha.col(wordcount - 1);
-		logli += LogLikelihood(lastalpha, uniscore, biscore, label, wordcount);
+		// test purpose
+#ifdef _DEBUG
+		lastalpha = alpha.col(0) + beta.col(0);
+		double testlogpartion = LogSumExp(lastalpha);
+		for (int testi = 1; testi < wordcount; ++testi) {
+			lastalpha = alpha.col(testi) + beta.col(testi);
+			double currentlog = LogSumExp(lastalpha);
+			if (std::abs(currentlog - testlogpartion) > 1e-3) {
+				BOOST_LOG_TRIVIAL(info) << "first one " << testlogpartion << " current one " << currentlog;
+			}
+		}
+#endif // _DEBUG
+
+		lastalpha.setZero();
+		lastalpha = alpha.col(0) + beta.col(0);
+		samplescore = LogLikelihood(LogSumExp(lastalpha), uniscore, biscore, label, wordcount);
+		logli += samplescore;
 		totalcounts += wordcount;
 		for (int wordpos = 0; wordpos < wordcount; ++wordpos) {
 			if (predictlabels.coeff(wordpos) == label.coeff(wordpos)) {
@@ -466,15 +482,13 @@ void LccrfModel::ForwardPass(DenseMatrix& node, DenseMatrix& edge, int wordcount
 
 	for (int wordpos = 1; wordpos < wordcount; ++wordpos) {
 
-		alpha.col(wordpos) = node.col(wordpos);
-
 		for (int label = 0; label <= maxlabelid_; ++label) {
 			trans.setZero();
 			for (int fromlabel = 0; fromlabel <= maxlabelid_; ++fromlabel) {
 				int index = fromlabel*(maxlabelid_ + 1) + label;
 				trans[fromlabel] = edge(index, wordpos - 1);
+				trans[fromlabel] += node(label, wordpos);
 			}
-
 			trans += alpha.col(wordpos - 1);
 			alpha(label, wordpos) += LogSumExp(trans);
 		}
@@ -500,9 +514,8 @@ void LccrfModel::BackwardPass(DenseMatrix& node, DenseMatrix& edge, int wordcoun
 			for (int tolabel = 0; tolabel <= maxlabelid_; ++tolabel) {
 				int index = label * (maxlabelid_ + 1) + tolabel;
 				trans.coeffRef(tolabel) += edge(index, wordpos);
+				trans.coeffRef(tolabel) += node.coeff(tolabel, wordpos+1);
 			}
-			trans += node.col(wordpos + 1);
-
 			beta.coeffRef(label, wordpos) = LogSumExp(trans);
 		}
 	}
@@ -644,21 +657,38 @@ double LccrfModel::GetNodeAndEdgeProb(DataSamples & unigramfeature, DataSamples 
 	NodeProb(alpha, beta, wordcount, nodeprob);
 	EdgeProb(alpha, beta, uniscore, biscore, wordcount, edgeprob);
 
-	lastalpha = alpha.col(wordcount - 1);
-	return LogLikelihood(lastalpha, uniscore, biscore, labels, wordcount);
+#ifdef _DEBUG
+	lastalpha = alpha.col(0) + beta.col(0);
+	double testlogpartion = LogSumExp(lastalpha);
+	for (int testi = 1; testi < wordcount; ++testi) {
+		lastalpha = alpha.col(testi) + beta.col(testi);
+		double currentlog = LogSumExp(lastalpha);
+		if (std::abs(currentlog - testlogpartion) > 1e-3) {
+			BOOST_LOG_TRIVIAL(info) << "first one " << testlogpartion << " current one " << currentlog;
+		}
+	}
+#endif // _DEBUG
+
+	lastalpha.setZero();
+	lastalpha = alpha.col(0) + beta.col(0);
+	return LogLikelihood(LogSumExp(lastalpha), uniscore, biscore, labels, wordcount);
 }
 
-double LccrfModel::LogLikelihood(Eigen::VectorXd& lastalpha, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount)
+double LccrfModel::LogLikelihood(double logpartion, DenseMatrix& node, DenseMatrix& edge, LabelVector& labels, int wordcount)
 {
-	double logpartion = LogSumExp(lastalpha);
-
 	int prevlabel = labels.coeff(0);
 	logpartion -= node.coeff(prevlabel, 0);
 	for (int wordpos = 1; wordpos < wordcount; ++wordpos) {
 		int labelid = labels.coeff(wordpos);
 		int index = prevlabel * (maxlabelid_ + 1) + labelid;
 		logpartion -= edge.coeff(index, wordpos - 1);
-		logpartion -= edge.coeff(labelid, wordpos);
+		logpartion -= node.coeff(labelid, wordpos);
+		prevlabel = labelid;
+	}
+
+	BOOST_ASSERT(logpartion > 0, "error, log likelihood is negative");
+	if (logpartion < 0) {
+		BOOST_LOG_TRIVIAL(fatal) << "error, negative log likelihood is negative";
 	}
 	return logpartion;
 }

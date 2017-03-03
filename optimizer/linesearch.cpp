@@ -54,7 +54,7 @@ bool LineSearcher::BackTrackLineSearch(DenseVector& param, DenseVector& direc, D
 				break;
 			}
 
-			dgval = tparam_.dot(grad);
+			dgval = direc.dot(grad);
 			if (dgval < beta_ * dginit) {
 				stepupdate = stepexpand;
 			}
