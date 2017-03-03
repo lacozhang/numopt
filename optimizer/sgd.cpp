@@ -42,6 +42,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 	}
+	ResultStats(this->model_.GetParameters());
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

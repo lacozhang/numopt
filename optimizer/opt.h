@@ -71,6 +71,16 @@ template<class ParameterType,
 			return funcval;
 		}
 
+		virtual void ResultStats(const ParameterType& param) {
+			double total = param.size(), zeros = 0;
+			for (int i = 0; i < param.size(); ++i) {
+				if (param.coeff(i) == 0) {
+					zeros += 1;
+				}
+			}
+			BOOST_LOG_TRIVIAL(info) << "sparsity rate " << (zeros / total);
+		}
+
 	protected:
 		LearnParameters learn_;
 		ModelSpecType& model_;

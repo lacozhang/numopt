@@ -220,14 +220,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		BOOST_LOG_TRIVIAL(info) << "new direction norm " << direction.norm();
 		stepsize = 1.0;
 	}
-
-	double total = param.size(), zeros = 0;
-	for (int i = 0; i < param.size(); ++i) {
-		if (param.coeff(i) == 0) {
-			zeros += 1;
-		}
-	}
-	BOOST_LOG_TRIVIAL(info) << "sparsity rate " << (zeros / total);
+	ResultStats(param);
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
