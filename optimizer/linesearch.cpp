@@ -332,7 +332,7 @@ LineSearcher::LineSearcher(const std::string & lsfuncstr, const std::string & ls
 	}
 }
 
-bool LineSearcher::LineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize, std::function<double(DenseVector&, DenseVector&)> funcgrad)
+bool LineSearcher::LineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize, std::function<double(DenseVector&, DenseVector&)>& funcgrad)
 {
 	if (lsfunctype_ == LineSearchFunctionType::BackTrack) {
 		return BackTrackLineSearch(param, direc, grad, finit, stepsize, funcgrad);
@@ -343,7 +343,7 @@ bool LineSearcher::LineSearch(DenseVector& param, DenseVector& direc, DenseVecto
 }
 
 bool LineSearcher::BackTrackLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
-	std::function<double(DenseVector&, DenseVector&)> funcgrad)
+	std::function<double(DenseVector&, DenseVector&)>& funcgrad)
 {
 	itercnt_ = 0;
 	double stepupdate;
@@ -413,7 +413,8 @@ bool LineSearcher::BackTrackLineSearch(DenseVector& param, DenseVector& direc, D
 	return true;
 }
 
-bool LineSearcher::MoreThuenteLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double & stepsize, std::function<double(DenseVector&, DenseVector&)> funcgrad)
+bool LineSearcher::MoreThuenteLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double & stepsize, 
+	std::function<double(DenseVector&, DenseVector&)>& funcgrad)
 {
 
 	itercnt_ = 0;

@@ -23,7 +23,7 @@ enum class LineSearchConditionType
 class LineSearcher {
 public:
 	LineSearcher(const std::string& lsfuncstr, const std::string& lscondstr, int maxtries,
-		float alpha=1e-3, float beta=0.9,
+		float alpha=1e-4, float beta=0.9,
 		double minstep=1e-15, double maxstep=1e15,
 		double parameps=1e-15);
 	~LineSearcher() {}
@@ -33,13 +33,13 @@ public:
 	}
 
 	bool LineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
-		std::function<double(DenseVector&, DenseVector&)> funcgrad);
+		std::function<double(DenseVector&, DenseVector&)>& funcgrad);
 
 	bool BackTrackLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
-		std::function<double(DenseVector&, DenseVector&)> funcgrad);
+		std::function<double(DenseVector&, DenseVector&)>& funcgrad);
 
 	bool MoreThuenteLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
-		std::function<double(DenseVector&, DenseVector&)> funcgrad);
+		std::function<double(DenseVector&, DenseVector&)>& funcgrad);
 
 private:
 

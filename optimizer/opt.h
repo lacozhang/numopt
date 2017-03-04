@@ -36,31 +36,31 @@ template<class ParameterType,
 			testiter_ = dat;
 		}
 
-		int MaxIter() const {
+		inline int MaxIter() const {
 			return learn_.maxiter_;
 		}
 
-		double LearningRate() const {
+		inline double LearningRate() const {
 			return learn_.learningrate_;
 		}
 
-		double LearningRateDecay() const {
+		inline double LearningRateDecay() const {
 			return learn_.learningratedecay_;
 		}
 
-		double FunctionEpsilon() const {
+		inline double FunctionEpsilon() const {
 			return learn_.funceps_;
 		}
 
-		double GradEpsilon() const {
+		inline double GradEpsilon() const {
 			return learn_.gradeps_;
 		}
 
-		double L2RegVal() const {
+		inline double L2RegVal() const {
 			return learn_.l2_;
 		}
 
-		double L1RegVal() const {
+		inline double L1RegVal() const {
 			return learn_.l1_;
 		}
 
