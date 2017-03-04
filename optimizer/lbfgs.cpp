@@ -113,7 +113,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 
 		BOOST_LOG_TRIVIAL(info) << "objective value " << funcval;
 		if (this->learn_.l1_ == 0) {
-			lsgood = lsearch_->BackTrackLineSearch(param, direction, grad, funcval, stepsize, evaluator);
+			lsgood = lsearch_->LineSearch(param, direction, grad, funcval, stepsize, evaluator);
 		}
 		else {
 			lsgood = BackTrackForOWLQN(param, funcval, direction, grad, projgrad, stepsize);

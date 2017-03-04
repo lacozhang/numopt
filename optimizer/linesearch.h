@@ -24,14 +24,21 @@ class LineSearcher {
 public:
 	LineSearcher(const std::string& lsfuncstr, const std::string& lscondstr, int maxtries,
 		float alpha=1e-3, float beta=0.9,
-		double minstep=1e-15, double maxstep=1e15);
+		double minstep=1e-15, double maxstep=1e15,
+		double parameps=1e-15);
 	~LineSearcher() {}
 
 	bool IsValid() {
 		return valid_;
 	}
 
+	bool LineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
+		std::function<double(DenseVector&, DenseVector&)> funcgrad);
+
 	bool BackTrackLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
+		std::function<double(DenseVector&, DenseVector&)> funcgrad);
+
+	bool MoreThuenteLineSearch(DenseVector& param, DenseVector& direc, DenseVector& grad, double finit, double& stepsize,
 		std::function<double(DenseVector&, DenseVector&)> funcgrad);
 
 private:
@@ -49,6 +56,7 @@ private:
 	// beta_ is used for curvature condition, should be large like (0.9)
 	float alpha_, beta_;
 	double minstep_, maxstep_;
+	double parameps_;
 	DenseVector tparam_;
 };
 
