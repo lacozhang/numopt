@@ -30,7 +30,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 		BOOST_LOG_TRIVIAL(fatal) << "Error, Conjugate gradient can't handle l1 regularization, it will be ignored";
 	}
 
-	lsearch_.reset(new LineSearcher("mt", "swolfe", this->learn_.maxlinetries_));
+	lsearch_.reset(new LineSearcher(this->lsfuncstr_, "swolfe", this->learn_.maxlinetries_));
 	if (lsearch_.get() == nullptr) {
 		BOOST_LOG_TRIVIAL(fatal) << "Failed to initialize line search";
 	}
@@ -75,6 +75,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 		paramnorm = std::max(1.0, paramnorm);
 		gradnorm = grad.norm();
 
+		BOOST_LOG_TRIVIAL(info) << "Step size      " << stepsize;
 		BOOST_LOG_TRIVIAL(info) << "Gradient  norm " << gradnorm;
 		BOOST_LOG_TRIVIAL(info) << "Parameter norm " << paramnorm;
 		if (gradnorm / paramnorm < this->learn_.gradeps_) {
@@ -117,6 +118,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 			direction.setZero();
 		}
 		direction -= grad;
+		stepsize = 4;
 	}
 
 	ResultStats(param);
@@ -136,7 +138,8 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 {
 	this->cgdesc_.add_options()
 		("cg.n", boost::program_options::value<int>(&this->restartcounter_)->default_value(20), "reset cg status after n iteration")
-		("cg.m", boost::program_options::value<std::string>(&this->methodstr_)->default_value("pr"), "method for generation: fr/pr");
+		("cg.m", boost::program_options::value<std::string>(&this->methodstr_)->default_value("pr"), "method for generation: fr/pr")
+		("cg.ls", boost::program_options::value<std::string>(&this->lsfuncstr_)->default_value("bt"), "line search method: bt/mt");
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

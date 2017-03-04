@@ -47,7 +47,7 @@ template<class ParameterType,
 
 		DenseGradientType pastgrad_;
 		int restartcounter_;
-		std::string methodstr_;
+		std::string methodstr_, lsfuncstr_;
 		ConjugateGenerationMethod method_;
 		boost::shared_ptr<LineSearcher> lsearch_;
 
