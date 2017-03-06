@@ -42,6 +42,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 	int itercnt=0;
 	ParameterType& param = this->model_.GetParameters();
 	ParameterType direction;
+	ParameterType pastdirec;
 	DenseGradientType grad;
 
 	grad.resize(param.size());
@@ -50,6 +51,8 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 	pastgrad_.setZero();
 	direction.resize(param.size());
 	direction.setZero();
+	pastdirec.resize(param.size());
+	pastdirec.setZero();
 
 	double funcval = 0, stepsize=1, beta;
 	double paramnorm, gradnorm;
@@ -60,6 +63,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 	direction = -grad;
 	while (itercnt < this->learn_.maxiter_) {
 
+		pastdirec = direction;
 		BOOST_LOG_TRIVIAL(info) << "*******Start iteration " << itercnt << "*******";
 		BOOST_LOG_TRIVIAL(info) << "Object value " << funcval;
 
@@ -118,6 +122,9 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 			direction.setZero();
 		}
 		direction -= grad;
+		BOOST_LOG_TRIVIAL(info) << "Orthognal rate " << pastdirec.dot(direction);
+
+
 		stepsize = 4;
 	}
 

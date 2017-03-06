@@ -14,6 +14,7 @@ enum class OptMethod {
   PGD,    // Proximal Gradient Descent
   CD,     // coordinate descent
   BCD,     // block coordinate descent
+  SVRG,   // stochastic variance reduction gradient
   None
 };
 

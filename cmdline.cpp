@@ -38,6 +38,9 @@ OptMethod parseopt(const char *opt) {
 	else if (!std::strcmp(opt, "bcd")) {
 		return OptMethod::BCD;
 	}
+	else if(!std::strcmp(opt, "svrg")) {
+		return OptMethod::SVRG;
+	}
 	else {
 		return OptMethod::None;
 	}

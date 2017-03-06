@@ -10,6 +10,7 @@
 #include "optimizer/sgd.h"
 #include "optimizer/lbfgs.h"
 #include "optimizer/cg.h"
+#include "optimizer/svrg.h"
 
 template<class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>
 boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> CreateOptimizer(OptMethod optimtype,
@@ -39,6 +40,11 @@ boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, Sp
 	case OptMethod::CD:  // Coordinate Descent
 		break;
 	case OptMethod::BCD:  // Block Coordinate Descent
+		break;
+	case OptMethod::SVRG:
+	{
+		optimizer.reset(new StochasticVRG<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
+	}
 		break;
 	case OptMethod::None:
 	{
