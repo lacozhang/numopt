@@ -611,6 +611,7 @@ void LccrfModel::Viterbi1Best(DenseMatrix& node, DenseMatrix& edge, int wordcoun
 	for (int label = 0; label <= maxlabelid_; ++label) {
 		if (maxpath(label, wordcount - 1) > maxscore) {
 			bestpath = label;
+			maxscore = maxpath(label, wordcount - 1);
 		}
 	}
 
