@@ -487,10 +487,9 @@ void LccrfModel::ForwardPass(DenseMatrix& node, DenseMatrix& edge, int wordcount
 			for (int fromlabel = 0; fromlabel <= maxlabelid_; ++fromlabel) {
 				int index = fromlabel*(maxlabelid_ + 1) + label;
 				trans[fromlabel] = edge(index, wordpos - 1);
-				trans[fromlabel] += node(label, wordpos);
 			}
 			trans += alpha.col(wordpos - 1);
-			alpha(label, wordpos) += LogSumExp(trans);
+			alpha(label, wordpos) += LogSumExp(trans) + node(label, wordpos);
 		}
 	}
 
@@ -686,7 +685,6 @@ double LccrfModel::LogLikelihood(double logpartion, DenseMatrix& node, DenseMatr
 		prevlabel = labelid;
 	}
 
-	BOOST_ASSERT(logpartion > 0, "error, log likelihood is negative");
 	if (logpartion < 0) {
 		BOOST_LOG_TRIVIAL(fatal) << "error, negative log likelihood is negative";
 	}
