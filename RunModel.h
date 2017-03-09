@@ -7,57 +7,22 @@
 #include "linearmodel.h"
 #include "LccrfModel.h"
 #include "parameter.h"
-#include "optimizer/sgd.h"
-#include "optimizer/lbfgs.h"
-#include "optimizer/cg.h"
-#include "optimizer/svrg.h"
+#include "optimizer/optimfactory.h"
 
 template<class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>
-boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> CreateOptimizer(OptMethod optimtype,
-	boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model) {
+boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> CreateOptimizer(std::string optimname,
+	boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model, 
+	BaseOptimizerFactory<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>& optimfactory) {
 
 	boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> optimizer;
-	switch (optimtype) {
-	case OptMethod::SGD:  // Stochastic Gradient Descent
-	{
-		optimizer.reset(new  StochasticGD<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
-	}
-	break;
-	case OptMethod::PGD:  // Proximal Gradient Descent
-		break;
-	case OptMethod::GD:  // Gradient Descent
-		break;
-	case OptMethod::CG:  // Conjugate Gradient
-	{
-		optimizer.reset(new  ConjugateGradient<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
-	}
-		break;
-	case OptMethod::LBFGS:  // Limited BFGS
-	{
-		optimizer.reset(new LBFGS<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
-	}
-		break;
-	case OptMethod::CD:  // Coordinate Descent
-		break;
-	case OptMethod::BCD:  // Block Coordinate Descent
-		break;
-	case OptMethod::SVRG:
-	{
-		optimizer.reset(new StochasticVRG<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(*model));
-	}
-		break;
-	case OptMethod::None:
-	{
-
-	}
-		break;
-	}
-
+	optimizer.reset(optimfactory.Create(optimname, *model));
 	return optimizer;
 }
 
 template<TrainDataType DataType, class ParameterType, class DataSampleType, class DataLabelType,class SparseGradientType,class DenseGradientType>
-void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model) {
+void RunModel(int argc, const char* argv[], std::string optimizertype, 
+	boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model, 
+	BaseOptimizerFactory<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>& optimfactory) {
 
 	BOOST_LOG_TRIVIAL(info) << "load data";
 
@@ -90,7 +55,7 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 	model->InitFromData(trainiter);
 
 	boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> optimizer;
-	optimizer = CreateOptimizer<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(optimizertype, model);
+	optimizer = CreateOptimizer<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(optimizertype, model, optimfactory);
 	optimizer->InitFromCmd(argc, argv);
 	optimizer->SetTrainData(boost::make_shared<DataIteratorBase<DataSampleType, DataLabelType>>(trainiter));
 	optimizer->SetTestData(boost::make_shared<DataIteratorBase<DataSampleType, DataLabelType>>(testiter));
@@ -102,10 +67,12 @@ void RunModel(int argc, const char* argv[], OptMethod optimizertype, boost::shar
 }
 
 template<TrainDataType DataType, class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>
-void RunModelHelp(OptMethod optimtype, boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model) {
+void RunModelHelp(std::string optimtype, 
+	boost::shared_ptr<AbstractModel<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> model,
+	BaseOptimizerFactory<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>& optimfactory) {
 
 	std::cout << model->Options();
-	auto optimizer = CreateOptimizer<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(optimtype,model);
+	auto optimizer = CreateOptimizer<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(optimtype, model, optimfactory);
 	std::cout << optimizer->Options();
 	ModelData<DataType, DataSampleType, DataLabelType> modeldata;
 	std::cout << modeldata.Options();

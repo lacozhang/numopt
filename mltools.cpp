@@ -26,14 +26,13 @@ int main(int argc, const char *argv[]) {
 	std::string optimstr(argv[2]);
 	
 	ModelType model = parsemodel(modelstr.c_str());
-	OptMethod optim = parseopt(optimstr.c_str());
 
 	if (vm.count("help") ||
 		(model == ModelType::None) ||
-		(optim == OptMethod::None)) {
+		(optimstr.empty())) {
 
 		if ((model == ModelType::None) ||
-			(optim == OptMethod::None)) {
+			(optimstr.empty())) {
 			PrintGeneralUsage();
 		}
 		else {
@@ -46,13 +45,15 @@ int main(int argc, const char *argv[]) {
 			{
 				boost::shared_ptr<BinaryLinearModel> linearmodel;
 				linearmodel.reset(new BinaryLinearModel());
-				RunModelHelp<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(optim, linearmodel);
+				LinearFactory factory;
+				RunModelHelp<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(optimstr, linearmodel, factory);
 			}
 			break;
 			case ModelType::LCCRF:{
 				boost::shared_ptr<LccrfModel> lccrf;
 				lccrf.reset(new LccrfModel());
-				RunModelHelp<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(optim, lccrf);
+				LccrfFactory factory;
+				RunModelHelp<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(optimstr, lccrf, factory);
 			}
 				break;
 			case ModelType::SMCRF:
@@ -73,14 +74,16 @@ int main(int argc, const char *argv[]) {
 	{
 		boost::shared_ptr<BinaryLinearModel> linearmodel;
 		linearmodel.reset(new BinaryLinearModel());
-		RunModel<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(argc, argv, optim, linearmodel);
+		LinearFactory factory;
+		RunModel<TrainDataType::kLibSVM, DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>(argc, argv, optimstr, linearmodel, factory);
 	}
 	break;
 	case ModelType::LCCRF:
 	{
-		 boost::shared_ptr<LccrfModel> lccrf;
-		 lccrf.reset(new LccrfModel());
-		 RunModel<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(argc, argv, optim, lccrf);
+		boost::shared_ptr<LccrfModel> lccrf;
+		lccrf.reset(new LccrfModel());
+		LccrfFactory factory;
+		RunModel<TrainDataType::kLCCRF, DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>(argc, argv, optimstr, lccrf, factory);
 	}
 		break;
 	case ModelType::SMCRF:
