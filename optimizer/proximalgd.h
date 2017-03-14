@@ -76,8 +76,8 @@ template<class ParameterType,
 		}
 
 		void SoftThresholding(ParameterType& base, DenseGradientType& grad, ParameterType& res, double stepsize, double l1reg) {
-			res = base - stepsize*grad;
-			double threshold = stepsize * l1reg;
+			res = base - (1.0/stepsize)*grad;
+			double threshold = (1.0 / stepsize) * l1reg;
 #pragma omp parallel for
 			for (int i = 0; i < res.size(); ++i) {
 				if (res.coeff(i) > threshold) {
