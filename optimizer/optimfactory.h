@@ -7,6 +7,7 @@
 #include "lbfgs.h"
 #include "cg.h"
 #include "svrg.h"
+#include "proximalgd.h"
 #include "../typedef.h"
 #include "../AbstractModel.h"
 #include "../LccrfModel.h"
@@ -74,6 +75,9 @@ public:
 
 		name = "svrg";
 		Register<StochasticVRG<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>>(name);
+
+		name = "pgd";
+		Register<ProxGradientDescent<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>>(name);
 	}
 };
 
@@ -91,6 +95,9 @@ public:
 
 		name = "svrg";
 		Register<StochasticVRG<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>>(name);
+
+		name = "pgd";
+		Register<ProxGradientDescent<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>>(name);
 	}
 };
 
