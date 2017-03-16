@@ -42,6 +42,7 @@ void BinaryLinearModel::SetLoss(LossFunc loss) {
 		BOOST_LOG_TRIVIAL(fatal) << "Loss function error";
 		break;
 	}
+	this->losstype_ = loss;
 }
 
 void BinaryLinearModel::InitFromCmd(int argc, const char * argv[])

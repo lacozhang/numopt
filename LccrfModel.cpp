@@ -3,6 +3,7 @@
 #include <Eigen/Dense>
 #include "LccrfModel.h"
 #include "util.h"
+#include "lossfunc.h"
 
 const char* LccrfModel::kOrderOption = "lccrf.order";
 
@@ -65,6 +66,7 @@ void LccrfModel::InitFromData(DataIterator & iterator)
 		BOOST_LOG_TRIVIAL(fatal) << "Failed to allocate memory for sparse param";
 		return;
 	}
+	this->losstype_ = LossFunc::MLECRF;
 }
 
 bool LccrfModel::LoadModel(std::string model)

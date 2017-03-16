@@ -8,6 +8,7 @@
 #include "cg.h"
 #include "svrg.h"
 #include "proximalgd.h"
+#include "sdca.h"
 #include "../typedef.h"
 #include "../AbstractModel.h"
 #include "../LccrfModel.h"
@@ -78,6 +79,9 @@ public:
 
 		name = "pgd";
 		Register<ProxGradientDescent<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>>(name);
+
+		name = "sdca";
+		Register<StochasticDCA<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>>(name);
 	}
 };
 

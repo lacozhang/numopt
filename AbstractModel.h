@@ -2,6 +2,7 @@
 #include <boost/program_options.hpp>
 #include "typedef.h"
 #include "DataIterator.h"
+#include "parameter.h"
 
 template <class ParameterType,
 	class SampleType, class LabelType, 
@@ -26,6 +27,9 @@ public:
 
 	virtual bool LoadModel(std::string model) = 0;
 	virtual bool SaveModel(std::string model) = 0;
+	LossFunc LossFunction() {
+		return losstype_;
+	}
 
 	// calculate the gradient with respect to data samples
 	virtual double Learn(SampleType& samples, LabelType& labels, SparseGradientType& grad) = 0;
@@ -39,6 +43,7 @@ public:
 
 protected:
 	boost::program_options::options_description optionsdesc_;
+	LossFunc losstype_;
 };
 
 template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
