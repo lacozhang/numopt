@@ -3,6 +3,7 @@ x64/
 X64/
 ipch/
 build/
+*.dir/
 *.user
 *.db
 *.sdf
