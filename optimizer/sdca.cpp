@@ -96,11 +96,11 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 		}
 
 		if (this->learn_.l2_ > 0) {
-			funcval += param.norm();
+			funcval += this->learn_.l2_ * param.norm();
 		}
 
 		if (this->learn_.l1_ > 0) {
-			funcval += param.lpNorm<1>();
+			funcval += this->learn_.l1_ * param.lpNorm<1>();
 		}
 		BOOST_LOG_TRIVIAL(info) << "Param norm : " << param.norm();
 		BOOST_LOG_TRIVIAL(info) << "Objective value " << funcval;
@@ -128,7 +128,7 @@ bool StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 {
 	double primal = 0, dual = 0;
 	double regval = 0;
-	double scale = 1.0 / epochsize*lambda;
+	double scale = 1.0 / (epochsize*lambda);
 	for (int i = 0; i < epochsize; ++i) {
 		int index = rndptrs[i];
 
@@ -190,11 +190,12 @@ bool StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 	double gap = primal - dual + regval;
 	gap /= epochsize;
 	BOOST_LOG_TRIVIAL(info) << "Duality gap " << gap;
+	BOOST_LOG_TRIVIAL(info) << "Desired gap " << this->dualgap_;
 	if (gap < this->dualgap_) {
 		return true;
 	}
 	else {
-		false;
+		return false;
 	}
 }
 
