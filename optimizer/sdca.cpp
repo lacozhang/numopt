@@ -107,6 +107,10 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 		itercnt++;
 	}
 
+	EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+	if (this->testiter_->IsValid()) {
+		EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+	}
 	ResultStats(param);
 }
 
