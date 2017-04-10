@@ -102,6 +102,23 @@ bool DataIteratorBase<SampleType, LabelType>::GetNextBatch(SampleType& databatch
 }
 
 template<class SampleType, class LabelType>
+bool DataIteratorBase<SampleType, LabelType>::GetRandomBatch(SampleType & batch, LabelType & label)
+{
+	if (this->batchsize_ != 1) {
+		BOOST_LOG_TRIVIAL(fatal) << "For random retrieve, only support batchsize as 1";
+		return false;
+	}
+
+	int index = std::rand() % data_->SampleSize();
+	data_->ResizeFeature(batch, 1);
+	data_->ResizeLabel(label, 1);
+
+	data_->FeatureCopyAtIndex(batch, 0, index);
+	data_->LabelCopyAtIndex(label, 0, index);
+	return true;
+}
+
+template<class SampleType, class LabelType>
 void DataIteratorBase<SampleType, LabelType>::ConstructCmdOptions()
 {
 	batchdesc_.add_options()

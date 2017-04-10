@@ -26,6 +26,7 @@ public:
 	void ResetBatch();
 
 	bool GetNextBatch(SampleType& batch, LabelType& label);
+	bool GetRandomBatch(SampleType& batch, LabelType& label);
 	bool IsValid() const {
 		return valid_;
 	}

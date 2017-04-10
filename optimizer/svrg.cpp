@@ -29,6 +29,7 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 	SampleType minibatchdata;
 	LabelType minibatchlabel;
 	int iter = 0;
+	size_t epochsize = this->trainiter_->GetSampleSize();
 	bool svrgenable = false;
 	timeutil timer;
 
@@ -43,18 +44,17 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 
 	while (iter <= this->learn_.maxiter_) {
 		++iter;
-		this->trainiter_->ResetBatch();
 		BOOST_LOG_TRIVIAL(info) << "Start iteration " << iter;
 		timer.tic();
-		if (iter % this->svrginterval_ == 0) {
-			svrgenable = true;
-			BOOST_LOG_TRIVIAL(info) << "Enable SVRG iterations";
-			avgparam = param;
-			this->model_.Learn(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel(), gradcache);
-		}
+		svrgenable = true;
+		BOOST_LOG_TRIVIAL(info) << "Enable SVRG iterations";
+		avgparam = param;
+		this->model_.Learn(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel(), gradcache);
+		gradcache += this->learn_.l2_ * avgparam;
 
-		while (this->trainiter_->GetNextBatch(minibatchdata, minibatchlabel)) {
+		for (size_t sampleidx = 0; sampleidx < epochsize; ++sampleidx) {
 
+			this->trainiter_->GetRandomBatch(minibatchdata, minibatchlabel);
 			this->model_.Learn(minibatchdata, minibatchlabel, grad);
 			if (svrgenable) {
 				param.swap(avgparam);
@@ -62,10 +62,10 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 				param.swap(avgparam);
 			}
 
-			if (this->L2RegVal() > 0) {
+			if (this->learn_.l2_ > 0) {
 #pragma omp parallel for
 				for (int featidx = 0; featidx < param.size(); ++featidx) {
-					param.coeffRef(featidx) *= (1 - this->L2RegVal() * this->learn_.learningrate_);
+					param.coeffRef(featidx) *= (1 - this->learn_.l2_ * this->learn_.learningrate_ * epochsize);
 				}
 			}
 
@@ -77,7 +77,12 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 				for (SparseGradientType::InnerIterator it(avgrad); it; ++it) {
 					param.coeffRef(it.index()) += this->learn_.learningrate_ * it.value();
 				}
-				param -= this->learn_.learningrate_ * gradcache;
+
+#pragma omp parallel for
+				for (int featidx = 0; featidx < param.size(); ++featidx) {
+					param.coeffRef(featidx) += this->learn_.l2_ * this->learn_.learningrate_ * epochsize * avgparam.coeff(featidx);
+					param.coeffRef(featidx) -= this->learn_.learningrate_ * gradcache.coeff(featidx);
+				}
 			}
 		}
 		double secs = timer.toc();
