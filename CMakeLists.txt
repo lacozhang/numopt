@@ -92,6 +92,13 @@ set(MLTOOLSRC mltools.cpp)
 add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
 target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
 
+# support Neural network models
+file(GLOB NNHEADER "nn//*.h")
+file(GLOB NNSOURCE "nn//*.cpp")
+add_executable(NNTools ${NNHEADER} ${NNSOURCE})
+target_link_libraries(NNTools ${Boost_LIBRARIES})
+
+
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 
 add_executable(lccrf_test "test//lccrf_test.cpp" ${CRFEATSRC})
