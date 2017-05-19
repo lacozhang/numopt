@@ -22,21 +22,21 @@ void ModelData<DataType, DataSampleType, DataLabelType>::InitFromCmd(int argc, c
 {
 	auto vm = ParseArgs(argc, argv, iodesc_, true);
 	if (vm.count(kIoTrainPathOptions)) {
-		trainpath_ = vm[kIoTrainPathOptions].as<std::string>();
+		trainpath_ = vm[kIoTrainPathOptions].template as<std::string>();
 	}
 	else {
 		trainpath_.clear();
 	}
 
 	if (vm.count(kIoTestPathOptions)) {
-		testpath_ = vm[kIoTestPathOptions].as<std::string>();
+		testpath_ = vm[kIoTestPathOptions].template as<std::string>();
 	}
 	else {
 		testpath_.clear();
 	}
 
 	if (vm.count(kIoModelPathOptions)) {
-		modelpath_ = vm[kIoModelPathOptions].as<std::string>();
+		modelpath_ = vm[kIoModelPathOptions].template as<std::string>();
 	}
 	else {
 		modelpath_.clear();

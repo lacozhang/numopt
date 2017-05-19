@@ -2,7 +2,7 @@ Debug/
 x64/
 X64/
 ipch/
-build/
+build*/
 *.dir/
 *.user
 *.db

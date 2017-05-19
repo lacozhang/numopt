@@ -29,8 +29,8 @@ template<class SampleType, class LabelType>
 void DataIteratorBase<SampleType, LabelType>::InitFromCmd(int argc, const char * argv[])
 {
 	auto vm = ParseArgs(argc, argv, batchdesc_, true);
-	batchsize_ = vm[kBaseBatchSizeOption].as<int>();
-	seed_ = vm[kBaseRandomSeedOption].as<int>();
+	batchsize_ = vm[kBaseBatchSizeOption].template as<int>();
+	seed_ = vm[kBaseRandomSeedOption].template as<int>();
 	BOOST_LOG_TRIVIAL(info) << "Batch size  : " << batchsize_;
 	BOOST_LOG_TRIVIAL(info) << "Random seed : " << seed_;
 }
