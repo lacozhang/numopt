@@ -35,7 +35,7 @@ template<class ParameterType,
 			}
 
 			if (this->learn_.l1_ > 0) {
-				funcval += this->learn_.l1_ * modelparam.lpNorm<1>();
+				funcval += this->learn_.l1_ * modelparam.template lpNorm<1>();
 			}
 			return funcval;
 		}

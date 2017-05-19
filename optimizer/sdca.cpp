@@ -90,9 +90,9 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 			break;		
 		}
 
-		funcval = EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		funcval = this->EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 		if (this->testiter_->IsValid()) {
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+			this->EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 
 		if (this->learn_.l2_ > 0) {
@@ -100,18 +100,18 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, Den
 		}
 
 		if (this->learn_.l1_ > 0) {
-			funcval += this->learn_.l1_ * param.lpNorm<1>();
+			funcval += this->learn_.l1_ * param.template lpNorm<1>();
 		}
 		BOOST_LOG_TRIVIAL(info) << "Param norm : " << param.norm();
 		BOOST_LOG_TRIVIAL(info) << "Objective value " << funcval;
 		itercnt++;
 	}
 
-	EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+	this->EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 	if (this->testiter_->IsValid()) {
-		EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+		this->EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 	}
-	ResultStats(param);
+	this->ResultStats(param);
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef __ABSTRACT_MODE_H__
+#define __ABSTRACT_MODE_H__
+
 #include <boost/program_options.hpp>
 #include "typedef.h"
 #include "DataIterator.h"
@@ -46,5 +50,6 @@ protected:
 	LossFunc losstype_;
 };
 
-template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
-template class AbstractModel<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;
+// template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
+// template class AbstractModel<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;
+#endif // __ABSTRACT_MODEL_H__

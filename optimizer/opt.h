@@ -64,7 +64,7 @@ template<class ParameterType,
 			return learn_.l1_;
 		}
 
-		virtual double EvaluateOnSet(SampleType& samples, LabelType& labels) {
+		double EvaluateOnSet(SampleType& samples, LabelType& labels) {
 			std::string message;
 			double funcval = this->model_.Evaluate(samples, labels, message);
 			BOOST_LOG_TRIVIAL(info) << message << std::endl;

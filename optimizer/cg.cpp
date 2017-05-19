@@ -106,9 +106,9 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 			beta = 0.0;
 		}
 
-		funcval = EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		funcval = OptMethodBaseType::EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 		if (this->testiter_->IsValid()) {
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+            OptMethodBaseType::EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 
 		if (this->learn_.l2_ > 0) {
@@ -128,7 +128,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 		stepsize = 4;
 	}
 
-	ResultStats(param);
+    OptMethodBaseType::ResultStats(param);
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

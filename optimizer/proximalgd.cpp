@@ -29,9 +29,9 @@ void ProxGradientDescent<ParameterType, SampleType, LabelType, SparseGradientTyp
 			BOOST_ASSERT_MSG(false, "Proximal gradient descent not implemented yet");
 		}
 
-		funcval = EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		funcval = OptMethodBaseType::EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 		if (this->testiter_->IsValid()) {
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+            OptMethodBaseType::EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 
 		if (this->learn_.l2_ > 0) {
@@ -39,7 +39,7 @@ void ProxGradientDescent<ParameterType, SampleType, LabelType, SparseGradientTyp
 		}
 
 		if (this->learn_.l1_ > 0) {
-			funcval += param.lpNorm<1>();
+			funcval += param.template lpNorm<1>();
 		}
 		BOOST_LOG_TRIVIAL(info) << "Grad norm  : " << grad.norm();
 		BOOST_LOG_TRIVIAL(info) << "Param norm : " << param.norm();
@@ -47,7 +47,7 @@ void ProxGradientDescent<ParameterType, SampleType, LabelType, SparseGradientTyp
 
 		++itercnt;
 	}
-	ResultStats(param);
+	this->ResultStats(param);
 }
 
 template class ProxGradientDescent<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;

@@ -69,12 +69,12 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 				}
 			}
 
-			for (SparseGradientType::InnerIterator it(grad); it; ++it) {
+			for (typename SparseGradientType::InnerIterator it(grad); it; ++it) {
 				param.coeffRef(it.index()) -= this->learn_.learningrate_ * it.value();
 			}
 
 			if (svrgenable) {
-				for (SparseGradientType::InnerIterator it(avgrad); it; ++it) {
+				for (typename SparseGradientType::InnerIterator it(avgrad); it; ++it) {
 					param.coeffRef(it.index()) += this->learn_.learningrate_ * it.value();
 				}
 
@@ -88,11 +88,11 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType, Den
 		double secs = timer.toc();
 		BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
 		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
-		EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		this->EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 
 		if (this->testiter_->IsValid()) {
 			BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+			this->EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 
 		BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();

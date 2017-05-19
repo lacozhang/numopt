@@ -35,14 +35,14 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, Dens
 		BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
 
 		BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
-		EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		this->EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 
 		if (this->testiter_->IsValid()) {
 			BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+			this->EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 	}
-	ResultStats(this->model_.GetParameters());
+	this->ResultStats(this->model_.GetParameters());
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

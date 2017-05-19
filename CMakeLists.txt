@@ -74,9 +74,11 @@ target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
 # support CRF featurizer
 file(GLOB CRFEATHEADER "lccrf//*.h")
 file(GLOB CRFEATSRC "lccrf//crftemplate.cpp" "lccrf//lccrfeaturizer.cpp")
+add_library(crfeatlib ${CRFEATHEADER} ${CRFEATSRC})
+
 list(APPEND CRFEATMAIN "lccrf/crfeaturize.cpp")
-add_executable(lcrfeat ${CRFEATMAIN} ${CRFEATSRC} ${CRFEATHEADER})
-target_link_libraries(lcrfeat ${Boost_LIBRARIES})
+add_executable(lcrfeat ${CRFEATMAIN})
+target_link_libraries(lcrfeat ${Boost_LIBRARIES} crfeatlib)
 if(ENABLE_PREFIX_TREE)
 	add_definitions(-DUSE_PREFIX_TREE)
 endif(ENABLE_PREFIX_TREE)
@@ -95,14 +97,14 @@ target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
 # support Neural network models
 file(GLOB NNHEADER "nn//*.h")
 file(GLOB NNSOURCE "nn//*.cpp")
-add_executable(NNTools ${NNHEADER} ${NNSOURCE})
+add_library(NNTools ${NNHEADER} ${NNSOURCE})
 target_link_libraries(NNTools ${Boost_LIBRARIES})
 
 
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 
-add_executable(lccrf_test "test//lccrf_test.cpp" ${CRFEATSRC})
-target_link_libraries(lccrf_test ${Boost_LIBRARIES} dataop utils model)
+add_executable(lccrf_test "test//lccrf_test.cpp")
+target_link_libraries(lccrf_test ${Boost_LIBRARIES} model crfeatlib dataop utils)
 set_target_properties(lccrf_test 
 			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
 			${CMAKE_CURRENT_BINARY_DIR}/testbin)

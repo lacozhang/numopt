@@ -131,9 +131,9 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		BOOST_ASSERT(!param.hasNaN());
 		BOOST_ASSERT(!grad.hasNaN());
 
-		funcval = EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
+		funcval = OptMethodBaseType::EvaluateOnSet(this->trainiter_->GetAllData(), this->trainiter_->GetAllLabel());
 		if (this->testiter_->IsValid()) {
-			EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
+            OptMethodBaseType::EvaluateOnSet(this->testiter_->GetAllData(), this->testiter_->GetAllLabel());
 		}
 
 #ifdef _DEBUG
@@ -209,7 +209,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		}
 
 		if (this->learn_.l1_ > 0) {
-			funcval += this->learn_.l1_ * param.lpNorm<1>();
+			funcval += this->learn_.l1_ * param.template lpNorm<1>();
 			for (int i = 0; i < param.size(); ++i) {
 				if (direction.coeff(i)*projgrad.coeff(i) >= 0) {
 					direction.coeffRef(i) = 0.0;
@@ -220,7 +220,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradie
 		BOOST_LOG_TRIVIAL(info) << "new direction norm " << direction.norm();
 		stepsize = 1.0;
 	}
-	ResultStats(param);
+    OptMethodBaseType::ResultStats(param);
 }
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
