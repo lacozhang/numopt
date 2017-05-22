@@ -78,7 +78,7 @@ add_library(crfeatlib ${CRFEATHEADER} ${CRFEATSRC})
 
 list(APPEND CRFEATMAIN "lccrf/crfeaturize.cpp")
 add_executable(lcrfeat ${CRFEATMAIN})
-target_link_libraries(lcrfeat ${Boost_LIBRARIES} crfeatlib)
+target_link_libraries(lcrfeat crfeatlib ${Boost_LIBRARIES})
 if(ENABLE_PREFIX_TREE)
 	add_definitions(-DUSE_PREFIX_TREE)
 endif(ENABLE_PREFIX_TREE)
@@ -104,7 +104,7 @@ target_link_libraries(NNTools ${Boost_LIBRARIES})
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 
 add_executable(lccrf_test "test//lccrf_test.cpp")
-target_link_libraries(lccrf_test ${Boost_LIBRARIES} model crfeatlib dataop utils)
+target_link_libraries(lccrf_test model crfeatlib dataop utils ${Boost_LIBRARIES})
 set_target_properties(lccrf_test 
 			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
 			${CMAKE_CURRENT_BINARY_DIR}/testbin)
