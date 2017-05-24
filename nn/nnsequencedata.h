@@ -102,9 +102,11 @@ namespace NNModel {
 
 		void AppendSequenceFeature(boost::shared_ptr<SentenceFeature>& feat);
 		void SetSequenceFeature(boost::shared_ptr<SentenceFeature>& feat, int idx);
-		SentenceFeature& GetSequenceFeature(int index);
-		SentenceFeature& operator[](int index);
-		size_t NumSamples();
+		boost::shared_ptr<SentenceFeature> GetSequenceFeature(int index);
+		boost::shared_ptr<SentenceFeature> operator[](int index);
+		size_t NumSamples() {
+			return features_.size();
+		}
 
 	private:
 		std::vector<boost::shared_ptr<SentenceFeature>> features_;
@@ -112,14 +114,18 @@ namespace NNModel {
 
 	class NNSequenceLabel {
 	public:
-		NNSequenceLabel();
-		~NNSequenceLabel();
+		NNSequenceLabel(){
+			labels_.clear();
+		}
+		~NNSequenceLabel(){}
 
 		void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label);
 		void SetSequenceLabel(boost::shared_ptr<SentenceLabel>& label, int idx);
-		SentenceLabel& GetSequenceLabel(int index);
-		SentenceLabel& operator[](int index);
-		size_t NumSamples();
+		boost::shared_ptr<SentenceLabel> GetSequenceLabel(int index);
+		boost::shared_ptr<SentenceLabel> operator[](int index);
+		size_t NumSamples() {
+			return labels_.size();
+		}
 
 	private:
 		std::vector<boost::shared_ptr<SentenceLabel>> labels_;

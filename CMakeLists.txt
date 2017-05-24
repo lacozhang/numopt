@@ -97,8 +97,8 @@ target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
 # support Neural network models
 file(GLOB NNHEADER "nn//*.h")
 file(GLOB NNSOURCE "nn//*.cpp")
-add_library(nnmodellib ${NNHEADER} ${NNSOURCE})
-target_link_libraries(nnmodellib ${Boost_LIBRARIES})
+add_library(nnlib ${NNHEADER} ${NNSOURCE})
+target_link_libraries(nnlib ${Boost_LIBRARIES})
 
 
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
