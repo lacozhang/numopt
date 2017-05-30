@@ -4,6 +4,8 @@
 #include<boost/shared_ptr.hpp>
 #include "typedef.h"
 #include "LccrfDataType.h"
+#include "nn/nnquery.h"
+#include "nn/nnsequencedata.h"
 
 template <class FeatureType, class LabelType>
 class IndexData {
@@ -122,4 +124,32 @@ size_t IndexData<LccrfSamples, LccrfLabels>::SampleSize();
 
 template<>
 size_t IndexData<LccrfSamples, LccrfLabels>::ModelSize();
+
+// specialization for nn classification data type
+template<>
+void IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::ResizeFeature(NNModel::NNQueryFeature& feature, size_t sample);
+template<>
+void IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::ResizeLabel(NNModel::NNQueryLabel& label, size_t sample);
+template<>
+bool IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::FeatureCopyAtIndex(NNModel::NNQueryFeature& target, size_t topos, size_t frompos);
+template<>
+bool IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LabelCopyAtIndex(NNModel::NNQueryLabel& target, size_t topos, size_t frompos);
+template<>
+size_t IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::SampleSize();
+template<>
+size_t IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::ModelSize();
+
+// specialization for nn sequence labelling type
+template<>
+void IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::ResizeFeature(NNModel::NNSequenceFeature& feature, size_t sample);
+template<>
+void IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::ResizeLabel(NNModel::NNSequenceLabel& label, size_t sample);
+template<>
+bool IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::FeatureCopyAtIndex(NNModel::NNSequenceFeature& target, size_t topos, size_t frompos);
+template<>
+bool IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::LabelCopyAtIndex(NNModel::NNSequenceLabel& target, size_t topos, size_t frompos);
+template<>
+size_t IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::SampleSize();
+template<>
+size_t IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::ModelSize();
 #endif // !__INDEX_DATA_H__

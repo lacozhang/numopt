@@ -97,13 +97,40 @@ namespace NNModel {
 
 	class NNSequenceFeature {
 	public:
-		NNSequenceFeature();
-		~NNSequenceFeature();
+		NNSequenceFeature(){
+			features_.clear();
+		}
+		~NNSequenceFeature(){}
 
-		void AppendSequenceFeature(boost::shared_ptr<SentenceFeature>& feat);
-		void SetSequenceFeature(boost::shared_ptr<SentenceFeature>& feat, int idx);
-		boost::shared_ptr<SentenceFeature> GetSequenceFeature(int index);
-		boost::shared_ptr<SentenceFeature> operator[](int index);
+		void AppendSequenceFeature(boost::shared_ptr<SentenceFeature>& feat){
+			features_.push_back(feat);
+		}
+
+		void SetSequenceFeature(boost::shared_ptr<SentenceFeature>& feat, int index){
+			while (index >= features_.size()) {
+				BOOST_LOG_TRIVIAL(info) << "increase the size of features";
+				features_.resize(2 * features_.size());
+			}
+
+			features_[index] = feat;
+		}
+
+		boost::shared_ptr<SentenceFeature>& GetSequenceFeature(int index){
+			if (index < features_.size()) {
+				return features_[index];
+			}
+			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+			return boost::shared_ptr<SentenceFeature>();
+		}
+
+		std::vector<boost::shared_ptr<SentenceFeature>>& SampleFeatures(){
+			return features_;
+		}
+
+		boost::shared_ptr<SentenceFeature>& operator[](int index){
+			return features_[index];
+		}
+
 		size_t NumSamples() {
 			return features_.size();
 		}
@@ -119,10 +146,34 @@ namespace NNModel {
 		}
 		~NNSequenceLabel(){}
 
-		void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label);
-		void SetSequenceLabel(boost::shared_ptr<SentenceLabel>& label, int idx);
-		boost::shared_ptr<SentenceLabel> GetSequenceLabel(int index);
-		boost::shared_ptr<SentenceLabel> operator[](int index);
+		void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label){
+			labels_.push_back(label);
+		}
+
+		void SetSequenceLabel(boost::shared_ptr<SentenceLabel>& label, int idx){
+			while (idx >= labels_.size()) {
+				BOOST_LOG_TRIVIAL(info) << "Increase the size of labels";
+				labels_.resize(2 * labels_.size());
+			}
+
+			labels_[idx] = label;
+		}
+
+		boost::shared_ptr<SentenceLabel>& GetSequenceLabel(int index){
+			if (index < labels_.size())
+				return labels_[index];
+
+			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+			return boost::shared_ptr<SentenceLabel>();
+		}
+
+		std::vector<boost::shared_ptr<SentenceLabel>>& SampleLabels(){
+			return labels_;
+		}
+		boost::shared_ptr<SentenceLabel>& operator[](int index){
+			return labels_[index];
+		}
+
 		size_t NumSamples() {
 			return labels_.size();
 		}
@@ -130,7 +181,6 @@ namespace NNModel {
 	private:
 		std::vector<boost::shared_ptr<SentenceLabel>> labels_;
 	};
-
 }
 
 #endif // !__NNSEQUENCE_DATA_H__
