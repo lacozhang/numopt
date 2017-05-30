@@ -4,6 +4,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/log/trivial.hpp>
 #include "../typedef.h"
+#include "vocabulary.h"
 
 namespace NNModel {
 	class QueryFeature {
@@ -38,11 +39,22 @@ namespace NNModel {
 			featdat_.clear();
 		}
 		~NNQueryFeature(){
-
 		}
 
 		std::vector<boost::shared_ptr<QueryFeature>>& Features(){
 			return featdat_;
+		}
+
+		void SetVocabulary(boost::shared_ptr<Vocabulary>& vocab){
+			vocab_ = vocab;
+		}
+
+		boost::shared_ptr<Vocabulary>& GetVocabulary(){
+			return vocab_;
+		}
+
+		size_t GetVocabularySize(){
+			return vocab_->VocabSize();
 		}
 
 		boost::shared_ptr<QueryFeature>& FeatureOfSample(int idx){
@@ -58,6 +70,7 @@ namespace NNModel {
 
 	private:
 		std::vector<boost::shared_ptr<QueryFeature>> featdat_;
+		boost::shared_ptr<Vocabulary> vocab_;
 	};
 
 	class NNQueryLabel {
@@ -80,12 +93,45 @@ namespace NNModel {
 			return labels_[idx];
 		}
 
+		void SetVocabulary(boost::shared_ptr<Vocabulary>& vocab){
+			vocab_ = vocab;
+		}
+
+		boost::shared_ptr<Vocabulary>& GetVocabulary(){
+			return vocab_;
+		}
+
+		size_t GetLabelSize(){
+			return vocab_->VocabSize();
+		}
+
 		size_t NumSamples(){
 			return labels_.size();
 		}
 
 	private:
 		std::vector<boost::shared_ptr<QueryLabel>> labels_;
+		boost::shared_ptr<Vocabulary> vocab_;
+	};
+
+	class NNQueryFeaturizer{
+	public:
+		NNQueryFeaturizer(boost::shared_ptr<Vocabulary>& word, boost::shared_ptr<Vocabulary>& label)
+			:wordvocab_(*word), labelvocab_(*label){
+		}
+		~NNQueryFeaturizer();
+
+		// featurize passed in file
+		void Featurize(boost::shared_ptr<NNQueryFeature>& feat, boost::shared_ptr<NNQueryLabel>& label,
+			const std::string& filepath){
+			if (!feat.get() || !label.get()){
+
+			}
+		}
+
+	private:
+		Vocabulary& wordvocab_;
+		Vocabulary& labelvocab_;
 	};
 }
 

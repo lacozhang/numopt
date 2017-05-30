@@ -12,6 +12,9 @@ template<TrainDataType DataType, class DataSampleType, class DataLabelType>
 const char* const ModelData<DataType, DataSampleType, DataLabelType>::kIoModelPathOptions = "data.model";
 
 template<TrainDataType DataType, class DataSampleType, class DataLabelType>
+const char* const ModelData<DataType, DataSampleType, DataLabelType>::kIoVocabOptions = "data.nncutoff";
+
+template<TrainDataType DataType, class DataSampleType, class DataLabelType>
 ModelData<DataType, DataSampleType, DataLabelType>::ModelData() : iodesc_("Model data operations")
 {
 	ConstructCmdOptions();
@@ -45,6 +48,7 @@ void ModelData<DataType, DataSampleType, DataLabelType>::InitFromCmd(int argc, c
 	BOOST_LOG_TRIVIAL(info) << "Train data path : " << trainpath_;
 	BOOST_LOG_TRIVIAL(info) << "Test data path  : " << testpath_;
 	BOOST_LOG_TRIVIAL(info) << "Model file path : " << modelpath_;
+	BOOST_LOG_TRIVIAL(info) << "NN Cutoff Value : " << nncutoff_;
 }
 
 template<TrainDataType DataType, class DataSampleType, class DataLabelType>
@@ -55,6 +59,7 @@ boost::shared_ptr<DataLoader<DataType, DataSampleType, DataLabelType>> ModelData
 		return train;
 	}
 	train.reset(new DataLoader<DataType, DataSampleType, DataLabelType>(trainpath_));
+	train->SetCutoff(nncutoff_);
 	return train;
 }
 
@@ -66,6 +71,7 @@ boost::shared_ptr<DataLoader<DataType, DataSampleType, DataLabelType>> ModelData
 		return test;
 	}
 	test.reset(new DataLoader<DataType, DataSampleType, DataLabelType>(testpath_));
+	test->SetCutoff(nncutoff_);
 	return test;
 }
 
@@ -76,8 +82,11 @@ void ModelData<DataType, DataSampleType, DataLabelType>::ConstructCmdOptions()
 	iodesc_.add_options()
 		(kIoTrainPathOptions, po::value<std::string>(), "train data path")
 		(kIoTestPathOptions, po::value<std::string>(), "test data path")
-		(kIoModelPathOptions, po::value<std::string>(), "model file path for save or load");
+		(kIoModelPathOptions, po::value<std::string>(), "model file path for save or load")
+		(kIoVocabOptions, po::value<size_t>(&nncutoff_)->default_value(3), "cutoff values when extract vocabulary");
 }
 
 template class ModelData<TrainDataType::kLibSVM, DataSamples, LabelVector>;
 template class ModelData<TrainDataType::kLCCRF, LccrfSamples, LccrfLabels>;
+template class ModelData<TrainDataType::kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>;
+template class ModelData<TrainDataType::kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>;

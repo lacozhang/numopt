@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <set>
 #include <fstream>
+#include <functional>
 #include <boost/filesystem.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
@@ -382,7 +383,6 @@ void parselibsvmline(char *line, std::vector<std::pair<size_t, float>> &feats,
 	}
 }
 
-
 bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
 	int &row, int &col) {
 
@@ -632,6 +632,71 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 	return true;
 }
 
+
+bool build_vocab(const std::string& filepath, size_t cutoffvalue,
+	boost::shared_ptr<NNModel::Vocabulary>& words, boost::shared_ptr<NNModel::Vocabulary>& labels){
+	
+	std::ofstream query, label;
+	std::ifstream src(filepath);
+
+	std::string queryfilepath = "queries.txt", labelfilepath = "labels.txt";
+	query.open(queryfilepath);
+	label.open(labelfilepath);
+
+	if (!query.is_open()){
+		BOOST_LOG_TRIVIAL(error) << "Failed to open query.txt" << std::endl;
+		return false;
+	}
+	if (!label.is_open()){
+		BOOST_LOG_TRIVIAL(error) << "Failed to open labels.txt" << std::endl;
+		return false;
+	}
+
+	if (!src.is_open()){
+		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath << std::endl;
+		return false;
+	}
+
+	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
+	char* ptr = nullptr;
+	while (src.good()){		
+		ptr = std::strtok(TempLineBuffer, "\t");
+		if (ptr == nullptr){
+			BOOST_LOG_TRIVIAL(fatal) << "File line format error" << TempLineBuffer << std::endl;
+			return false;
+		}
+		query.write(ptr, std::strlen(ptr));
+		query.write("\n", 1);
+
+		ptr = std::strtok(NULL, "\t");
+		if (ptr == nullptr){
+			BOOST_LOG_TRIVIAL(fatal) << "File line format error " << TempLineBuffer << std::endl;
+			return false;
+		}
+		label.write(ptr, std::strlen(ptr));
+		label.write("\n", 1);
+
+		ptr = std::strtok(NULL, "\t");
+		if (ptr != nullptr){
+			BOOST_LOG_TRIVIAL(fatal) << "Extra columns existed " << std::endl;
+			return false;
+		}
+		src.getline(TempLineBuffer, sizeof(TempLineBuffer));
+	}
+
+	if (!src.eof()){
+		BOOST_LOG_TRIVIAL(error) << "Unexpected error";
+		return false;
+	}
+
+	src.close();
+	query.close();
+	label.close();
+
+	words = NNModel::Vocabulary::BuildVocabularyWithFilter(queryfilepath, cutoffvalue);
+	labels = NNModel::Vocabulary::BuildVocabulary(labelfilepath);
+}
+
 template<>
 bool DataLoader<kLibSVM, DataSamples, LabelVector>::LoadData() {
 	if (filepath_.empty()) {
@@ -661,6 +726,33 @@ bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData() {
 }
 
 template<>
+bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadData(){
+	namespace fs = boost::filesystem;
+	fs::path path(filepath_);
+	if (filepath_.empty() || !fs::exists(path)){
+		valid_ = false;
+		BOOST_LOG_TRIVIAL(info) << "either empty path or invaida path " << filepath_ << std::endl;
+	}
+	else {
+
+		if (features_.get() == nullptr){
+			features_.reset(new NNModel::NNQueryFeature());
+		}
+
+		if (labels_.get() == nullptr){
+			labels_.reset(new NNModel::NNQueryLabel());
+		}
+		
+		if (!specifyfeatdim_){
+			boost::shared_ptr<NNModel::Vocabulary> words, labels;
+			build_vocab(filepath_, cutoff_, words, labels);
+			features_->SetVocabulary(words);
+			labels_->SetVocabulary(labels);
+		}
+	}
+}
+
+template<>
 void DataLoader<kLibSVM, DataSamples, LabelVector>::SetModelMetaInfo(
 	const boost::shared_ptr<DataLoader<kLibSVM, DataSamples, LabelVector>>& infosrc) {
 	specifyfeatdim_ = true;
@@ -676,5 +768,39 @@ void DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::SetModelMetaInfo(
 	maxlabelid_ = infosrc->maxlabelid_;
 }
 
+template<>
+void DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>>& infosrc){
+	specifyfeatdim_ = true;
+	if (features_.get() == nullptr){
+		features_.reset(new NNModel::NNQueryFeature());
+	}
+
+	if (labels_.get() == nullptr){
+		labels_.reset(new NNModel::NNQueryLabel());
+	}
+
+	features_->SetVocabulary(infosrc->features_->GetVocabulary());
+	labels_->SetVocabulary(infosrc->labels_->GetVocabulary());
+}
+
+template<>
+void DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>>& infosrc){
+	specifyfeatdim_ = true;
+
+	if (features_.get() == nullptr)
+		features_.reset(new NNModel::NNSequenceFeature());
+	if (labels_.get() == nullptr)
+		labels_.reset(new NNModel::NNSequenceLabel());
+
+	features_->SetSparseBinarySize(infosrc->features_->GetSparseBinarySize());
+	features_->SetSparseFloatSize(infosrc->features_->GetSparseFloatSize());
+	features_->SetDenseSize(infosrc->features_->GetDenseSize());
+	labels_->SetLabelSize(infosrc->labels_->GetLabelSize());
+}
+
 template class DataLoader<kLibSVM, DataSamples, LabelVector>;
 template class DataLoader<kLCCRF, LccrfSamples, LccrfLabels>;
+template class DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>;
+template class DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>;

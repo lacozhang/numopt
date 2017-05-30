@@ -99,6 +99,7 @@ namespace NNModel {
 	public:
 		NNSequenceFeature(){
 			features_.clear();
+			spbinarysize_ = spfloatsize_ = densesize_ = 0;
 		}
 		~NNSequenceFeature(){}
 
@@ -135,14 +136,40 @@ namespace NNModel {
 			return features_.size();
 		}
 
+		size_t GetSparseBinarySize(){
+			return spbinarysize_;
+		}
+
+		void SetSparseBinarySize(size_t size){
+			spbinarysize_ = size;
+		}
+
+		size_t GetSparseFloatSize(){
+			return spfloatsize_;
+		}
+
+		void SetSparseFloatSize(size_t size){
+			spfloatsize_ = size;
+		}
+
+		size_t GetDenseSize(){
+			return densesize_;
+		}
+
+		void SetDenseSize(size_t size){
+			densesize_ = size;
+		}
+
 	private:
 		std::vector<boost::shared_ptr<SentenceFeature>> features_;
+		size_t spbinarysize_, spfloatsize_, densesize_;
 	};
 
 	class NNSequenceLabel {
 	public:
 		NNSequenceLabel(){
 			labels_.clear();
+			labelsize_ = 0;
 		}
 		~NNSequenceLabel(){}
 
@@ -174,12 +201,21 @@ namespace NNModel {
 			return labels_[index];
 		}
 
+		size_t GetLabelSize() {
+			return labelsize_;
+		}
+
+		void SetLabelSize(size_t numlabels){
+			labelsize_ = numlabels;
+		}
+
 		size_t NumSamples() {
 			return labels_.size();
 		}
 
 	private:
 		std::vector<boost::shared_ptr<SentenceLabel>> labels_;
+		size_t labelsize_;
 	};
 }
 

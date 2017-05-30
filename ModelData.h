@@ -27,8 +27,10 @@ private:
 	std::string trainpath_;
 	std::string testpath_;
 	std::string modelpath_;
+	size_t nncutoff_;
 
 	static const char* const kIoTrainPathOptions;
 	static const char* const kIoTestPathOptions;
 	static const char* const kIoModelPathOptions;
+	static const char* const kIoVocabOptions;
 };

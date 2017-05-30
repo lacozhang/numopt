@@ -2,6 +2,8 @@
 #include <boost/shared_ptr.hpp>
 #include "typedef.h"
 #include "LccrfDataType.h"
+#include "nn/nnquery.h"
+#include "nn/nnsequencedata.h"
 
 #ifndef __DATA_OP_H__
 #define __DATA_OP_H__
@@ -9,7 +11,9 @@
 enum TrainDataType {
 	kLibSVM,
 	kLCCRF,
-	kSemiCRF
+	kSemiCRF,
+	kNNQuery,
+	kNNSequence
 };
 
 template <TrainDataType T, class Feat, class Label>
@@ -26,12 +30,18 @@ public:
 		maxunifeatid_ = 0;
 		maxbifeatid_ = 0;
 		maxlabelid_ = 0;
+
+		cutoff_ = 0;
 	}
 
 	bool LoadData();
 
 	size_t MaxFeatureId() {
 		return maxfeatid_;
+	}
+
+	void SetCutoff(size_t v){
+		cutoff_ = v;
 	}
 
 	void SetModelMetaInfo(const boost::shared_ptr<DataLoader<T, Feat, Label>>& infosrc);
@@ -80,6 +90,9 @@ private:
 	int maxbifeatid_;
 	int maxlabelid_;
 
+	// for nn
+	size_t cutoff_;
+
 	std::string filepath_;
 
 	bool specifyfeatdim_;
@@ -93,12 +106,26 @@ template<>
 bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData();
 
 template<>
+bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadData();
+
+template<>
+bool DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::LoadData();
+
+template<>
 void DataLoader<kLibSVM, DataSamples, LabelVector>::SetModelMetaInfo(
 	const boost::shared_ptr<DataLoader<kLibSVM, DataSamples, LabelVector>>& infosrc);
 
 template<>
 void DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::SetModelMetaInfo(
 	const boost::shared_ptr<DataLoader<kLCCRF, LccrfSamples, LccrfLabels>>& infosrc);
+
+template<>
+void DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>>& infosrc);
+
+template<>
+void DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::SetModelMetaInfo(
+	const boost::shared_ptr<DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>>& infosrc);
 
 bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
                             int &row, int &col);

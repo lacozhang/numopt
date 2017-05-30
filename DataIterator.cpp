@@ -129,3 +129,5 @@ void DataIteratorBase<SampleType, LabelType>::ConstructCmdOptions()
 
 template class DataIteratorBase<DataSamples, LabelVector>;
 template class DataIteratorBase<LccrfSamples, LccrfLabels>;
+template class DataIteratorBase<NNModel::NNQueryFeature, NNModel::NNQueryLabel>;
+template class DataIteratorBase<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>;
