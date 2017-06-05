@@ -53,11 +53,11 @@ else(EIGEN3_FOUND)
 endif()
 
 set(UTILSRC cmdline.cpp parameter.cpp util.cpp)
-set(UTILHEADER cmdline.h parameter.h typedef.h util.h)
+set(UTILHEADER cmdline.h parameter.h typedef.h util.h "util/stringop.h")
 add_library(utils ${UTILSRC} ${UTILHEADER})
 
-set(DATAOPSRC DataIterator.cpp dataop.cpp IndexData.cpp ModelData.cpp)
-set(DATAOPHEADER DataIterator.h dataop.h IndexData.h ModelData.h)
+set(DATAOPSRC DataIterator.cpp dataop.cpp IndexData.cpp ModelData.cpp "dataop/vocabulary.cpp")
+set(DATAOPHEADER DataIterator.h dataop.h IndexData.h ModelData.h "dataop/vocabulary.h")
 add_library(dataop ${DATAOPSRC} ${DATAOPHEADER})
 
 file(GLOB OPTMETHODSRC "optimizer/*.cpp")
@@ -89,17 +89,17 @@ if(OPENMP_FOUND)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif(OPENMP_FOUND)
 
-set(GENERALHEADER RunModel.h)
-set(MLTOOLSRC mltools.cpp)
-add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
-target_link_libraries(mltools dataop model opt utils ${Boost_LIBRARIES})
-
 # support Neural network models
 file(GLOB NNHEADER "nn//*.h")
 file(GLOB NNSOURCE "nn//*.cpp")
 add_library(nnlib ${NNHEADER} ${NNSOURCE})
 target_link_libraries(nnlib ${Boost_LIBRARIES})
 
+
+set(GENERALHEADER RunModel.h)
+set(MLTOOLSRC mltools.cpp)
+add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
+target_link_libraries(mltools dataop model nnlib opt utils ${Boost_LIBRARIES})
 
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 

@@ -8,7 +8,6 @@
 #include "util.h"
 
 namespace triv = boost::log::trivial;
-static char TempLineBuffer[UINT16_MAX] = {'\0'};
 
 int main(int argc, char* argv[]) {
 

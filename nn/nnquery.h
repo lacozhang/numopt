@@ -1,10 +1,15 @@
+#pragma once
+
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/detail/auto_buffer.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/algorithm/string.hpp>
+#include "../typedef.h"
+#include "../dataop/vocabulary.h"
+#include "../util/stringop.h"
 
 #ifndef __NN_QUERY_H__
 #define __NN_QUERY_H__
-#include <boost/shared_ptr.hpp>
-#include <boost/log/trivial.hpp>
-#include "../typedef.h"
-#include "vocabulary.h"
 
 namespace NNModel {
 	class QueryFeature {
@@ -25,12 +30,12 @@ namespace NNModel {
 		QueryLabel(){}
 		~QueryLabel(){}
 
-		LabelVector& Label(){
+		int& Label(){
 			return labels_;
 		}
 
 	private:
-		LabelVector labels_;
+		int labels_;
 	};
 
 	class NNQueryFeature {
@@ -121,11 +126,78 @@ namespace NNModel {
 		}
 		~NNQueryFeaturizer();
 
-		// featurize passed in file
-		void Featurize(boost::shared_ptr<NNQueryFeature>& feat, boost::shared_ptr<NNQueryLabel>& label,
-			const std::string& filepath){
-			if (!feat.get() || !label.get()){
+		bool FeaturizeLine(const std::string& query, const std::string& label,
+			boost::shared_ptr<QueryFeature>& feat, boost::shared_ptr<QueryLabel>& l){
+			int vocabsize = wordvocab_.VocabSize();
+			int labelsize = wordvocab_.VocabSize();
 
+			std::vector<std::string> words;
+			words.push_back(Vocabulary::BeginOfDoc);
+			Split(query.c_str(), words, " ");
+			words.push_back(Vocabulary::EndOfDoc);
+
+			if (words.size() < 3) return false;
+			for (int i = 0; i < words.size(); ++i){
+				int index = wordvocab_.GetIndex(words[i]);
+				feat->Feature().insert(i, index) = 1;
+			}
+
+			words.clear();
+			Split(label.c_str(), words, " ");
+			if (words.size() != 1){
+				BOOST_LOG_TRIVIAL(error) << "Multiple labels appeared";
+				return false;
+			}
+			l->Label() = labelvocab_.GetIndex(words[0]);
+			return true;
+		}
+		
+		// featurize passed in file
+		bool Featurize(boost::shared_ptr<NNQueryFeature>& feats, boost::shared_ptr<NNQueryLabel>& labels,
+			const std::string& filepath){
+			namespace signal2 = boost::signals2::detail;
+			if (!feats.get() || !labels.get()){
+				BOOST_LOG_TRIVIAL(info) << "Feature or label is empty" << std::endl;
+				return false;
+			}
+
+			std::ifstream src(filepath);
+			if (!src.is_open()){
+				BOOST_LOG_TRIVIAL(error) << "Failed to open file " << filepath << std::endl;
+				return false;
+			}
+
+			signal2::auto_buffer<char, signal2::store_n_objects<10 * 1024>> buffer(10 * 1024, '\0');
+			src.getline(buffer.data(), buffer.size());
+			char* ptr = nullptr;
+			while (src.good()){
+				ptr = std::strtok(buffer.data(), "\t");
+				if (ptr != nullptr){
+					std::string query(ptr);
+
+					ptr = std::strtok(NULL, "\t");
+					if (ptr == nullptr){
+						BOOST_LOG_TRIVIAL(error) << "Line no Label";
+					}
+					else {
+						std::string label(ptr);
+						boost::shared_ptr<QueryFeature> feat;
+						boost::shared_ptr<QueryLabel> featlabel;
+						if (!FeaturizeLine(query, label, feat, featlabel)){
+							feats->Features().push_back(feat);
+							labels->Labels().push_back(featlabel);
+						}
+					}
+				}
+				else {
+					BOOST_LOG_TRIVIAL(info) << "Empty line";
+				}
+
+				src.getline(buffer.data(), buffer.size());
+			}
+
+			if (!src.eof()){
+				BOOST_LOG_TRIVIAL(error) << "Unexpected error happens, donot reach EOF" << std::endl;
 			}
 		}
 
@@ -134,6 +206,5 @@ namespace NNModel {
 		Vocabulary& labelvocab_;
 	};
 }
-
 
 #endif // !__NN_QUERY_H__

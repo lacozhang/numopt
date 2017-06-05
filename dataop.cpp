@@ -634,7 +634,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 
 
 bool build_vocab(const std::string& filepath, size_t cutoffvalue,
-	boost::shared_ptr<NNModel::Vocabulary>& words, boost::shared_ptr<NNModel::Vocabulary>& labels){
+	boost::shared_ptr<Vocabulary>& words, boost::shared_ptr<Vocabulary>& labels){
 	
 	std::ofstream query, label;
 	std::ifstream src(filepath);
@@ -693,8 +693,57 @@ bool build_vocab(const std::string& filepath, size_t cutoffvalue,
 	query.close();
 	label.close();
 
-	words = NNModel::Vocabulary::BuildVocabularyWithFilter(queryfilepath, cutoffvalue);
-	labels = NNModel::Vocabulary::BuildVocabulary(labelfilepath);
+	words = Vocabulary::BuildVocabularyWithFilter(queryfilepath, cutoffvalue);
+	labels = Vocabulary::BuildVocabulary(labelfilepath);
+}
+
+bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label){
+	std::ifstream src(filepath);
+	if (!src.is_open()){
+		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath;
+		return false;
+	}
+
+	std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
+	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
+	char* ptr = nullptr;
+	int linenumber = 0;
+	while (src.good()){
+		if (std::strlen(TempLineBuffer) > 0){
+			ptr = std::strtok(TempLineBuffer, "\t");
+		src.getline(TempLineBuffer, sizeof(TempLineBuffer));
+	}
+
+	if (!src.eof()){
+		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
+		return false;
+	}
+
+	return true;
+}
+
+bool load_nn_sequence(const std::string& filepath,
+	boost::shared_ptr<NNModel::NNSequenceFeature>& feats,
+	boost::shared_ptr<NNModel::NNSequenceLabel>& labels){
+	std::ifstream src(filepath);
+	if (!src.is_open()){
+		BOOST_LOG_TRIVIAL(error) << "Error to open file " << filepath;
+		return false;
+	}
+
+	std::string line, seg;
+	std::getline(src, line);
+	std::vector<std::string> segs;
+	while (src.good()){
+		std::stringstream ss(line);
+		std::getline(ss, seg, '\t');
+		std::getline(src, line);
+	}
+
+	if (!src.eof()){
+		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
+		return false;
+	}
 }
 
 template<>
@@ -726,12 +775,32 @@ bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData() {
 }
 
 template<>
+bool DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::LoadData(){
+	namespace fs = boost::filesystem;
+	fs::path path(filepath_);
+	if (!fs::exists(path) || !fs::is_regular_file(path)){
+		BOOST_LOG_TRIVIAL(error) << "file path " << filepath_ << " bad";
+		valid_ = false;
+	}
+	else {
+		if (features_.get() == nullptr)
+			features_.reset(new NNModel::NNSequenceFeature());
+		if (labels_.get() == nullptr)
+			labels_.reset(new NNModel::NNSequenceLabel());
+	}
+
+
+	return valid_;
+}
+
+template<>
 bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadData(){
 	namespace fs = boost::filesystem;
 	fs::path path(filepath_);
 	if (filepath_.empty() || !fs::exists(path)){
 		valid_ = false;
 		BOOST_LOG_TRIVIAL(info) << "either empty path or invaida path " << filepath_ << std::endl;
+		return false;
 	}
 	else {
 
@@ -744,11 +813,15 @@ bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadD
 		}
 		
 		if (!specifyfeatdim_){
-			boost::shared_ptr<NNModel::Vocabulary> words, labels;
+			boost::shared_ptr<Vocabulary> words, labels;
 			build_vocab(filepath_, cutoff_, words, labels);
 			features_->SetVocabulary(words);
 			labels_->SetVocabulary(labels);
 		}
+
+		NNModel::NNQueryFeaturizer featurizer(features_->GetVocabulary(), labels_->GetVocabulary());
+		valid_ = featurizer.Featurize(features_, labels_, filepath_);
+		return true;
 	}
 }
 
