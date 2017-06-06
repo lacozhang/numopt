@@ -52,7 +52,7 @@ else(EIGEN3_FOUND)
     message(FATAL_ERROR "Can not find Eigen3")
 endif()
 
-set(UTILSRC cmdline.cpp parameter.cpp util.cpp)
+set(UTILSRC cmdline.cpp parameter.cpp util.cpp "util/stringop.cpp")
 set(UTILHEADER cmdline.h parameter.h typedef.h util.h "util/stringop.h")
 add_library(utils ${UTILSRC} ${UTILHEADER})
 
@@ -103,12 +103,12 @@ target_link_libraries(mltools dataop model nnlib opt utils ${Boost_LIBRARIES})
 
 file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
 
-add_executable(lccrf_test "test//lccrf_test.cpp")
-target_link_libraries(lccrf_test model crfeatlib dataop utils ${Boost_LIBRARIES})
-set_target_properties(lccrf_test 
+add_executable(unit "test//lccrf_test.cpp")
+target_link_libraries(unit model crfeatlib dataop utils ${Boost_LIBRARIES})
+set_target_properties(unit 
 			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
 			${CMAKE_CURRENT_BINARY_DIR}/testbin)
-add_test(NAME lccrf_test 
+add_test(NAME unit 
             WORKING_DIRECTORY 
 			${CMAKE_CURRENT_BINARY_DIR}/testbin 
             COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testbin/lccrf_test)

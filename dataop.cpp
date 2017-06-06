@@ -697,9 +697,9 @@ bool build_vocab(const std::string& filepath, size_t cutoffvalue,
 	labels = Vocabulary::BuildVocabulary(labelfilepath);
 }
 
-bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label){
+bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label) {
 	std::ifstream src(filepath);
-	if (!src.is_open()){
+	if (!src.is_open()) {
 		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath;
 		return false;
 	}
@@ -708,13 +708,14 @@ bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& s
 	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	char* ptr = nullptr;
 	int linenumber = 0;
-	while (src.good()){
-		if (std::strlen(TempLineBuffer) > 0){
+	while (src.good()) {
+		if (std::strlen(TempLineBuffer) > 0) {
 			ptr = std::strtok(TempLineBuffer, "\t");
+		}
 		src.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	}
 
-	if (!src.eof()){
+	if (!src.eof()) {
 		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
 		return false;
 	}
@@ -744,6 +745,9 @@ bool load_nn_sequence(const std::string& filepath,
 		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
 		return false;
 	}
+
+
+	return true;
 }
 
 template<>

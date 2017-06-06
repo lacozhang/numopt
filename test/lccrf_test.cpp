@@ -10,6 +10,27 @@
 #include "../DataIterator.h"
 #include "../util.h"
 
+
+// Test Split Function
+BOOST_AUTO_TEST_CASE(StringSplitOperation) {
+	std::string test1 = "i'm going to find a test  case  u";
+	std::vector<std::string> res;
+	Split(test1, res, " ", true);
+	res.clear();
+	Split(test1, res, " ", false);
+	res.clear();
+
+	std::string test2 = "c \tb u\t\t\td";
+	Split(test2, res, "\t", false);
+	res.clear();
+	Split(test2, res, "\t", true);
+	res.clear();
+
+	std::string test3 = "ax dy x\t\t\t";
+	Split(test3, res, "\t", false);
+}
+
+
 BOOST_AUTO_TEST_CASE(LoadTemplates){
 
 	CrfTemplate lccrf("template");
@@ -42,7 +63,7 @@ BOOST_AUTO_TEST_CASE(LoadTemplates){
 	lccrf.SaveToFile("template.test.out.txt");
 }
 
-/*
+
 BOOST_AUTO_TEST_CASE(LccrfFeaturizer) {
 	LccrFeaturizer featurizer("template");
 	featurizer.AccumulateFeatures("lccrf_test.txt", 3, 3);
@@ -50,7 +71,7 @@ BOOST_AUTO_TEST_CASE(LccrfFeaturizer) {
 	featurizer.Save("lccrf");
 	featurizer.Load("lccrf");
 }
-*/
+
 
 BOOST_AUTO_TEST_CASE(LccrfModelLoad) {
 	ModelData<TrainDataType::kLCCRF, LccrfSamples, LccrfLabels> dat;

@@ -124,7 +124,7 @@ namespace NNModel {
 		NNQueryFeaturizer(boost::shared_ptr<Vocabulary>& word, boost::shared_ptr<Vocabulary>& label)
 			:wordvocab_(*word), labelvocab_(*label){
 		}
-		~NNQueryFeaturizer();
+		~NNQueryFeaturizer(){}
 
 		bool FeaturizeLine(const std::string& query, const std::string& label,
 			boost::shared_ptr<QueryFeature>& feat, boost::shared_ptr<QueryLabel>& l){
@@ -133,7 +133,7 @@ namespace NNModel {
 
 			std::vector<std::string> words;
 			words.push_back(Vocabulary::BeginOfDoc);
-			Split(query.c_str(), words, " ");
+			Split(query, words, " ", true);
 			words.push_back(Vocabulary::EndOfDoc);
 
 			if (words.size() < 3) return false;
@@ -143,7 +143,7 @@ namespace NNModel {
 			}
 
 			words.clear();
-			Split(label.c_str(), words, " ");
+			Split(label, words, " ", true);
 			if (words.size() != 1){
 				BOOST_LOG_TRIVIAL(error) << "Multiple labels appeared";
 				return false;
