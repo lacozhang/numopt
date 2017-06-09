@@ -100,6 +100,7 @@ namespace NNModel {
 		NNSequenceFeature(){
 			features_.clear();
 			spbinarysize_ = spfloatsize_ = densesize_ = 0;
+			nullfeat_.reset();
 		}
 		~NNSequenceFeature(){}
 
@@ -121,7 +122,7 @@ namespace NNModel {
 				return features_[index];
 			}
 			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
-			return boost::shared_ptr<SentenceFeature>();
+			return nullfeat_;
 		}
 
 		std::vector<boost::shared_ptr<SentenceFeature>>& SampleFeatures(){
@@ -162,6 +163,7 @@ namespace NNModel {
 
 	private:
 		std::vector<boost::shared_ptr<SentenceFeature>> features_;
+        boost::shared_ptr<SentenceFeature> nullfeat_;
 		size_t spbinarysize_, spfloatsize_, densesize_;
 	};
 
@@ -170,6 +172,7 @@ namespace NNModel {
 		NNSequenceLabel(){
 			labels_.clear();
 			labelsize_ = 0;
+			nullabel_.reset();
 		}
 		~NNSequenceLabel(){}
 
@@ -191,7 +194,7 @@ namespace NNModel {
 				return labels_[index];
 
 			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
-			return boost::shared_ptr<SentenceLabel>();
+			return nullabel_;
 		}
 
 		std::vector<boost::shared_ptr<SentenceLabel>>& SampleLabels(){
@@ -215,6 +218,7 @@ namespace NNModel {
 
 	private:
 		std::vector<boost::shared_ptr<SentenceLabel>> labels_;
+        boost::shared_ptr<SentenceLabel> nullabel_;
 		size_t labelsize_;
 	};
 }

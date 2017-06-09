@@ -1,3 +1,4 @@
+#include <cstring>
 #include "stringop.h"
 
 namespace Util {
@@ -7,7 +8,7 @@ namespace Util {
 
 	void Split(const char* buffer, const size_t len, std::vector<std::string>& segs, const char* delim, bool skip) {
 		bool hits[256] = { false };
-		size_t delimlen = std::strlen(delim), wordlen = 0;
+		size_t delimlen = std::strlen(delim);
 		for (int i = 0; i < 256; ++i) hits[i] = false;
 		for (int i = 0; i < delimlen; ++i) hits[delim[i]] = true;
 
