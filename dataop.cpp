@@ -634,57 +634,57 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 
 
 bool build_vocab(const std::string& filepath, size_t cutoffvalue,
-	boost::shared_ptr<Vocabulary>& words, boost::shared_ptr<Vocabulary>& labels){
-	
+	boost::shared_ptr<Vocabulary>& words, boost::shared_ptr<Vocabulary>& labels) {
+
+	namespace fs = boost::filesystem;
+	fs::path basepath(filepath);
+	if (!basepath.is_absolute())
+		basepath = fs::canonical(basepath);
+
 	std::ofstream query, label;
 	std::ifstream src(filepath);
 
-	std::string queryfilepath = "queries.txt", labelfilepath = "labels.txt";
+	std::string queryfilepath = (basepath.parent_path() / "query.txt").string();
+	std::string labelfilepath = (basepath.parent_path() / "labels.txt").string();
 	query.open(queryfilepath);
 	label.open(labelfilepath);
 
-	if (!query.is_open()){
+	if (!query.is_open()) {
 		BOOST_LOG_TRIVIAL(error) << "Failed to open query.txt" << std::endl;
 		return false;
 	}
-	if (!label.is_open()){
+	if (!label.is_open()) {
 		BOOST_LOG_TRIVIAL(error) << "Failed to open labels.txt" << std::endl;
 		return false;
 	}
 
-	if (!src.is_open()){
+	if (!src.is_open()) {
 		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath << std::endl;
 		return false;
 	}
 
 	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	char* ptr = nullptr;
-	while (src.good()){		
-		ptr = std::strtok(TempLineBuffer, "\t");
-		if (ptr == nullptr){
-			BOOST_LOG_TRIVIAL(fatal) << "File line format error" << TempLineBuffer << std::endl;
-			return false;
+	std::vector<std::string> segments;
+	int linecount = 0;
+	while (src.good()) {
+		++linecount;
+		segments.clear();
+		Util::Split((const char*)TempLineBuffer, std::strlen(TempLineBuffer), segments, "\t", false);
+		if (segments.size() < 2 || segments[0].empty() || segments[1].empty()) {
+			BOOST_LOG_TRIVIAL(error) << "Line format error @ " << linecount;
+			BOOST_LOG_TRIVIAL(error) << TempLineBuffer;
 		}
-		query.write(ptr, std::strlen(ptr));
-		query.write("\n", 1);
-
-		ptr = std::strtok(NULL, "\t");
-		if (ptr == nullptr){
-			BOOST_LOG_TRIVIAL(fatal) << "File line format error " << TempLineBuffer << std::endl;
-			return false;
-		}
-		label.write(ptr, std::strlen(ptr));
-		label.write("\n", 1);
-
-		ptr = std::strtok(NULL, "\t");
-		if (ptr != nullptr){
-			BOOST_LOG_TRIVIAL(fatal) << "Extra columns existed " << std::endl;
-			return false;
+		else {
+			query.write(segments[0].c_str(), segments[0].size());
+			query.write("\n", 1);
+			label.write(segments[1].c_str(), segments[1].size());
+			label.write("\n", 1);
 		}
 		src.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	}
 
-	if (!src.eof()){
+	if (!src.eof()) {
 		BOOST_LOG_TRIVIAL(error) << "Unexpected error";
 		return false;
 	}
@@ -693,8 +693,15 @@ bool build_vocab(const std::string& filepath, size_t cutoffvalue,
 	query.close();
 	label.close();
 
-	words = Vocabulary::BuildVocabularyWithFilter(queryfilepath, cutoffvalue);
-	labels = Vocabulary::BuildVocabulary(labelfilepath);
+	words = Vocabulary::BuildVocabForQuery(queryfilepath, cutoffvalue);
+	labels = Vocabulary::BuildVocabForLabel(labelfilepath);
+
+	if (!words || !labels) {
+		BOOST_LOG_TRIVIAL(warning) << "Failed to build vocabulary for query & labels";
+		return false;
+	}
+
+	return true;
 }
 
 bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label) {
@@ -808,17 +815,17 @@ bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadD
 	}
 	else {
 
-		if (features_.get() == nullptr){
+		if (features_.get() == nullptr)
 			features_.reset(new NNModel::NNQueryFeature());
-		}
 
-		if (labels_.get() == nullptr){
+		if (labels_.get() == nullptr)
 			labels_.reset(new NNModel::NNQueryLabel());
-		}
 		
 		if (!specifyfeatdim_){
 			boost::shared_ptr<Vocabulary> words, labels;
-			build_vocab(filepath_, cutoff_, words, labels);
+			if (!build_vocab(filepath_, cutoff_, words, labels)) {
+				std::abort();
+			}
 			features_->SetVocabulary(words);
 			labels_->SetVocabulary(labels);
 		}

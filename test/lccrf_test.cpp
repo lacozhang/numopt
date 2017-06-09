@@ -15,19 +15,24 @@
 BOOST_AUTO_TEST_CASE(StringSplitOperation) {
 	std::string test1 = "i'm going to find a test  case  u";
 	std::vector<std::string> res;
-	Split(test1, res, " ", true);
+	Util::Split(test1, res, " ", true);
 	res.clear();
-	Split(test1, res, " ", false);
+	Util::Split(test1, res, " ", false);
 	res.clear();
 
 	std::string test2 = "c \tb u\t\t\td";
-	Split(test2, res, "\t", false);
+	Util::Split(test2, res, "\t", false);
 	res.clear();
-	Split(test2, res, "\t", true);
+	Util::Split(test2, res, "\t", true);
 	res.clear();
 
 	std::string test3 = "ax dy x\t\t\t";
-	Split(test3, res, "\t", false);
+	Util::Split(test3, res, "\t", false);
+	res.clear();
+
+	std::string test4 = "abcd e d xe";
+	Util::Split(test4, res, "\t", false);
+
 }
 
 

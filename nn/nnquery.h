@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
@@ -58,6 +59,19 @@ namespace NNModel {
 			return vocab_;
 		}
 
+		void AppendQueryFeature(boost::shared_ptr<QueryFeature>& feat) {
+			featdat_.push_back(feat);
+		}
+
+		void InsertQueryFeature(int idx, boost::shared_ptr<QueryFeature>& feat) {
+			while (idx >= featdat_.size()) {
+				featdat_.resize(featdat_.size() * 2);
+				BOOST_LOG_TRIVIAL(info) << "Expand feature data size";
+			}
+
+			featdat_[idx] = feat;
+		}
+
 		size_t GetVocabularySize(){
 			return vocab_->VocabSize();
 		}
@@ -65,6 +79,7 @@ namespace NNModel {
 		boost::shared_ptr<QueryFeature>& FeatureOfSample(int idx){
 			if (idx >= featdat_.size()){
 				BOOST_LOG_TRIVIAL(fatal) << "Access Sample Index out of bound";
+				std::abort();
 			}
 			return featdat_[idx];
 		}
@@ -94,6 +109,7 @@ namespace NNModel {
 		boost::shared_ptr<QueryLabel>& LabelOfSample(int idx){
 			if (idx >= labels_.size()){
 				BOOST_LOG_TRIVIAL(fatal) << "Access sample index out of bound";
+				std::abort();
 			}
 			return labels_[idx];
 		}
@@ -104,6 +120,18 @@ namespace NNModel {
 
 		boost::shared_ptr<Vocabulary>& GetVocabulary(){
 			return vocab_;
+		}
+
+		void AppendQueryLabel(boost::shared_ptr<QueryLabel>& label) {
+			labels_.push_back(label);
+		}
+
+		void SetQueryLabel(int idx, boost::shared_ptr<QueryLabel>& label) {
+			while (idx >= labels_.size()) {
+				labels_.resize(labels_.size() * 2);
+				BOOST_LOG_TRIVIAL(info) << "Expand label data size";
+			}
+			labels_[idx] = label;
 		}
 
 		size_t GetLabelSize(){
@@ -128,22 +156,26 @@ namespace NNModel {
 
 		bool FeaturizeLine(const std::string& query, const std::string& label,
 			boost::shared_ptr<QueryFeature>& feat, boost::shared_ptr<QueryLabel>& l){
+			if (query.empty() || label.empty()) return false;
 			int vocabsize = wordvocab_.VocabSize();
-			int labelsize = wordvocab_.VocabSize();
+			int labelsize = labelvocab_.VocabSize();
 
 			std::vector<std::string> words;
-			words.push_back(Vocabulary::BeginOfDoc);
-			Split(query, words, " ", true);
-			words.push_back(Vocabulary::EndOfDoc);
+			words.clear();
+			words.push_back(Vocabulary::kBeginOfDoc);
+			Util::Split(query, words, " ", true);
+			words.push_back(Vocabulary::kEndOfDoc);
 
 			if (words.size() < 3) return false;
+			feat->Feature().resize(words.size(), vocabsize);
+			feat->Feature().reserve(Eigen::VectorXi::Constant(words.size(), 1));
 			for (int i = 0; i < words.size(); ++i){
 				int index = wordvocab_.GetIndex(words[i]);
 				feat->Feature().insert(i, index) = 1;
 			}
 
 			words.clear();
-			Split(label, words, " ", true);
+			Util::Split(label, words, " ", true);
 			if (words.size() != 1){
 				BOOST_LOG_TRIVIAL(error) << "Multiple labels appeared";
 				return false;
@@ -169,30 +201,29 @@ namespace NNModel {
 
 			signal2::auto_buffer<char, signal2::store_n_objects<10 * 1024>> buffer(10 * 1024, '\0');
 			src.getline(buffer.data(), buffer.size());
-			char* ptr = nullptr;
+			std::vector<std::string> segments;
+			int linecount = 0;
 			while (src.good()){
-				ptr = std::strtok(buffer.data(), "\t");
-				if (ptr != nullptr){
-					std::string query(ptr);
-
-					ptr = std::strtok(NULL, "\t");
-					if (ptr == nullptr){
-						BOOST_LOG_TRIVIAL(error) << "Line no Label";
-					}
-					else {
-						std::string label(ptr);
-						boost::shared_ptr<QueryFeature> feat;
-						boost::shared_ptr<QueryLabel> featlabel;
-						if (!FeaturizeLine(query, label, feat, featlabel)){
-							feats->Features().push_back(feat);
-							labels->Labels().push_back(featlabel);
-						}
-					}
+				segments.clear();
+				++linecount;
+				Util::Split(buffer.data(), std::strlen(buffer.data()), segments, "\t", false);
+				if (segments.size() < 2) {
+					BOOST_LOG_TRIVIAL(warning) << "Line " << linecount << " format error";
 				}
 				else {
-					BOOST_LOG_TRIVIAL(info) << "Empty line";
+					boost::shared_ptr<NNModel::QueryFeature> feat = boost::make_shared<NNModel::QueryFeature>();
+					boost::shared_ptr<NNModel::QueryLabel> label;
+					feat.reset(new NNModel::QueryFeature());
+					label.reset(new NNModel::QueryLabel());
+					if (FeaturizeLine(segments[0], segments[1], feat, label)) {
+						feats->AppendQueryFeature(feat);
+						labels->AppendQueryLabel(label);
+					}
+					else {
+						feat.reset();
+						label.reset();
+					}
 				}
-
 				src.getline(buffer.data(), buffer.size());
 			}
 
@@ -202,8 +233,8 @@ namespace NNModel {
 		}
 
 	private:
-		Vocabulary& wordvocab_;
-		Vocabulary& labelvocab_;
+		const Vocabulary& wordvocab_;
+		const Vocabulary& labelvocab_;		
 	};
 }
 
