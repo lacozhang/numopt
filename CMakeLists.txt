@@ -69,7 +69,7 @@ set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h LccrfModel.h LccrfDataT
 add_library(model ${MODELSRC} ${MODELHEADER})
 
 add_executable(datacache datacache.cpp)
-target_link_libraries(datacache ${Boost_LIBRARIES} dataop utils)
+target_link_libraries(datacache dataop ${Boost_LIBRARIES} utils)
 
 # support CRF featurizer
 file(GLOB CRFEATHEADER "lccrf//*.h")
