@@ -2,6 +2,7 @@
 
 #ifndef __VOCABULARY_H__
 #define __VOCABULARY_H__
+#include <boost/make_shared.hpp>
 #include <boost/log/trivial.hpp>
 #include <fstream>
 #include <unordered_map>

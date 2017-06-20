@@ -3,19 +3,20 @@
 
 namespace Util {
 	void Split(const std::string& s, std::vector<std::string>& segs, const char* delim, bool skip) {
-		Split(s.c_str(), s.size(), segs, delim, skip);
+		Split((const unsigned char*)s.c_str(), s.size(), segs, (const unsigned char*)delim, skip);
 	}
 
-	void Split(const char* buffer, const size_t len, std::vector<std::string>& segs, const char* delim, bool skip) {
+	void Split(const unsigned char* buffer, const size_t len, std::vector<std::string>& segs, const unsigned char* delim, bool skip) {
+		if (len == 0) return;
 		bool hits[256] = { false };
-		size_t delimlen = std::strlen(delim);
+		size_t delimlen = std::strlen((const char*)delim);
 		for (int i = 0; i < 256; ++i) hits[i] = false;
 		for (int i = 0; i < delimlen; ++i) hits[delim[i]] = true;
 
-		const char* start = buffer;
+		const unsigned char* start = buffer;
 		for (int i = 0; i < len; ++i) {
 			if (hits[buffer[i]] || (i == len - 1)) {
-				const char* end = buffer + i;
+				const unsigned char* end = buffer + i;
 				if (!hits[buffer[i]]) end++;
 				if ((end == start) && (!skip)) {
 					segs.push_back("");

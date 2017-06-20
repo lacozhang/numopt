@@ -31,7 +31,7 @@ public:
 		maxbifeatid_ = 0;
 		maxlabelid_ = 0;
 
-		cutoff_ = 0;
+		cutoff_ = 1;
 	}
 
 	bool LoadData();

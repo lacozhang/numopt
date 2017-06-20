@@ -17,7 +17,7 @@ boost::shared_ptr<Vocabulary> Vocabulary::BuildVocabForQuery(const std::string &
 		return vocab;
 	}
 
-	vocab.reset(new Vocabulary());
+    vocab = boost::make_shared<Vocabulary>();
 	if (!vocab.get()) {
 		BOOST_LOG_TRIVIAL(fatal) << "Failed to allocate memory";
 		return vocab;
@@ -30,7 +30,7 @@ boost::shared_ptr<Vocabulary> Vocabulary::BuildVocabForQuery(const std::string &
 			rawvocab.update(Vocabulary::kBeginOfDoc.c_str(), Vocabulary::kBeginOfDoc.size(), 1);
 
 		words.clear();
-		Util::Split(buffer.data(), std::strlen(buffer.data()), words, " ", true);
+		Util::Split((const unsigned char*)buffer.data(), std::strlen(buffer.data()), words, (const unsigned char*)" ", true);
 		for (auto& word : words) {
 			rawvocab.update(word.c_str(), word.size(), 1);
 		}
@@ -76,7 +76,7 @@ boost::shared_ptr<Vocabulary> Vocabulary::BuildVocabForLabel(const std::string &
 		return vocab;
 	}
 
-	vocab.reset(new Vocabulary());
+    vocab = boost::make_shared<Vocabulary>();
 	if (vocab.get() == nullptr) {
 		BOOST_LOG_TRIVIAL(info) << "Allocate vocabulary failed";
 		return vocab;
@@ -85,12 +85,15 @@ boost::shared_ptr<Vocabulary> Vocabulary::BuildVocabForLabel(const std::string &
 	std::vector<std::string> labels;
 	cedar::da<int> rawlabels;
 	src.getline(buffer.data(), buffer.size());
+    int linenumber = 0;
 	while (src.good()) {
+        ++linenumber;
 		rawlabels.clear();
-		Util::Split(buffer.data(), std::strlen(buffer.data()), labels, " \t", true);
-		if (labels.empty() || labels.size() > 1) {
-			BOOST_LOG_TRIVIAL(warning) << "Multiple labels appeared " << buffer.data();
-		}
+        labels.clear();
+		Util::Split((const unsigned char*)buffer.data(), std::strlen(buffer.data()), labels, (const unsigned char*)" \t", true);
+        if (labels.empty() || labels.size() > 1) {
+            BOOST_LOG_TRIVIAL(warning) << "Multiple labels appeared " << buffer.data() << " @" << linenumber;
+        }
 		else {
 			rawlabels.update(labels[0].c_str(), labels[0].size());
 		}

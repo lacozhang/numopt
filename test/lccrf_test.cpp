@@ -10,6 +10,23 @@
 #include "../DataIterator.h"
 #include "../util.h"
 
+// TEST NN Sequence Loading
+BOOST_AUTO_TEST_CASE(LoadNNSequence) {
+    std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\rnn\\valid.txt";
+    DataLoader<TrainDataType::kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel> loader(inputfile);
+    loader.LoadData();
+}
+
+// Test NN Query Loading
+BOOST_AUTO_TEST_CASE(LoadNNQuery) {
+    std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\cnn\\huge.train.txt";
+    DataLoader<TrainDataType::kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel> loader(inputfile);
+    loader.SetCutoff(2);
+    timeutil timer;
+    timer.tic();
+    loader.LoadData();
+    BOOST_LOG_TRIVIAL(info) << "Cost " << timer.toc() << " seconds";
+}
 
 // Test Split Function
 BOOST_AUTO_TEST_CASE(StringSplitOperation) {

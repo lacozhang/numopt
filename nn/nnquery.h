@@ -204,17 +204,15 @@ namespace NNModel {
 			std::vector<std::string> segments;
 			int linecount = 0;
 			while (src.good()){
-				segments.clear();
 				++linecount;
-				Util::Split(buffer.data(), std::strlen(buffer.data()), segments, "\t", false);
+                segments.clear();
+				Util::Split((const unsigned char*)buffer.data(), std::strlen(buffer.data()), segments, (const unsigned char*)"\t", false);
 				if (segments.size() < 2) {
 					BOOST_LOG_TRIVIAL(warning) << "Line " << linecount << " format error";
 				}
 				else {
 					boost::shared_ptr<NNModel::QueryFeature> feat = boost::make_shared<NNModel::QueryFeature>();
-					boost::shared_ptr<NNModel::QueryLabel> label;
-					feat.reset(new NNModel::QueryFeature());
-					label.reset(new NNModel::QueryLabel());
+                    boost::shared_ptr<NNModel::QueryLabel> label = boost::make_shared<NNModel::QueryLabel>();
 					if (FeaturizeLine(segments[0], segments[1], feat, label)) {
 						feats->AppendQueryFeature(feat);
 						labels->AppendQueryLabel(label);
@@ -229,7 +227,10 @@ namespace NNModel {
 
 			if (!src.eof()){
 				BOOST_LOG_TRIVIAL(error) << "Unexpected error happens, donot reach EOF" << std::endl;
+				return false;
 			}
+
+			return true;
 		}
 
 	private:

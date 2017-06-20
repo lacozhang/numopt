@@ -670,7 +670,7 @@ bool build_vocab(const std::string& filepath, size_t cutoffvalue,
 	while (src.good()) {
 		++linecount;
 		segments.clear();
-		Util::Split((const char*)TempLineBuffer, std::strlen(TempLineBuffer), segments, "\t", false);
+		Util::Split((const unsigned char*)TempLineBuffer, std::strlen(TempLineBuffer), segments, (const unsigned char*)"\t", false);
 		if (segments.size() < 2 || segments[0].empty() || segments[1].empty()) {
 			BOOST_LOG_TRIVIAL(error) << "Line format error @ " << linecount;
 			BOOST_LOG_TRIVIAL(error) << TempLineBuffer;
@@ -704,6 +704,54 @@ bool build_vocab(const std::string& filepath, size_t cutoffvalue,
 	return true;
 }
 
+bool parse_nn_sequence_dense(const std::string& textfeats,
+    std::vector<std::string>& buffer,
+    std::vector<float>& feats) {
+    if (textfeats.empty()) return false;
+    buffer.clear();
+    feats.clear();
+    Util::Split(textfeats, buffer, ",", false);
+    for (auto& textfeat : buffer) {
+        feats.push_back(std::stof(textfeat));
+    }
+    return true;
+}
+
+bool parse_nn_sequence_sparse_binary(const std::string& textfeats,
+    std::vector<std::string>& buffer,
+    std::vector<int>& feats) {
+    if (textfeats.empty()) return false;
+    buffer.clear();
+    feats.clear();
+    Util::Split(textfeats, buffer, ",", false);
+    if (buffer.empty()) return false;
+    for (auto& textfeat : buffer) {
+        if (textfeat.empty()) return false;
+        feats.push_back(std::stoi(textfeat));
+    }
+    return true;
+}
+
+bool parse_nn_sequence_sparse_float(const std::string& textfeats,
+    std::vector<std::string>& buffer,
+    std::vector<std::pair<int, float>>& feats) {
+    if (textfeats.empty()) return false;
+    buffer.clear();
+    Util::Split(textfeats, buffer, ",", false);
+    std::vector<std::string> kvbuffer;
+    for (auto& kv : buffer) {
+        kvbuffer.clear();
+        Util::Split(kv, kvbuffer, ":", false);
+        if (kvbuffer.size() != 2) {
+            return false;
+        }
+        feats.push_back(
+            std::make_pair(std::stoi(kvbuffer[0]), std::stof(kvbuffer[1])));
+    }
+
+    return true;
+}
+
 bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label) {
 	std::ifstream src(filepath);
 	if (!src.is_open()) {
@@ -711,23 +759,151 @@ bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& s
 		return false;
 	}
 
+	std::vector<std::string> features, buffer;
+	std::vector<int> sparsebinaryfeats;
+	std::vector<std::pair<int, float>> sparsefloatfeats;
+	std::vector<float> densefeats;
+
+	sparsebinary = sparsefloat = dense = label = 0;
 	std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
 	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
 	char* ptr = nullptr;
 	int linenumber = 0;
-	while (src.good()) {
-		if (std::strlen(TempLineBuffer) > 0) {
-			ptr = std::strtok(TempLineBuffer, "\t");
-		}
-		src.getline(TempLineBuffer, sizeof(TempLineBuffer));
-	}
+    while (src.good()) {
+        ++linenumber;
+        int linesize = std::strlen(TempLineBuffer);
+        features.clear();
+        Util::Split((const unsigned char*)TempLineBuffer, linesize, features, (const unsigned char*)"\t", false);
+        if (features.size() > 1) {
 
-	if (!src.eof()) {
-		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
-		return false;
-	}
+            int labelid = std::stoi(features[0]);
+            if (labelid > label) label = labelid;
+
+            if (features.size() >= 2 &&
+                !features[1].empty() &&
+                parse_nn_sequence_sparse_binary(features[1], buffer, sparsebinaryfeats)) {
+                for (auto& n : sparsebinaryfeats)
+                    if (n > sparsebinary) sparsebinary = n;
+            }
+
+            if (features.size() >= 3 &&
+                !features[2].empty() &&
+                parse_nn_sequence_sparse_float(features[2], buffer, sparsefloatfeats)) {
+                for (auto& kv : sparsefloatfeats)
+                    if (kv.first > sparsefloat) sparsefloat = kv.first;
+            }
+
+            if (features.size() >= 4 &&
+                !features[3].empty() &&
+                parse_nn_sequence_dense(features[3], buffer, densefeats)) {
+                if (dense == 0) dense = densefeats.size();
+                else if (dense != densefeats.size()) {
+                    BOOST_LOG_TRIVIAL(error) << "Line format error " << linenumber << " " << features[3];
+                }
+            }
+        }
+        if (linenumber % 100000 == 0)
+            std::cout << "x" << std::endl;
+        else if (linenumber % 10000 == 0)
+            std::cout << ".";
+        src.getline(TempLineBuffer, sizeof(TempLineBuffer));
+    }
+    std::cout << std::endl;
+    sparsebinary++;
+    sparsefloat++;
+    label++;
+    if (!src.eof()) {
+        BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
+        return false;
+    }
 
 	return true;
+}
+
+
+bool parse_nn_sequence_sentence(std::vector<std::string>& sentence,
+    boost::shared_ptr<NNModel::SentenceFeature>& feat,
+    boost::shared_ptr<NNModel::SentenceLabel>& label,
+    const int sparsebinarysize, const int sparsefloatsize, const int densesize) {
+    std::vector<std::string> buffer;
+
+    std::vector<int> binaryfeat;
+    std::vector<std::pair<int, float>> floatfeat;
+    std::vector<float> densefeat;
+
+    std::vector<std::vector<int>> binaryfeats;
+    std::vector<std::vector<std::pair<int, float>>> floatfeats;
+
+    int seqlen = sentence.size();
+
+    feat->SparseBinaryFeature().resize(seqlen, sparsebinarysize);
+    if (sparsefloatsize > 0)
+        feat->SparseFeature().resize(seqlen, sparsefloatsize);
+    if (densesize > 0)
+        feat->DenseFeature().resize(seqlen, densesize);
+    label->GetLabels().resize(seqlen);
+
+    std::string binarytext, floattext, densetext;
+    binaryfeats.resize(seqlen);
+    floatfeats.resize(seqlen);
+
+    for (int idx = 0; idx < seqlen; ++idx) {
+        buffer.clear();
+        Util::Split(sentence[idx], buffer, "\t", false);
+        if (buffer.size() < 2) return false;
+        binarytext = std::move(buffer[1]);
+        if (sparsefloatsize > 0 && buffer.size() >= 3) floattext = std::move(buffer[2]);
+        if (densesize > 0 && buffer.size() >= 4) densetext = std::move(buffer[3]);
+
+        label->SetLabel(idx, std::stoi(buffer[0]));
+        binaryfeat.clear();
+        if (parse_nn_sequence_sparse_binary(binarytext, buffer, binaryfeat)) {
+            binaryfeats[idx] = std::move(binaryfeat);
+        }
+        else {
+            BOOST_LOG_TRIVIAL(fatal) << "Fundamental feature missing";
+            return false;
+        }
+
+        floatfeat.clear();
+        if (sparsefloatsize > 0 && buffer.size() >= 3 && parse_nn_sequence_sparse_float(floattext, buffer, floatfeat)) {
+            floatfeats[idx] = std::move(floatfeat);
+        }
+
+        densefeat.clear();
+        if (densesize > 0 && buffer.size() >= 4 && parse_nn_sequence_dense(densetext, buffer, densefeat)) {
+            if (densefeat.size() != densesize) {
+                BOOST_LOG_TRIVIAL(warning) << "dense feature size do not match";
+            }
+            for (int j = 0; j < densesize; ++j)
+                feat->DenseFeature().coeffRef(idx, j) = densefeat[j];
+        }
+    }
+
+
+    std::vector<int> estsize;
+    estsize.resize(seqlen);
+
+    for (int idx = 0; idx < seqlen; ++idx) estsize[idx] = binaryfeats[idx].size();
+    feat->SparseBinaryFeature().reserve(estsize);
+    for (int idx = 0; idx < seqlen; ++idx) {
+        for (auto& featidx : binaryfeats[idx]) {
+            feat->SparseBinaryFeature().coeffRef(idx, featidx) = 1.0;
+        }
+    }
+    feat->SparseBinaryFeature().makeCompressed();
+
+    if (sparsefloatsize > 0) {
+        for (int idx = 0; idx < seqlen; ++idx) estsize[idx] = floatfeats[idx].size();
+        feat->SparseFeature().reserve(estsize);
+        for (int idx = 0; idx < seqlen; ++idx) {
+            for (auto& kv : floatfeats[idx]) {
+                feat->SparseFeature().coeffRef(idx, kv.first) = kv.second;
+            }
+        }
+        feat->SparseFeature().makeCompressed();
+    }
+    return true;
 }
 
 bool load_nn_sequence(const std::string& filepath,
@@ -739,20 +915,59 @@ bool load_nn_sequence(const std::string& filepath,
 		return false;
 	}
 
-	std::string line, seg;
-	std::getline(src, line);
-	std::vector<std::string> segs;
-	while (src.good()){
-		std::stringstream ss(line);
-		std::getline(ss, seg, '\t');
-		std::getline(src, line);
-	}
+    std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
+    std::string line;
+    std::vector<std::string> sentence;
+    std::getline(src, line);
+    boost::shared_ptr<NNModel::SentenceFeature> feat;
+    boost::shared_ptr<NNModel::SentenceLabel> label;
+    int sentencenumber = 0;
+    while (src.good()) {
+        ++sentencenumber;
+        if (line.empty() && !sentence.empty()) {
+            feat = std::move(boost::make_shared<NNModel::SentenceFeature>());
+            label = std::move(boost::make_shared<NNModel::SentenceLabel>());
+            if (parse_nn_sequence_sentence(sentence, feat, label,
+                feats->GetSparseBinarySize(), feats->GetSparseFloatSize(), feats->GetDenseSize())) {
+                feats->AppendSequenceFeature(feat);
+                labels->AppendSequenceLabel(label);
+            }
+            else {
+                feat.reset();
+                label.reset();
+            }
+            sentence.clear();
+        }
+        else if (!line.empty()) {
+            sentence.push_back(line);
+        }
+
+        if (sentencenumber % 100000 == 0)
+            std::cout << "x" << std::endl;
+        else if (sentencenumber % 10000 == 0)
+            std::cout << ".";
+        std::getline(src, line);
+    }
+
+    if (!sentence.empty()) {
+        feat = std::move(boost::make_shared<NNModel::SentenceFeature>());
+        label = std::move(boost::make_shared<NNModel::SentenceLabel>());
+        if (parse_nn_sequence_sentence(sentence, feat, label,
+            feats->GetSparseBinarySize(), feats->GetSparseFloatSize(), feats->GetDenseSize())) {
+            feats->AppendSequenceFeature(feat);
+            labels->AppendSequenceLabel(label);
+        }
+        else {
+            feat.reset();
+            label.reset();
+        }
+    }
+    std::cout << std::endl;
 
 	if (!src.eof()){
 		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
 		return false;
 	}
-
 
 	return true;
 }
@@ -786,21 +1001,35 @@ bool DataLoader<kLCCRF, LccrfSamples, LccrfLabels>::LoadData() {
 }
 
 template<>
-bool DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::LoadData(){
+bool DataLoader<kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::LoadData() {
 	namespace fs = boost::filesystem;
 	fs::path path(filepath_);
-	if (!fs::exists(path) || !fs::is_regular_file(path)){
+	if (!fs::exists(path) || !fs::is_regular_file(path)) {
 		BOOST_LOG_TRIVIAL(error) << "file path " << filepath_ << " bad";
 		valid_ = false;
 	}
 	else {
-		if (features_.get() == nullptr)
-			features_.reset(new NNModel::NNSequenceFeature());
-		if (labels_.get() == nullptr)
-			labels_.reset(new NNModel::NNSequenceLabel());
+        if (features_.get() == nullptr)
+            features_ = boost::make_shared<NNModel::NNSequenceFeature>();
+        if (labels_.get() == nullptr)
+            labels_ = boost::make_shared<NNModel::NNSequenceLabel>();
+
+		if (!specifyfeatdim_) {
+			int spbinarysize = 0, spfloatsize = 0, densesize = 0, labelsize = 0;
+			if (estimate_nn_sequence(filepath_, spbinarysize, spfloatsize, densesize, labelsize)) {
+				features_->SetSparseBinarySize(spbinarysize);
+				features_->SetSparseFloatSize(spfloatsize);
+				features_->SetDenseSize(densesize);
+				labels_->SetLabelSize(labelsize);
+			}
+			else {
+				BOOST_LOG_TRIVIAL(error) << "Parse nn sequence format error";
+				return false;
+			}
+		}
+
+		valid_ = load_nn_sequence(filepath_, features_, labels_);
 	}
-
-
 	return valid_;
 }
 
@@ -808,20 +1037,20 @@ template<>
 bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadData(){
 	namespace fs = boost::filesystem;
 	fs::path path(filepath_);
-	if (filepath_.empty() || !fs::exists(path)){
+	if (filepath_.empty() || !fs::exists(path) || !fs::is_regular_file(path)) {
 		valid_ = false;
 		BOOST_LOG_TRIVIAL(info) << "either empty path or invaida path " << filepath_ << std::endl;
 		return false;
 	}
 	else {
 
-		if (features_.get() == nullptr)
-			features_.reset(new NNModel::NNQueryFeature());
+        if (features_.get() == nullptr)
+            features_ = boost::make_shared<NNModel::NNQueryFeature>();
 
-		if (labels_.get() == nullptr)
-			labels_.reset(new NNModel::NNQueryLabel());
-		
-		if (!specifyfeatdim_){
+        if (labels_.get() == nullptr)
+            labels_ = boost::make_shared<NNModel::NNQueryLabel>();
+
+		if (!specifyfeatdim_) {
 			boost::shared_ptr<Vocabulary> words, labels;
 			if (!build_vocab(filepath_, cutoff_, words, labels)) {
 				std::abort();
@@ -832,7 +1061,7 @@ bool DataLoader<kNNQuery, NNModel::NNQueryFeature, NNModel::NNQueryLabel>::LoadD
 
 		NNModel::NNQueryFeaturizer featurizer(features_->GetVocabulary(), labels_->GetVocabulary());
 		valid_ = featurizer.Featurize(features_, labels_, filepath_);
-		return true;
+		return valid_;
 	}
 }
 

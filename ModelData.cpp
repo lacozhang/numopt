@@ -58,7 +58,7 @@ boost::shared_ptr<DataLoader<DataType, DataSampleType, DataLabelType>> ModelData
 	if (trainpath_.empty()) {
 		return train;
 	}
-	train.reset(new DataLoader<DataType, DataSampleType, DataLabelType>(trainpath_));
+    train = boost::make_shared<DataLoader<DataType, DataSampleType, DataLabelType>>(trainpath_);
 	train->SetCutoff(nncutoff_);
 	return train;
 }
@@ -70,7 +70,7 @@ boost::shared_ptr<DataLoader<DataType, DataSampleType, DataLabelType>> ModelData
 	if (testpath_.empty()) {
 		return test;
 	}
-	test.reset(new DataLoader<DataType, DataSampleType, DataLabelType>(testpath_));
+    test = boost::make_shared<DataLoader<DataType, DataSampleType, DataLabelType>>(testpath_);
 	test->SetCutoff(nncutoff_);
 	return test;
 }
