@@ -6,12 +6,14 @@
 #include <set>
 #include <fstream>
 #include <functional>
+#include <mutex>
 #include <boost/filesystem.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/algorithm/string.hpp>
 #include "dataop.h"
 #include "util.h"
+#include "util/producer_consumer.h"
 
 namespace {
 
@@ -752,63 +754,130 @@ bool parse_nn_sequence_sparse_float(const std::string& textfeats,
     return true;
 }
 
-bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label) {
-	std::ifstream src(filepath);
-	if (!src.is_open()) {
-		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath;
-		return false;
-	}
+bool read_lines(std::ifstream& src, std::vector<std::string>& lines, int count) {
+    lines.clear();
+    std::string line;
+    if (!src.good()) return false;
 
-	std::vector<std::string> features, buffer;
-	std::vector<int> sparsebinaryfeats;
-	std::vector<std::pair<int, float>> sparsefloatfeats;
-	std::vector<float> densefeats;
+    std::getline(src, line);
+    while (src.good() && (count > 0)) {
+        if (!line.empty()) {
+            lines.push_back(std::move(line));
+            --count;
+        }
+        std::getline(src, line);
+    }
 
-	sparsebinary = sparsefloat = dense = label = 0;
-	std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
-	src.getline(TempLineBuffer, sizeof(TempLineBuffer));
-	char* ptr = nullptr;
-	int linenumber = 0;
-    while (src.good()) {
-        ++linenumber;
-        int linesize = std::strlen(TempLineBuffer);
+    BOOST_LOG_TRIVIAL(info) << lines.size() << " lines read";
+    if (src.good())
+        return true;
+    else
+        return false;
+}
+
+bool read_sentence(std::ifstream& src, std::vector<std::string>& sentence) {
+    sentence.clear();
+    if (!src.good()) return false;
+    std::string line;
+    std::getline(src, line);
+    while (src.good() && line.empty())
+        std::getline(src, line);
+
+    while (src.good() && !line.empty()) {
+        sentence.push_back(std::move(line));
+        std::getline(src, line);
+    }
+
+    if (src.good())
+        return true;
+    else
+        return false;
+}
+
+void estimate_nn_sequence_lines(std::vector<std::string>& lines, NNModel::NNSequenceEstimate& est) {
+    if (lines.empty()) return;
+    std::vector<std::string> features, buffer;
+    std::vector<int> sparsebinaryfeats;
+    std::vector<std::pair<int, float>> sparsefloatfeats;
+    std::vector<float> densefeats;
+    for (auto& line : lines) {
         features.clear();
-        Util::Split((const unsigned char*)TempLineBuffer, linesize, features, (const unsigned char*)"\t", false);
+        Util::Split((const unsigned char*)line.c_str(), line.size(), features, (const unsigned char*)"\t", false);
         if (features.size() > 1) {
 
             int labelid = std::stoi(features[0]);
-            if (labelid > label) label = labelid;
+            if (labelid > est.labelsize_) est.labelsize_ = labelid;
 
             if (features.size() >= 2 &&
                 !features[1].empty() &&
                 parse_nn_sequence_sparse_binary(features[1], buffer, sparsebinaryfeats)) {
                 for (auto& n : sparsebinaryfeats)
-                    if (n > sparsebinary) sparsebinary = n;
+                    if (n > est.sparsebinarysize_) est.sparsebinarysize_ = n;
             }
 
             if (features.size() >= 3 &&
                 !features[2].empty() &&
                 parse_nn_sequence_sparse_float(features[2], buffer, sparsefloatfeats)) {
                 for (auto& kv : sparsefloatfeats)
-                    if (kv.first > sparsefloat) sparsefloat = kv.first;
+                    if (kv.first > est.sparsefloatsize_) est.sparsefloatsize_ = kv.first;
             }
 
             if (features.size() >= 4 &&
                 !features[3].empty() &&
                 parse_nn_sequence_dense(features[3], buffer, densefeats)) {
-                if (dense == 0) dense = densefeats.size();
-                else if (dense != densefeats.size()) {
-                    BOOST_LOG_TRIVIAL(error) << "Line format error " << linenumber << " " << features[3];
+                if (est.densesize_ == 0) est.densesize_ = densefeats.size();
+                else if (est.densesize_ != densefeats.size()) {
+                    BOOST_LOG_TRIVIAL(error) << "Line format error " << line;
                 }
             }
         }
-        if (linenumber % 100000 == 0)
-            std::cout << "x" << std::endl;
-        else if (linenumber % 10000 == 0)
-            std::cout << ".";
-        src.getline(TempLineBuffer, sizeof(TempLineBuffer));
     }
-    std::cout << std::endl;
+}
+
+bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& sparsefloat, int& dense, int& label) {
+	std::ifstream src(filepath);
+	if (!src.is_open()) {
+		BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath;
+		return false;
+	}
+	sparsebinary = sparsefloat = dense = label = 0;
+
+    timeutil timer;
+    timer.tic();
+    NNModel::NNSequenceEstimate est;
+    std::mutex updatemut;
+    int threads = std::thread::hardware_concurrency() - 2;
+    if (threads <= 0) threads = 1;
+    BOOST_LOG_TRIVIAL(info) << "Number of Threads : " << threads;
+    ProducerConsumer<std::vector<std::string>> worker(1000, threads);
+
+    std::function<bool(std::vector<std::string>&)> producer = [&src](std::vector<std::string>& lines) {
+        return read_lines(src, lines, 50000);
+    };
+    worker.StartProducer(producer);
+
+    std::function<void(std::vector<std::string>&, NNModel::NNSequenceEstimate&)> consumer = [&](std::vector<std::string>& lines, NNModel::NNSequenceEstimate& localest) {
+        estimate_nn_sequence_lines(lines, localest);
+    };
+
+    std::function<void(NNModel::NNSequenceEstimate&)> updater= [&updatemut, &est](NNModel::NNSequenceEstimate& localest) {
+        std::lock_guard<std::mutex> lk(updatemut);
+        est.sparsebinarysize_ = std::max(est.sparsebinarysize_, localest.sparsebinarysize_);
+        est.sparsefloatsize_ = std::max(est.sparsefloatsize_, localest.sparsefloatsize_);
+        est.densesize_ = std::max(est.densesize_, localest.densesize_);
+        est.labelsize_ = std::max(est.labelsize_, localest.labelsize_);
+    };
+    worker.StartConsumer<NNModel::NNSequenceEstimate>(consumer, updater);
+    worker.BlockProducer();
+    worker.BlockConsumer();
+    worker.JoinConsumer();
+    BOOST_LOG_TRIVIAL(info) << "Estimate costs " << timer.toc() << " seconds";
+
+    sparsebinary = est.sparsebinarysize_;
+    sparsefloat = est.sparsefloatsize_;
+    dense = est.densesize_;
+    label = est.labelsize_;
+
     sparsebinary++;
     sparsefloat++;
     label++;
@@ -816,7 +885,6 @@ bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& s
         BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
         return false;
     }
-
 	return true;
 }
 
@@ -825,6 +893,13 @@ bool parse_nn_sequence_sentence(std::vector<std::string>& sentence,
     boost::shared_ptr<NNModel::SentenceFeature>& feat,
     boost::shared_ptr<NNModel::SentenceLabel>& label,
     const int sparsebinarysize, const int sparsefloatsize, const int densesize) {
+
+    if (sentence.empty()) return false;
+    if (!feat)
+        feat = boost::make_shared<NNModel::SentenceFeature>();
+    if (!label)
+        label = boost::make_shared<NNModel::SentenceLabel>();
+
     std::vector<std::string> buffer;
 
     std::vector<int> binaryfeat;
@@ -915,55 +990,58 @@ bool load_nn_sequence(const std::string& filepath,
 		return false;
 	}
 
-    std::memset(TempLineBuffer, 0, sizeof(TempLineBuffer));
-    std::string line;
-    std::vector<std::string> sentence;
-    std::getline(src, line);
-    boost::shared_ptr<NNModel::SentenceFeature> feat;
-    boost::shared_ptr<NNModel::SentenceLabel> label;
-    int sentencenumber = 0;
-    while (src.good()) {
-        ++sentencenumber;
-        if (line.empty() && !sentence.empty()) {
-            feat = std::move(boost::make_shared<NNModel::SentenceFeature>());
-            label = std::move(boost::make_shared<NNModel::SentenceLabel>());
-            if (parse_nn_sequence_sentence(sentence, feat, label,
-                feats->GetSparseBinarySize(), feats->GetSparseFloatSize(), feats->GetDenseSize())) {
-                feats->AppendSequenceFeature(feat);
-                labels->AppendSequenceLabel(label);
+    timeutil timer;
+    timer.tic();
+    int spbinarysize = feats->GetSparseBinarySize(), spfloatsize = feats->GetSparseFloatSize();
+    int densesize = feats->GetDenseSize();
+    std::mutex datamut;
+    int threads = std::thread::hardware_concurrency() - 2;
+    if (threads <= 0) threads = 1;
+    ProducerConsumer<std::vector<std::vector<std::string>>> worker(1000, threads);
+    int maxsentences = 10000;
+    
+    std::function<bool(std::vector<std::vector<std::string>>&)> producer = [&src, maxsentences](std::vector<std::vector<std::string>>& sentence) {
+        bool succ = true;
+        std::vector<std::string> buffer;
+        sentence.clear();
+        for (int i = 0; i < maxsentences && succ; ++i) {
+            succ = read_sentence(src, buffer);
+            sentence.push_back(std::move(buffer));
+        }
+        return succ;
+    };
+
+    worker.StartProducer(producer);
+    
+    std::function<void(std::vector<std::vector<std::string>>&, NNModel::NNSequenceParse&)> processor = [&](std::vector<std::vector<std::string>>& sentences, NNModel::NNSequenceParse& res) {
+        boost::shared_ptr<NNModel::SentenceFeature> feat;
+        boost::shared_ptr<NNModel::SentenceLabel> label;
+        res.feats_.clear();
+        res.labels_.clear();
+        for (auto& sentence : sentences) {
+            if (parse_nn_sequence_sentence(sentence, feat, label, spbinarysize, spfloatsize, densesize)) {
+                res.feats_.push_back(std::move(feat));
+                res.labels_.push_back(std::move(label));
             }
-            else {
-                feat.reset();
-                label.reset();
-            }
-            sentence.clear();
         }
-        else if (!line.empty()) {
-            sentence.push_back(line);
-        }
+    };
 
-        if (sentencenumber % 100000 == 0)
-            std::cout << "x" << std::endl;
-        else if (sentencenumber % 10000 == 0)
-            std::cout << ".";
-        std::getline(src, line);
-    }
-
-    if (!sentence.empty()) {
-        feat = std::move(boost::make_shared<NNModel::SentenceFeature>());
-        label = std::move(boost::make_shared<NNModel::SentenceLabel>());
-        if (parse_nn_sequence_sentence(sentence, feat, label,
-            feats->GetSparseBinarySize(), feats->GetSparseFloatSize(), feats->GetDenseSize())) {
-            feats->AppendSequenceFeature(feat);
-            labels->AppendSequenceLabel(label);
+    std::function<void(NNModel::NNSequenceParse&)> updater = [&datamut, &feats, &labels](NNModel::NNSequenceParse& res) {
+        std::lock_guard<std::mutex> lk(datamut);
+        int size = res.feats_.size();
+        for (int i = 0; i < size; ++i) {
+            if (!res.feats_[i] || !res.labels_[i]) continue;
+            feats->AppendSequenceFeature(res.feats_[i]);
+            labels->AppendSequenceLabel(res.labels_[i]);
         }
-        else {
-            feat.reset();
-            label.reset();
-        }
-    }
-    std::cout << std::endl;
+    };
+    
+    worker.StartConsumer<NNModel::NNSequenceParse>(processor, updater);
+    worker.BlockProducer();
+    worker.BlockConsumer();
+    worker.JoinConsumer();
 
+    BOOST_LOG_TRIVIAL(info) << "Loading costs " << timer.toc() << " seconds";
 	if (!src.eof()){
 		BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
 		return false;

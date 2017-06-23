@@ -53,7 +53,7 @@ else(EIGEN3_FOUND)
 endif()
 
 set(UTILSRC cmdline.cpp parameter.cpp util.cpp "util/stringop.cpp")
-set(UTILHEADER cmdline.h parameter.h typedef.h util.h "util/stringop.h")
+set(UTILHEADER cmdline.h parameter.h typedef.h util.h "util/stringop.h" "util/producer_consumer.h" "util/threadsafe_limited_queue.h" "util/threadsafe_queue.h" "util/barrier.h")
 add_library(utils ${UTILSRC} ${UTILHEADER})
 
 set(DATAOPSRC DataIterator.cpp dataop.cpp IndexData.cpp ModelData.cpp "dataop/vocabulary.cpp")

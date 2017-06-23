@@ -10,9 +10,26 @@
 #include "../DataIterator.h"
 #include "../util.h"
 
+
+BOOST_AUTO_TEST_CASE(ReadNLines) {
+    std::vector<std::string> lines;
+    std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\rnn-small\\train.txt";
+    std::ifstream src(inputfile);
+    while (read_lines(src, lines, 1000)) {
+        BOOST_LOG_TRIVIAL(info) << "Read " << lines.size() << " lines";
+    }
+
+    src.close();
+    src.open(inputfile);
+    while (read_sentence(src, lines)) {
+        BOOST_LOG_TRIVIAL(info) << "Sentence " << lines.size() << " lines";
+    }
+}
+
 // TEST NN Sequence Loading
 BOOST_AUTO_TEST_CASE(LoadNNSequence) {
-    std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\rnn\\valid.txt";
+    std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\rnn\\train.txt";
+    std::string inputfile2 = "D:\\zhangyu\\src\\data\\nn\\rnn-small\\small.test.txt";
     DataLoader<TrainDataType::kNNSequence, NNModel::NNSequenceFeature, NNModel::NNSequenceLabel> loader(inputfile);
     loader.LoadData();
 }

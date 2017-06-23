@@ -142,5 +142,7 @@ bool save_libsvm_data_bin(std::string filepath,
 void parselibsvmline(char *line, std::vector<std::pair<size_t, float>> &feats,
 	int &label, bool parse = true);
 
+bool read_lines(std::ifstream& src, std::vector<std::string>& lines, int count);
+bool read_sentence(std::ifstream& src, std::vector<std::string>& sentence);
 
 #endif

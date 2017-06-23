@@ -9,8 +9,6 @@
 
 namespace NNModel {
 
-	class NNSequenceFeature;
-
 	class SentenceFeature {
 	public:
 		SentenceFeature() {
@@ -105,7 +103,7 @@ namespace NNModel {
 		~NNSequenceFeature(){}
 
 		void AppendSequenceFeature(boost::shared_ptr<SentenceFeature>& feat){
-			features_.push_back(feat);
+			features_.push_back(std::move(feat));
 		}
 
 		void SetSequenceFeature(boost::shared_ptr<SentenceFeature>& feat, int index){
@@ -176,9 +174,9 @@ namespace NNModel {
 		}
 		~NNSequenceLabel(){}
 
-		void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label){
-			labels_.push_back(label);
-		}
+        void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label) {
+            labels_.push_back(std::move(label));
+        }
 
 		void SetSequenceLabel(boost::shared_ptr<SentenceLabel>& label, int idx){
 			while (idx >= labels_.size()) {
@@ -221,6 +219,23 @@ namespace NNModel {
         boost::shared_ptr<SentenceLabel> nullabel_;
 		size_t labelsize_;
 	};
+
+    struct NNSequenceEstimate {
+        int sparsebinarysize_, sparsefloatsize_, densesize_, labelsize_;
+        NNSequenceEstimate() {
+            sparsebinarysize_ = sparsefloatsize_ = densesize_ = labelsize_ = 0;
+        }
+    };
+
+    struct NNSequenceParse {
+        std::vector<boost::shared_ptr<SentenceFeature>> feats_;
+        std::vector<boost::shared_ptr<SentenceLabel>> labels_;
+
+        NNSequenceParse() {
+            feats_.clear();
+            labels_.clear();
+        }
+    };
 }
 
 #endif // !__NNSEQUENCE_DATA_H__

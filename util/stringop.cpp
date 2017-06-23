@@ -14,20 +14,20 @@ namespace Util {
 		for (int i = 0; i < delimlen; ++i) hits[delim[i]] = true;
 
 		const unsigned char* start = buffer;
-		for (int i = 0; i < len; ++i) {
-			if (hits[buffer[i]] || (i == len - 1)) {
-				const unsigned char* end = buffer + i;
-				if (!hits[buffer[i]]) end++;
-				if ((end == start) && (!skip)) {
-					segs.push_back("");
-				}
-				else if (end > start) {
-					std::string tmp(start, end);
-					segs.push_back(tmp);
-				}
-				start = end + 1;
-			}
-		}
+        for (int i = 0; i < len; ++i) {
+            if (hits[buffer[i]] || (i == len - 1)) {
+                const unsigned char* end = buffer + i;
+                if (!hits[buffer[i]]) end++;
+                if ((end == start) && (!skip)) {
+                    segs.push_back("");
+                }
+                else if (end > start) {
+                    std::string tmp(start, end);
+                    segs.push_back(std::move(tmp));
+                }
+                start = end + 1;
+            }
+        }
 
 		if (hits[buffer[len - 1]] && !skip) {
 			segs.push_back("");
