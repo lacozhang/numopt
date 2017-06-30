@@ -20,6 +20,7 @@ public:
 
 	virtual void InitFromCmd(int argc, const char* argv[]) = 0;
 	virtual void InitFromData(DataIterator& iterator) = 0;
+    virtual void Init() = 0;
 	virtual boost::program_options::options_description& Options() {
 		return optionsdesc_;
 	}

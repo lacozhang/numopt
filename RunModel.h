@@ -53,6 +53,7 @@ void RunModel(int argc, const char* argv[], std::string optimizertype,
 
 	model->InitFromCmd(argc, argv);
 	model->InitFromData(trainiter);
+    model->Init();
 
 	boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> optimizer;
 	optimizer = CreateOptimizer<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>(optimizertype, model, optimfactory);

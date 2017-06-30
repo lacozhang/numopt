@@ -20,7 +20,8 @@ public:
 	void SetLoss(LossFunc loss);
 
 	virtual void InitFromCmd(int argc, const char* argv[]) override;
-	virtual void InitFromData(DataIterator& iterator) override;
+    virtual void InitFromData(DataIterator& iterator) override;
+    virtual void Init() override {}
 
 	virtual DenseVector& GetParameters() const override {
 		return *param_;

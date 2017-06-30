@@ -1,5 +1,6 @@
 #include "util.h"
 
+
 timeutil::timeutil(){
 }
 
@@ -30,4 +31,8 @@ boost::program_options::variables_map ParseArgs(int argc, const char* argv[],
 	}
 
 	return vm;
+}
+
+int aligned_by(const int val, const int alignment) {
+    return  ((val + alignment - 1) / alignment)*alignment;
 }

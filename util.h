@@ -50,6 +50,13 @@ public:
 		return ReadSimpleType<float>(sink_, val);
 	}
 
+    bool WriteDouble(double val) {
+		return WriteSimpleType<double>(sink_, val);
+	}
+
+	bool ReadDouble(double& val) {
+		return ReadSimpleType<double>(sink_, val);
+	}
 
 private:
 
@@ -74,4 +81,6 @@ private:
 
 boost::program_options::variables_map ParseArgs(int argc, const char* argv[],
 	boost::program_options::options_description& optionsdesc, bool allowunreg);
+
+int aligned_by(const int val, const int alignment);
 #endif
