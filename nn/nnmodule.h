@@ -7,19 +7,23 @@
 #ifndef __NN_MODULE_H__
 #define __NN_MODULE_H__
 
-namespace NNModel {
-
-#define NNForbidOperation do { \
-        BOOST_LOG_TRIVIAL(fatal) << "Operation " __FUNCTION__ " Not Supported"; \
+#define NNForbidOperation \
+    do { \
+        BOOST_LOG_TRIVIAL(fatal) << "Operation " <<  __FUNCTION__ << " Not Supported"; \
         BOOST_LOG_TRIVIAL(fatal) << "File " << __FILE__ << " line " << __LINE__; \
         std::abort();  \
     } while(false);
 
-#define NNForbidOperationMsg(msg) do {\
+#define NNForbidOperationMsg(msg) \
+    do {\
         BOOST_LOG_TRIVIAL(fatal) << msg; \
-        BOOST_LOG_TRIVIAL(fatal) << "code at " __FUNCTION__ " happends ; " << " line " << __LINE__  << " file " << __FILE__; \
+        BOOST_LOG_TRIVIAL(fatal) << "code at " << __FUNCTION__ <<" happended"; \
+        BOOST_LOG_TRIVIAL(fatal) << "File " << __FILE__ << " line " << __LINE__; \
         std::abort(); \
     } while (false);
+
+
+namespace NNModel {
 
     template<typename InputType, typename OutputType, typename GradInputType, typename GradOoutputType>
     class NNLayerBase {
