@@ -50,16 +50,21 @@ namespace NNModel {
         }
 
         size_t inputrows = input.rows();
-        size_t outputrows = outputrowsize(inputrows);
         size_t inidx = 0, outidx = 0;
         for (inidx = 0; inidx + windowsize_ <= inputrows; inidx += stride_, outidx++) {
             Eigen::Map<const Eigen::VectorXd> inputdat(input.middleRows(inidx, windowsize_).data(), windowsize_*convsize_, 1);
             Eigen::Map<Eigen::VectorXd> ingrad(inputgrad_->middleRows(inidx, windowsize_).data(), windowsize_*convsize_, 1);
             ingrad += gradin->row(outidx).asDiagonal() * param_;
-            for (int i = 0; i < numfilters_; ++i) {
-                if (gradin->coeff(outidx, i) == 0.0) continue;
-                param_.row(i) += gradin->coeff(outidx, i) * 
-            }
+            grad_ += gradin->row(outidx).transpose() * inputdat.transpose();
+        }
+        
+        if(inidx < inputrows){
+            size_t leftrows=inputrows-inidx;
+            Eigen::Map<const Eigen::VectorXd> inputdat(input.middleRows(inidx, leftrows).data(), leftrows*convsize_, 1);
+            Eigen::Map<Eigen::VectorXd> ingrad(inputgrad_->middleRows(inidx, leftrows).data(), leftrows*convsize_, 1);
+            
+            ingrad += gradin->row(outidx).head(leftrows).asDiagonal() * param_.topRows(leftrows);
+            grad_.block(0, 0, leftrows, leftrows*convsize_) += gradin->row(outidx).head(leftrows).transpose() * inputdat.transpose();
         }
     }
 }

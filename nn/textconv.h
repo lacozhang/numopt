@@ -25,10 +25,10 @@ namespace NNModel {
 
     protected:
         void ParamGrad(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin) {
-            NNForbidOperation;
+            BaseType::ParamGrad(input, gradin);
         }
         void InputGrad(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin, boost::shared_ptr<RowRealMatrix>& gradout) {
-            NNForbidOperation;
+            BaseType::InputGrad(input, gradin, gradout);
         }
 
     private:
