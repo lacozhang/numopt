@@ -3,25 +3,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/make_shared.hpp>
 #include "../typedef.h"
+#include "nnmacros.h"
 
 #ifndef __NN_MODULE_H__
 #define __NN_MODULE_H__
-
-#define NNForbidOperation \
-    do { \
-        BOOST_LOG_TRIVIAL(fatal) << "Operation " <<  __FUNCTION__ << " Not Supported"; \
-        BOOST_LOG_TRIVIAL(fatal) << "File " << __FILE__ << " line " << __LINE__; \
-        std::abort();  \
-    } while(false);
-
-#define NNForbidOperationMsg(msg) \
-    do {\
-        BOOST_LOG_TRIVIAL(fatal) << msg; \
-        BOOST_LOG_TRIVIAL(fatal) << "code at " << __FUNCTION__ <<" happended"; \
-        BOOST_LOG_TRIVIAL(fatal) << "File " << __FILE__ << " line " << __LINE__; \
-        std::abort(); \
-    } while (false);
-
 
 namespace NNModel {
 
@@ -46,7 +31,16 @@ namespace NNModel {
             NNForbidOperation;
         }
 
+        void SetInTrain() {
+            trainstate_ = true;
+        }
+
+        void SetInTest() {
+            trainstate_ = false;
+        }
+
     protected:
+
         void ParamGrad(const InputType& input, const boost::shared_ptr<GradInputType>& gradin) {
             NNForbidOperation;
         }
@@ -56,6 +50,7 @@ namespace NNModel {
 
         boost::shared_ptr<OutputType> output_;
         boost::shared_ptr<GradOoutputType> inputgrad_;
+        bool trainstate_;
     };
 }
 

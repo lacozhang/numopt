@@ -3,6 +3,14 @@
 #include "nnquery.h"
 #include "../dataop/vocabulary.h"
 #include "embedding.h"
+#include "textconv.h"
+#include "textpooling.h"
+#include "linearlayer.h"
+#include "activatelayer.h"
+#include "embeddingsum.h"
+#include "dropout.h"
+#include "vectorsum.h"
+#include "crossentropy.h"
 #include <boost/shared_ptr.hpp>
 
 #ifndef __CNN_H__
@@ -13,7 +21,7 @@ namespace NNModel {
     class CNNModel : public AbstractModel<RealVector, NNQueryFeature, NNQueryLabel, RealSparseVector, RealVector> {
     public:
         typedef AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector> BaseModelType;
-        
+
         CNNModel();
         ~CNNModel();
 
@@ -48,12 +56,22 @@ namespace NNModel {
         boost::shared_ptr<Vocabulary> vocab_, label_;
 
         // parameters
-        int vocabsie_, embedsize_, hiddensize_, convfilters_, convsize_, poolstack_, labelsize_;
+        int vocabsize_, embedsize_, hiddensize_, convfilters_, convsize_, poolstack_, labelsize_;
         double dropout_;
 
         boost::shared_ptr<RealVector> param_, grad_;
-
         boost::shared_ptr<EmbeddingLayer> embedlayer_;
+        boost::shared_ptr<TextConvLayer> convlayer_;
+        boost::shared_ptr<TextMaxPoolingLayer> poolinglayer_;
+        boost::shared_ptr<ActivateLayer> poolactlayer_;
+        boost::shared_ptr<EmbeddingSumLayer> bowhiddenlayer_, bowoutputlayer_;
+        boost::shared_ptr<VectorSumLayer> hiddensumlayer_, outputsumlayer_;
+        boost::shared_ptr<LinearLayer> hiddenlayer_;
+        boost::shared_ptr<LinearLayer> directlayer_;
+        boost::shared_ptr<ActivateLayer> hiddenactlayer_;
+        boost::shared_ptr<DropoutLayer> hiddendroplayer_;
+        boost::shared_ptr<LinearLayer> outputlayer_;
+        boost::shared_ptr<CrossEntropyLoss> losslayer_;
     };
 
 }
