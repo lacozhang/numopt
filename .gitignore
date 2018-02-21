@@ -4,6 +4,7 @@ X64/
 ipch/
 build*/
 *.dir/
+*.DS_Store
 *.user
 *.db
 *.sdf
