@@ -1,0 +1,7 @@
+syntax = "proto2";
+package mltools;
+
+message PbRange {
+    required uint64 begin = 1;
+    required uint64 end = 2;
+}
