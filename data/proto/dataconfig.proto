@@ -1,0 +1,52 @@
+syntax = "proto2";
+package mltools;
+import "util/proto/range.proto";
+
+message DataConfig {
+    enum DataFormat {
+        TEXT = 1;
+        PROTO = 2;
+        BIN = 3;
+    }
+
+    optional DataFormat format = 1;
+
+    enum TextFormat {
+        DENSE = 1;
+        SPARSE = 2;
+        SPARSE_BINARY = 3;
+        ADFEA = 4;
+        LIBSVM = 5;
+        TERAFEA = 6;
+        VW = 7;
+        CRITEO = 8;
+    }
+
+    optional TextFormat text = 2;
+
+    //file names
+    repeated string file = 3;
+    // valid for BIN data
+    optional PbRange range = 4;
+
+    optional bool ignore_feature_group = 5;
+    // maximum files allowed in one worker, -1 menas no limit
+    optional int32 maximum_files_per_worker = 6 [default = -1];
+    // maximum number of samples allowed in one worker, -1 means no limit
+    optional int32 maximum_examples_per_file = 7 [default = -1];
+
+    // whether shuffle the file order inside one config
+    optional bool shuffle = 8 [default = false];
+
+     // file in HDFS
+    optional HDFSConfig hdfs = 9;
+
+    // duplicate the files
+    optional int32 replica = 10 [default = 1];
+}
+
+message HDFSConfig {
+    optional string home = 1;
+    optional string ugi = 2;
+    optional string namenode = 3;
+}
