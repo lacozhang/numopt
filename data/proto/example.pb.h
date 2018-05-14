@@ -527,10 +527,19 @@ class Slot : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::google::protobuf::int32 id() const;
   void set_id(::google::protobuf::int32 value);
 
+  // optional float impt = 4 [default = 1];
+  bool has_impt() const;
+  void clear_impt();
+  static const int kImptFieldNumber = 4;
+  float impt() const;
+  void set_impt(float value);
+
   // @@protoc_insertion_point(class_scope:mltools.Slot)
  private:
   void set_has_id();
   void clear_has_id();
+  void set_has_impt();
+  void clear_has_impt();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
@@ -540,6 +549,7 @@ class Slot : public ::google::protobuf::Message /* @@protoc_insertion_point(clas
   ::google::protobuf::RepeatedField< float > val_;
   mutable int _val_cached_byte_size_;
   ::google::protobuf::int32 id_;
+  float impt_;
   friend struct ::protobuf_example_2eproto::TableStruct;
   friend void ::protobuf_example_2eproto::InitDefaultsSlotImpl();
 };
@@ -646,13 +656,23 @@ class Example : public ::google::protobuf::Message /* @@protoc_insertion_point(c
   const ::google::protobuf::RepeatedPtrField< ::mltools::Slot >&
       slot() const;
 
+  // optional float eximpt = 2 [default = 1];
+  bool has_eximpt() const;
+  void clear_eximpt();
+  static const int kEximptFieldNumber = 2;
+  float eximpt() const;
+  void set_eximpt(float value);
+
   // @@protoc_insertion_point(class_scope:mltools.Example)
  private:
+  void set_has_eximpt();
+  void clear_has_eximpt();
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
   ::google::protobuf::internal::HasBits<1> _has_bits_;
   mutable int _cached_size_;
   ::google::protobuf::RepeatedPtrField< ::mltools::Slot > slot_;
+  float eximpt_;
   friend struct ::protobuf_example_2eproto::TableStruct;
   friend void ::protobuf_example_2eproto::InitDefaultsExampleImpl();
 };
@@ -958,6 +978,30 @@ Slot::mutable_val() {
   return &val_;
 }
 
+// optional float impt = 4 [default = 1];
+inline bool Slot::has_impt() const {
+  return (_has_bits_[0] & 0x00000002u) != 0;
+}
+inline void Slot::set_has_impt() {
+  _has_bits_[0] |= 0x00000002u;
+}
+inline void Slot::clear_has_impt() {
+  _has_bits_[0] &= ~0x00000002u;
+}
+inline void Slot::clear_impt() {
+  impt_ = 1;
+  clear_has_impt();
+}
+inline float Slot::impt() const {
+  // @@protoc_insertion_point(field_get:mltools.Slot.impt)
+  return impt_;
+}
+inline void Slot::set_impt(float value) {
+  set_has_impt();
+  impt_ = value;
+  // @@protoc_insertion_point(field_set:mltools.Slot.impt)
+}
+
 // -------------------------------------------------------------------
 
 // Example
@@ -990,6 +1034,30 @@ inline const ::google::protobuf::RepeatedPtrField< ::mltools::Slot >&
 Example::slot() const {
   // @@protoc_insertion_point(field_list:mltools.Example.slot)
   return slot_;
+}
+
+// optional float eximpt = 2 [default = 1];
+inline bool Example::has_eximpt() const {
+  return (_has_bits_[0] & 0x00000001u) != 0;
+}
+inline void Example::set_has_eximpt() {
+  _has_bits_[0] |= 0x00000001u;
+}
+inline void Example::clear_has_eximpt() {
+  _has_bits_[0] &= ~0x00000001u;
+}
+inline void Example::clear_eximpt() {
+  eximpt_ = 1;
+  clear_has_eximpt();
+}
+inline float Example::eximpt() const {
+  // @@protoc_insertion_point(field_get:mltools.Example.eximpt)
+  return eximpt_;
+}
+inline void Example::set_eximpt(float value) {
+  set_has_eximpt();
+  eximpt_ = value;
+  // @@protoc_insertion_point(field_set:mltools.Example.eximpt)
 }
 
 #ifdef __GNUC__

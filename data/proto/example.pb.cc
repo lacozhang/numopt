@@ -166,22 +166,26 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Slot, id_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Slot, key_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Slot, val_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Slot, impt_),
   0,
   ~0u,
   ~0u,
+  1,
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Example, _has_bits_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Example, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Example, slot_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::mltools::Example, eximpt_),
   ~0u,
+  0,
 };
 static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   { 0, 11, sizeof(::mltools::SlotInfo)},
   { 17, 24, sizeof(::mltools::ExampleInfo)},
-  { 26, 34, sizeof(::mltools::Slot)},
-  { 37, 43, sizeof(::mltools::Example)},
+  { 26, 35, sizeof(::mltools::Slot)},
+  { 39, 46, sizeof(::mltools::Example)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -220,12 +224,13 @@ void AddDescriptorsImpl() {
       " \001(\004\022\016\n\006nnz_ex\030\006 \001(\004\"2\n\006Format\022\t\n\005DENSE\020"
       "\001\022\n\n\006SPARSE\020\002\022\021\n\rSPARSE_BINARY\020\003\">\n\013Exam"
       "pleInfo\022\037\n\004slot\030\001 \003(\0132\021.mltools.SlotInfo"
-      "\022\016\n\006num_ex\030\002 \001(\004\"4\n\004Slot\022\n\n\002id\030\001 \001(\005\022\017\n\003"
-      "key\030\002 \003(\004B\002\020\001\022\017\n\003val\030\003 \003(\002B\002\020\001\"&\n\007Exampl"
-      "e\022\033\n\004slot\030\001 \003(\0132\r.mltools.Slot"
+      "\022\016\n\006num_ex\030\002 \001(\004\"E\n\004Slot\022\n\n\002id\030\001 \001(\005\022\017\n\003"
+      "key\030\002 \003(\004B\002\020\001\022\017\n\003val\030\003 \003(\002B\002\020\001\022\017\n\004impt\030\004"
+      " \001(\002:\0011\"9\n\007Example\022\033\n\004slot\030\001 \003(\0132\r.mltoo"
+      "ls.Slot\022\021\n\006eximpt\030\002 \001(\002:\0011"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 390);
+      descriptor, 426);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "example.proto", &protobuf_RegisterTypes);
 }
@@ -1008,6 +1013,7 @@ void Slot::InitAsDefaultInstance() {
 const int Slot::kIdFieldNumber;
 const int Slot::kKeyFieldNumber;
 const int Slot::kValFieldNumber;
+const int Slot::kImptFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Slot::Slot()
@@ -1026,13 +1032,16 @@ Slot::Slot(const Slot& from)
       key_(from.key_),
       val_(from.val_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  id_ = from.id_;
+  ::memcpy(&id_, &from.id_,
+    static_cast<size_t>(reinterpret_cast<char*>(&impt_) -
+    reinterpret_cast<char*>(&id_)) + sizeof(impt_));
   // @@protoc_insertion_point(copy_constructor:mltools.Slot)
 }
 
 void Slot::SharedCtor() {
   _cached_size_ = 0;
   id_ = 0;
+  impt_ = 1;
 }
 
 Slot::~Slot() {
@@ -1074,7 +1083,11 @@ void Slot::Clear() {
 
   key_.Clear();
   val_.Clear();
-  id_ = 0;
+  cached_has_bits = _has_bits_[0];
+  if (cached_has_bits & 3u) {
+    id_ = 0;
+    impt_ = 1;
+  }
   _has_bits_.Clear();
   _internal_metadata_.Clear();
 }
@@ -1141,6 +1154,20 @@ bool Slot::MergePartialFromCodedStream(
         break;
       }
 
+      // optional float impt = 4 [default = 1];
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(37u /* 37 & 0xFF */)) {
+          set_has_impt();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &impt_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
       default: {
       handle_unusual:
         if (tag == 0) {
@@ -1193,6 +1220,11 @@ void Slot::SerializeWithCachedSizes(
       this->val().data(), this->val_size(), output);
   }
 
+  // optional float impt = 4 [default = 1];
+  if (cached_has_bits & 0x00000002u) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(4, this->impt(), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -1237,6 +1269,11 @@ void Slot::SerializeWithCachedSizes(
             _val_cached_byte_size_), target);
     target = ::google::protobuf::internal::WireFormatLite::
       WriteFloatNoTagToArray(this->val_, target);
+  }
+
+  // optional float impt = 4 [default = 1];
+  if (cached_has_bits & 0x00000002u) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(4, this->impt(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1288,13 +1325,20 @@ size_t Slot::ByteSizeLong() const {
     total_size += data_size;
   }
 
-  // optional int32 id = 1;
-  if (has_id()) {
-    total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->id());
-  }
+  if (_has_bits_[0 / 32] & 3u) {
+    // optional int32 id = 1;
+    if (has_id()) {
+      total_size += 1 +
+        ::google::protobuf::internal::WireFormatLite::Int32Size(
+          this->id());
+    }
 
+    // optional float impt = 4 [default = 1];
+    if (has_impt()) {
+      total_size += 1 + 4;
+    }
+
+  }
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   GOOGLE_SAFE_CONCURRENT_WRITES_BEGIN();
   _cached_size_ = cached_size;
@@ -1326,8 +1370,15 @@ void Slot::MergeFrom(const Slot& from) {
 
   key_.MergeFrom(from.key_);
   val_.MergeFrom(from.val_);
-  if (from.has_id()) {
-    set_id(from.id());
+  cached_has_bits = from._has_bits_[0];
+  if (cached_has_bits & 3u) {
+    if (cached_has_bits & 0x00000001u) {
+      id_ = from.id_;
+    }
+    if (cached_has_bits & 0x00000002u) {
+      impt_ = from.impt_;
+    }
+    _has_bits_[0] |= cached_has_bits;
   }
 }
 
@@ -1358,6 +1409,7 @@ void Slot::InternalSwap(Slot* other) {
   key_.InternalSwap(&other->key_);
   val_.InternalSwap(&other->val_);
   swap(id_, other->id_);
+  swap(impt_, other->impt_);
   swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
@@ -1375,6 +1427,7 @@ void Example::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
 const int Example::kSlotFieldNumber;
+const int Example::kEximptFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 Example::Example()
@@ -1392,11 +1445,13 @@ Example::Example(const Example& from)
       _cached_size_(0),
       slot_(from.slot_) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  eximpt_ = from.eximpt_;
   // @@protoc_insertion_point(copy_constructor:mltools.Example)
 }
 
 void Example::SharedCtor() {
   _cached_size_ = 0;
+  eximpt_ = 1;
 }
 
 Example::~Example() {
@@ -1437,6 +1492,7 @@ void Example::Clear() {
   (void) cached_has_bits;
 
   slot_.Clear();
+  eximpt_ = 1;
   _has_bits_.Clear();
   _internal_metadata_.Clear();
 }
@@ -1456,6 +1512,20 @@ bool Example::MergePartialFromCodedStream(
         if (static_cast< ::google::protobuf::uint8>(tag) ==
             static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
           DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(input, add_slot()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // optional float eximpt = 2 [default = 1];
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(21u /* 21 & 0xFF */)) {
+          set_has_eximpt();
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   float, ::google::protobuf::internal::WireFormatLite::TYPE_FLOAT>(
+                 input, &eximpt_)));
         } else {
           goto handle_unusual;
         }
@@ -1495,6 +1565,12 @@ void Example::SerializeWithCachedSizes(
       1, this->slot(static_cast<int>(i)), output);
   }
 
+  cached_has_bits = _has_bits_[0];
+  // optional float eximpt = 2 [default = 1];
+  if (cached_has_bits & 0x00000001u) {
+    ::google::protobuf::internal::WireFormatLite::WriteFloat(2, this->eximpt(), output);
+  }
+
   if (_internal_metadata_.have_unknown_fields()) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         _internal_metadata_.unknown_fields(), output);
@@ -1515,6 +1591,12 @@ void Example::SerializeWithCachedSizes(
     target = ::google::protobuf::internal::WireFormatLite::
       InternalWriteMessageToArray(
         1, this->slot(static_cast<int>(i)), deterministic, target);
+  }
+
+  cached_has_bits = _has_bits_[0];
+  // optional float eximpt = 2 [default = 1];
+  if (cached_has_bits & 0x00000001u) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteFloatToArray(2, this->eximpt(), target);
   }
 
   if (_internal_metadata_.have_unknown_fields()) {
@@ -1543,6 +1625,11 @@ size_t Example::ByteSizeLong() const {
         ::google::protobuf::internal::WireFormatLite::MessageSize(
           this->slot(static_cast<int>(i)));
     }
+  }
+
+  // optional float eximpt = 2 [default = 1];
+  if (has_eximpt()) {
+    total_size += 1 + 4;
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -1575,6 +1662,9 @@ void Example::MergeFrom(const Example& from) {
   (void) cached_has_bits;
 
   slot_.MergeFrom(from.slot_);
+  if (from.has_eximpt()) {
+    set_eximpt(from.eximpt());
+  }
 }
 
 void Example::CopyFrom(const ::google::protobuf::Message& from) {
@@ -1602,6 +1692,7 @@ void Example::Swap(Example* other) {
 void Example::InternalSwap(Example* other) {
   using std::swap;
   slot_.InternalSwap(&other->slot_);
+  swap(eximpt_, other->eximpt_);
   swap(_has_bits_[0], other->_has_bits_[0]);
   _internal_metadata_.Swap(&other->_internal_metadata_);
   swap(_cached_size_, other->_cached_size_);
