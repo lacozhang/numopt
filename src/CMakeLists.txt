@@ -101,20 +101,34 @@ set(MLTOOLSRC mltools.cpp)
 add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
 target_link_libraries(mltools dataop model nnlib opt utils ${Boost_LIBRARIES})
 
-file(GLOB TEST_SRCS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} test/*.cpp)
+# new generation data pipeline based on protocol buffer
+find_package(Protobuf REQUIRED)
 
-add_executable(unit "test//lccrf_test.cpp")
-target_link_libraries(unit model crfeatlib dataop utils ${Boost_LIBRARIES})
-set_target_properties(unit 
-			PROPERTIES RUNTIME_OUTPUT_DIRECTORY  
-			${CMAKE_CURRENT_BINARY_DIR}/testbin)
-add_test(NAME unit 
-            WORKING_DIRECTORY 
-			${CMAKE_CURRENT_BINARY_DIR}/testbin 
-            COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testbin/lccrf_test)
+
+file(GLOB TextParser_SRCS "test/text_parser.*")
+set(DATA_EXAMPLE_PROTOS "proto/example.proto")
+set(DATA_CONFIG_PROTOS "proto/dataconfig.proto")
+protobuf_generate_cpp(DATA_EXAMPLE_PROTO_SRCS DATA_EXAMPLE_PROTO_HDRS ${DATA_EXAMPLE_PROTOS})
+list(APPEND TextParser_SRCS ${DATA_EXAMPLE_PROTO_HDRS} ${DATA_EXAMPLE_PROTOS_SRCS})
+protobuf_generate_cpp(DATA_CONFIG_PROTO_SRCS DATA_CONFIG_PROTO_HDRS ${DATA_CONFIG_PROTOS})
+list(APPEND TextParser_SRCS ${DATA_CONFIG_PROTO_HDRS} ${DATA_CONFIG_PROTO_SRCS})
+add_executable(TextParser ${TextParser_SRCS})
+
+target_include_directories(TextParser PUBLIC ${PROTOBUF_INCLUDE_DIRS})
+target_link_libraries(TextParser ${PROTOBUF_LIBRARIES})
+
+#start unit test block
+add_executable(lccrf_test "test//lccrf_test.cpp")
+target_link_libraries(lccrf_test model crfeatlib dataop utils ${Boost_LIBRARIES})
+set_target_properties(lccrf_test 
+  PROPERTIES RUNTIME_OUTPUT_DIRECTORY 
+  ${CMAKE_CURRENT_BINARY_DIR}/testbin)
+add_test(NAME lccrf_test
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/testbin 
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/testbin/lccrf_test)
 configure_file(${PROJECT_SOURCE_DIR}/test/template 
-			${CMAKE_CURRENT_BINARY_DIR} 
-			COPYONLY)
+  ${CMAKE_CURRENT_BINARY_DIR}/testbin/template
+  COPYONLY)
 configure_file(${PROJECT_SOURCE_DIR}/test/lccrf_test.txt 
-			${CMAKE_CURRENT_BINARY_DIR} 
-			COPYONLY)
+  ${CMAKE_CURRENT_BINARY_DIR}/testbin/lccrf_test
+  COPYONLY)
