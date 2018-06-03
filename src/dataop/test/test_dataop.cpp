@@ -1,4 +1,6 @@
 #define BOOST_TEST_MODULE "DataOperationTest"
+#include "dataop/dataop.h"
+#include "util/util.h"
 #include <boost/log/trivial.hpp>
 #include <boost/test/unit_test.hpp>
 #include <fstream>

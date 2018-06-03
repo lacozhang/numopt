@@ -1,4 +1,4 @@
-#include "lccrfeaturizer.h"
+#include "crflib/lccrfeaturizer.h"
 #include "util/util.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>

@@ -1,8 +1,8 @@
 #ifndef __SGD_H__
 #define __SGD_H__
-#include "opt.h"
-#include "../DataIterator.h"
-#include "../linearmodel.h"
+#include "optimizer/opt.h"
+#include "dataop/DataIterator.h"
+#include "model/linearmodel.h"
 
 template<class ParameterType,
 	class SampleType, class LabelType,

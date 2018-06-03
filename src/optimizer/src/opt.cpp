@@ -1,5 +1,5 @@
 #include <iostream>
-#include "opt.h"
+#include "optimizer/opt.h"
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 OptMethodBase<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::~OptMethodBase(){

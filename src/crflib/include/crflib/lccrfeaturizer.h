@@ -1,15 +1,15 @@
 #pragma once
 #ifndef __LCCRFEATURIZER_H__
 #define __LCCRFEATURIZER_H__
-#include <vector>
-#include <string>
-#include <regex>
 #include "crftemplate.h"
+#include <regex>
+#include <string>
+#include <vector>
 
 #ifdef USE_PREFIX_TREE
-#include "cedar.h"
+#include "util/cedar.h"
 #else
-#include "cedar.h"
+#include "util/cedar.h"
 #endif // USE_PREFIX_TREE
 
 class LccrFeaturizer

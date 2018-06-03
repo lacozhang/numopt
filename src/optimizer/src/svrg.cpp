@@ -1,4 +1,4 @@
-#include "svrg.h"
+#include "optimizer/svrg.h"
 #include "util/util.h"
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>

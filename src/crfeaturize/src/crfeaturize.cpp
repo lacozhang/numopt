@@ -1,12 +1,10 @@
-#include <iostream>
-#include <vector>
-#include <string>
-
+#include "crflib/lccrfeaturizer.h"
 #include <boost/filesystem.hpp>
-#include <boost/program_options.hpp>
 #include <boost/log/trivial.hpp>
-
-#include "lccrfeaturizer.h"
+#include <boost/program_options.hpp>
+#include <iostream>
+#include <string>
+#include <vector>
 
 int main(int argc, const char* argv[]) {
 

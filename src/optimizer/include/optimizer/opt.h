@@ -2,8 +2,8 @@
 #define __OPT_H__
 
 // header file for optimization algorithm like GD, SGD, CG, LBFGS, Proximal SGD, GD
-#include "../AbstractModel.h"
-#include "../DataIterator.h"
+#include "model/AbstractModel.h"
+#include "dataop/DataIterator.h"
 #include "util/parameter.h"
 #include "util/typedef.h"
 #include <boost/program_options.hpp>

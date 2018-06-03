@@ -1,4 +1,4 @@
-#include "proximalgd.h"
+#include "optimizer/proximalgd.h"
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void ProxGradientDescent<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::Train()

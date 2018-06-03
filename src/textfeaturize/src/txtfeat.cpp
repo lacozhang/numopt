@@ -4,8 +4,8 @@
 #include <boost/program_options.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include "dataop.h"
-#include "util.h"
+#include "dataop/dataop.h"
+#include "util/util.h"
 
 namespace triv = boost::log::trivial;
 

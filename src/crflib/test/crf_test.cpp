@@ -1,8 +1,9 @@
 #pragma once
 #define BOOST_TEST_MODULE "CRFTest"
+#include "crflib/crftemplate.h"
+#include "crflib/lccrfeaturizer.h"
 #include <boost/test/unit_test.hpp>
 #include <string>
-
 
 BOOST_AUTO_TEST_CASE(LoadTemplates){
 

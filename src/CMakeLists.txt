@@ -66,13 +66,14 @@ endif(OPENMP_FOUND)
 add_subdirectory(util)
 add_subdirectory(dataop)
 add_subdirectory(model)
+add_subdirectory(optimizer)
 
 # genertate libray datastruct
 add_subdirectory(proto)
 add_subdirectory(data)
 add_subdirectory(nn)
 add_subdirectory(crflib)
-
-add_subdirectory(test)
 add_subdirectory(mltools)
 add_subdirectory(textfeaturize)
+add_subdirectory(crfeaturize)
+add_subdirectory(test)

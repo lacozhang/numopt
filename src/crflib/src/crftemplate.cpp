@@ -5,13 +5,11 @@
 #include <unordered_set>
 #endif // DEUG
 
-
-#include <boost/filesystem.hpp>
+#include "crflib/crftemplate.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/log/trivial.hpp>
+#include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include "crftemplate.h"
-
+#include <boost/log/trivial.hpp>
 
 const std::regex CrfTemplate::kLccrfRegex("%x\\[(\\+?|-?[[:digit:]]+),(\\+?|-?[[:digit:]]+)\\]", std::regex::icase);
 
