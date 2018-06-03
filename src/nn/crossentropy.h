@@ -1,9 +1,9 @@
 #pragma once
 
-#include <boost/log/trivial.hpp>
 #include "lossbase.h"
 #include "nnmacros.h"
-#include "../typedef.h"
+#include "util/typedef.h"
+#include <boost/log/trivial.hpp>
 
 #ifndef __CROSS_ENTROPY_H__
 #define __CROSS_ENTROPY_H__

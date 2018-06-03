@@ -1,6 +1,6 @@
 #include "ModelData.h"
 #include "LccrfDataType.h"
-#include "util.h"
+#include "util/util.h"
 
 template<TrainDataType DataType, class DataSampleType, class DataLabelType>
 const char* const ModelData<DataType, DataSampleType, DataLabelType>::kIoTrainPathOptions = "data.train";

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/log/trivial.hpp>
 #ifndef __NN_MACROS_H__
 #define __NN_MACROS_H__
 

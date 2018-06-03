@@ -1,5 +1,5 @@
+#include "util/stringop.h"
 #include <cstring>
-#include "stringop.h"
 
 namespace Util {
 	void Split(const std::string& s, std::vector<std::string>& segs, const char* delim, bool skip) {

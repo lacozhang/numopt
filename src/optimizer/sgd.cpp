@@ -1,6 +1,6 @@
-#include <iostream>
 #include "sgd.h"
-#include "../util.h"
+#include "util/util.h"
+#include <iostream>
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::~StochasticGD() {}

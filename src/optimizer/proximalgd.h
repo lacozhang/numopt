@@ -1,6 +1,6 @@
 #pragma once
 #include "opt.h"
-#include "../util.h"
+#include "util/util.h"
 
 #ifndef __PROXIMAL_GRADIENT_H__
 #define __PROXIMAL_GRADIENT_H__

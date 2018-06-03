@@ -1,9 +1,9 @@
-#include <string>
-#include <boost/shared_ptr.hpp>
-#include "typedef.h"
 #include "LccrfDataType.h"
 #include "nn/nnquery.h"
 #include "nn/nnsequencedata.h"
+#include "util/typedef.h"
+#include <boost/shared_ptr.hpp>
+#include <string>
 
 #ifndef __DATA_OP_H__
 #define __DATA_OP_H__

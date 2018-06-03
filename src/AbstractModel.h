@@ -3,10 +3,10 @@
 #ifndef __ABSTRACT_MODE_H__
 #define __ABSTRACT_MODE_H__
 
-#include <boost/program_options.hpp>
-#include "typedef.h"
 #include "DataIterator.h"
-#include "parameter.h"
+#include "util/parameter.h"
+#include "util/typedef.h"
+#include <boost/program_options.hpp>
 
 template <class ParameterType,
 	class SampleType, class LabelType, 

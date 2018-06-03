@@ -1,6 +1,6 @@
 
-#include "../util.h"
 #include "sdca.h"
+#include "util/util.h"
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitFromCmd(int argc, const char * argv[]){	

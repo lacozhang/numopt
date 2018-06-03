@@ -2,13 +2,13 @@
 
 #ifndef __VOCABULARY_H__
 #define __VOCABULARY_H__
-#include <boost/make_shared.hpp>
-#include <boost/log/trivial.hpp>
-#include <fstream>
-#include <unordered_map>
-#include <string>
 #include "../lccrf/cedar.h"
-#include "../util/stringop.h"
+#include "util/stringop.h"
+#include <boost/log/trivial.hpp>
+#include <boost/make_shared.hpp>
+#include <fstream>
+#include <string>
+#include <unordered_map>
 
 class Vocabulary {
 public:

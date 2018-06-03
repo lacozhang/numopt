@@ -17,8 +17,8 @@
  * =====================================================================================
  */
 #pragma once
-#include "data/proto/dataconfig.pb.h"
-#include "data/proto/example.pb.h"
+#include "proto/dataconfig.pb.h"
+#include "proto/example.pb.h"
 #include <functional>
 
 #ifndef __TEXT_PARSER_H__

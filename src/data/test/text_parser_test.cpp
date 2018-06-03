@@ -18,6 +18,7 @@
 
 #define BOOST_TEST_MODULE "TextParser"
 #include "data/text_parser.h"
+#include <boost/test/unit_test.hpp>
 #include <iostream>
 #include <string>
 

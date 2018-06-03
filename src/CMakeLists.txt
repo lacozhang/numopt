@@ -27,14 +27,19 @@ endif(MSVC)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.54 COMPONENTS log
-                                   program_options
-                                   system
-                                   filesystem
-                                   date_time
-                                   thread
-				   unit_test_framework
-                        REQUIRED)
+find_package(Boost 1.54 REQUIRED COMPONENTS 
+  log 
+  program_options 
+  system
+  filesystem
+  date_time
+  thread 
+  unit_test_framework)
+
+add_library(boost INTERFACE IMPORTED)
+set_property(TARGET boost 
+  PROPERTY INTERFACE_INCLUDE_DIRECTORIES 
+  ${Boost_INCLUDE_DIR})
 
 if(Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -52,21 +57,22 @@ else(EIGEN3_FOUND)
     message(FATAL_ERROR "Can not find Eigen3")
 endif()
 
-set(UTILSRC cmdline.cpp parameter.cpp util.cpp "util/stringop.cpp")
-set(UTILHEADER cmdline.h parameter.h typedef.h util.h "util/stringop.h" "util/producer_consumer.h" "util/threadsafe_limited_queue.h" "util/threadsafe_queue.h" "util/barrier.h")
-add_library(utils ${UTILSRC} ${UTILHEADER})
+add_subdirectory(util)
 
 set(DATAOPSRC DataIterator.cpp dataop.cpp IndexData.cpp ModelData.cpp "dataop/vocabulary.cpp")
 set(DATAOPHEADER DataIterator.h dataop.h IndexData.h ModelData.h "dataop/vocabulary.h")
 add_library(dataop ${DATAOPSRC} ${DATAOPHEADER})
+target_link_libraries(dataop utils)
 
 file(GLOB OPTMETHODSRC "optimizer/*.cpp")
 file(GLOB OPTMETHODHEADER "optimizer/*.h")
 add_library(opt ${OPTMETHODSRC} ${OPTMETHODHEADER})
+target_link_libraries(opt utils)
 
-set(MODELSRC lossfunc.cpp linearmodel.cpp LccrfModel.cpp)
-set(MODELHEADER AbstractModel.h linearmodel.h lossfunc.h LccrfModel.h LccrfDataType.h)
+set(MODELSRC linearmodel.cpp LccrfModel.cpp)
+set(MODELHEADER AbstractModel.h linearmodel.h LccrfModel.h LccrfDataType.h)
 add_library(model ${MODELSRC} ${MODELHEADER})
+target_link_libraries(model utils)
 
 add_executable(datacache datacache.cpp)
 target_link_libraries(datacache dataop ${Boost_LIBRARIES} utils)
@@ -75,6 +81,7 @@ target_link_libraries(datacache dataop ${Boost_LIBRARIES} utils)
 file(GLOB CRFEATHEADER "lccrf//*.h")
 file(GLOB CRFEATSRC "lccrf//crftemplate.cpp" "lccrf//lccrfeaturizer.cpp")
 add_library(crfeatlib ${CRFEATHEADER} ${CRFEATSRC})
+target_link_libraries(crfeatlib utils)
 
 list(APPEND CRFEATMAIN "lccrf/crfeaturize.cpp")
 add_executable(lcrfeat ${CRFEATMAIN})
@@ -93,29 +100,19 @@ endif(OPENMP_FOUND)
 file(GLOB NNHEADER "nn//*.h")
 file(GLOB NNSOURCE "nn//*.cpp")
 add_library(nnlib ${NNHEADER} ${NNSOURCE})
-target_link_libraries(nnlib ${Boost_LIBRARIES})
+target_link_libraries(nnlib ${Boost_LIBRARIES} utils)
 
 
 set(GENERALHEADER RunModel.h)
 set(MLTOOLSRC mltools.cpp)
 add_executable(mltools ${MLTOOLSRC} ${GENERALHEADER})
-target_link_libraries(mltools dataop model nnlib opt utils ${Boost_LIBRARIES})
+target_link_libraries(mltools utils dataop model nnlib opt ${Boost_LIBRARIES})
 
-# new generation data pipeline based on protocol buffer
-find_package(Protobuf REQUIRED)
+# new format library
 
-
-file(GLOB TextParser_SRCS "test/text_parser.*")
-set(DATA_EXAMPLE_PROTOS "proto/example.proto")
-set(DATA_CONFIG_PROTOS "proto/dataconfig.proto")
-protobuf_generate_cpp(DATA_EXAMPLE_PROTO_SRCS DATA_EXAMPLE_PROTO_HDRS ${DATA_EXAMPLE_PROTOS})
-list(APPEND TextParser_SRCS ${DATA_EXAMPLE_PROTO_HDRS} ${DATA_EXAMPLE_PROTOS_SRCS})
-protobuf_generate_cpp(DATA_CONFIG_PROTO_SRCS DATA_CONFIG_PROTO_HDRS ${DATA_CONFIG_PROTOS})
-list(APPEND TextParser_SRCS ${DATA_CONFIG_PROTO_HDRS} ${DATA_CONFIG_PROTO_SRCS})
-add_executable(TextParser ${TextParser_SRCS})
-
-target_include_directories(TextParser PUBLIC ${PROTOBUF_INCLUDE_DIRS})
-target_link_libraries(TextParser ${PROTOBUF_LIBRARIES})
+# genertate libray datastruct
+add_subdirectory(proto)
+add_subdirectory(data)
 
 #start unit test block
 add_executable(lccrf_test "test//lccrf_test.cpp")

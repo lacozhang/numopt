@@ -1,19 +1,19 @@
 #pragma warning(disable : 4996)
 
-#include <iostream>
-#include <vector>
+#include "dataop.h"
+#include "util/producer_consumer.h"
+#include "util/util.h"
 #include <algorithm>
-#include <set>
-#include <fstream>
-#include <functional>
-#include <mutex>
+#include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/log/core.hpp>
 #include <boost/log/trivial.hpp>
-#include <boost/algorithm/string.hpp>
-#include "dataop.h"
-#include "util.h"
-#include "util/producer_consumer.h"
+#include <fstream>
+#include <functional>
+#include <iostream>
+#include <mutex>
+#include <set>
+#include <vector>
 
 namespace {
 

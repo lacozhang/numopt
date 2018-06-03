@@ -1,13 +1,13 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cctype>
-#include <boost/signals2/detail/auto_buffer.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/filesystem.hpp>
-#include <boost/algorithm/string.hpp>
 #include "lccrfeaturizer.h"
-#include "../util.h"
+#include "util/util.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/signals2/detail/auto_buffer.hpp>
+#include <cctype>
+#include <fstream>
+#include <iostream>
+#include <string>
 
 bool LccrFeaturizer::AccumulateFeatures(const std::string& featsrc, int unifeatcut, int bifeatcut) {
 	namespace fs = boost::filesystem;

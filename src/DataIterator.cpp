@@ -1,8 +1,6 @@
 #include "DataIterator.h"
-#include "typedef.h"
-#include "util.h"
 #include "LccrfDataType.h"
-
+#include "util/util.h"
 
 template<class SampleType, class LabelType>
 const char* DataIteratorBase<SampleType, LabelType>::kBaseBatchSizeOption = "batch";

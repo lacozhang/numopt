@@ -2,9 +2,9 @@
 
 #ifndef __LINE_SEARCH_H__
 #define __LINE_SEARCH_H__
-#include <string>
+#include "util/typedef.h"
 #include <functional>
-#include "../typedef.h"
+#include <string>
 
 enum class LineSearchFunctionType {
 	None,

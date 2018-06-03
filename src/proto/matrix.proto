@@ -1,6 +1,6 @@
 syntax = "proto2";
 package mltools;
-import "util/proto/range.proto";
+import "range.proto";
 
 message MatrixInfo{
 	enum Type {

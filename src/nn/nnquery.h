@@ -1,13 +1,13 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/signals2/detail/auto_buffer.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/algorithm/string.hpp>
-#include "../typedef.h"
 #include "../dataop/vocabulary.h"
-#include "../util/stringop.h"
+#include "util/stringop.h"
+#include "util/typedef.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/log/trivial.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/signals2/detail/auto_buffer.hpp>
 
 #ifndef __NN_QUERY_H__
 #define __NN_QUERY_H__

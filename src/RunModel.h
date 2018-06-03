@@ -1,13 +1,13 @@
 #pragma once
-#include <boost/make_shared.hpp>
-#include "dataop.h"
-#include "ModelData.h"
 #include "DataIterator.h"
-#include "cmdline.h"
-#include "linearmodel.h"
 #include "LccrfModel.h"
-#include "parameter.h"
+#include "ModelData.h"
+#include "dataop.h"
+#include "linearmodel.h"
 #include "optimizer/optimfactory.h"
+#include "util/cmdline.h"
+#include "util/parameter.h"
+#include <boost/make_shared.hpp>
 
 template<class ParameterType, class DataSampleType, class DataLabelType, class SparseGradientType, class DenseGradientType>
 boost::shared_ptr<OptMethodBase<ParameterType, DataSampleType, DataLabelType, SparseGradientType, DenseGradientType>> CreateOptimizer(std::string optimname,

@@ -1,9 +1,9 @@
-#include <unordered_set>
-#include <boost/filesystem.hpp>
-#include <Eigen/Dense>
 #include "LccrfModel.h"
-#include "util.h"
-#include "lossfunc.h"
+#include "util/lossfunc.h"
+#include "util/util.h"
+#include <Eigen/Dense>
+#include <boost/filesystem.hpp>
+#include <unordered_set>
 
 const char* LccrfModel::kOrderOption = "lccrf.order";
 

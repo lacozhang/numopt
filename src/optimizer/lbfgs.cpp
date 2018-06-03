@@ -1,9 +1,8 @@
-#include <functional>
+#include "lbfgs.h"
+#include "util/util.h"
 #include <algorithm>
 #include <boost/make_shared.hpp>
-#include "lbfgs.h"
-#include "../util.h"
-
+#include <functional>
 
 template<class ParameterType, class SampleType, class LabelType, class SparseGradientType, class DenseGradientType>
 void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType, DenseGradientType>::InitFromCmd(int argc, const char * argv[])

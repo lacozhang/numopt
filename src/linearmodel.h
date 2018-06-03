@@ -1,12 +1,12 @@
 #pragma once
 #ifndef __LOGISTIC_MODEL_H__
 #define __LOGISTIC_MODEL_H__
-#include <boost/shared_ptr.hpp>
 #include "AbstractModel.h"
-#include "typedef.h"
 #include "DataIterator.h"
-#include "parameter.h"
-#include "lossfunc.h"
+#include "util/lossfunc.h"
+#include "util/parameter.h"
+#include "util/typedef.h"
+#include <boost/shared_ptr.hpp>
 
 class BinaryLinearModel : public AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>
 {

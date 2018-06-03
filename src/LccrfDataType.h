@@ -2,9 +2,9 @@
 
 #ifndef __LCCRF_DATA_TYPE_H__
 #define __LCCRF_DATA_TYPE_H__
-#include <vector>
+#include "util/typedef.h"
 #include <boost/shared_ptr.hpp>
-#include "typedef.h"
+#include <vector>
 
 class LccrfSamples {
 public:

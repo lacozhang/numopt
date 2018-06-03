@@ -1,13 +1,13 @@
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <map>
+#include "linearmodel.h"
+#include "util/cmdline.h"
+#include "util/util.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
-#include "linearmodel.h"
-#include "cmdline.h"
-#include "util.h"
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <sstream>
 
 const char* BinaryLinearModel::kLossOption = "linear.loss";
 const char* BinaryLinearModel::kBiasOption = "linear.bias";

@@ -1,6 +1,6 @@
-#include <boost/log/trivial.hpp>
 #include "cnn.h"
-#include "../util.h"
+#include "util/util.h"
+#include <boost/log/trivial.hpp>
 
 namespace NNModel {
     const char* CNNModel::kEmbeddingSizeOption = "cnn.embed";

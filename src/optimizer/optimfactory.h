@@ -2,16 +2,16 @@
 #include <map>
 #include <functional>
 
-#include "opt.h"
-#include "sgd.h"
-#include "lbfgs.h"
-#include "cg.h"
-#include "svrg.h"
-#include "proximalgd.h"
-#include "sdca.h"
-#include "../typedef.h"
 #include "../AbstractModel.h"
 #include "../LccrfModel.h"
+#include "cg.h"
+#include "lbfgs.h"
+#include "opt.h"
+#include "proximalgd.h"
+#include "sdca.h"
+#include "sgd.h"
+#include "svrg.h"
+#include "util/typedef.h"
 
 #ifndef __OPTIM_FACTORY_H__
 #define __OPTIM_FACTORY_H__

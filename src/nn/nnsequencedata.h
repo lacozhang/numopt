@@ -2,10 +2,10 @@
 
 #ifndef __NNSEQUENCE_DATA_H__
 #define __NNSEQUENCE_DATA_H__
-#include <vector>
-#include <boost/shared_ptr.hpp>
+#include "util/typedef.h"
 #include <boost/log/trivial.hpp>
-#include "../typedef.h"
+#include <boost/shared_ptr.hpp>
+#include <vector>
 
 namespace NNModel {
 

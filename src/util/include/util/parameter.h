@@ -2,9 +2,9 @@
 #ifndef __PARAMETERS_H__
 #define __PARAMETERS_H__
 
-#include <string>
+#include "util/lossfunc.h"
 #include <iostream>
-#include "lossfunc.h"
+#include <string>
 
 enum class OptMethod {
   GD = 2, // Gradient Descent

@@ -1,11 +1,11 @@
 #pragma once
-#include <vector>
+#include "IndexData.h"
+#include "util/typedef.h"
 #include <algorithm>
-#include <boost/shared_ptr.hpp>
 #include <boost/log/trivial.hpp>
 #include <boost/program_options.hpp>
-#include "IndexData.h"
-#include "typedef.h"
+#include <boost/shared_ptr.hpp>
+#include <vector>
 
 template <class SampleType, class LabelType>
 class DataIteratorBase {

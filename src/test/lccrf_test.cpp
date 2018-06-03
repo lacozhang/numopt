@@ -1,15 +1,14 @@
 #define BOOST_TEST_MODULE "LccrfTester"
-#include <iostream>
-#include <boost/test/unit_test.hpp>
-#include <boost/make_shared.hpp>
+#include "../DataIterator.h"
+#include "../LccrfDataType.h"
 #include "../LccrfModel.h"
+#include "../ModelData.h"
 #include "../lccrf/crftemplate.h"
 #include "../lccrf/lccrfeaturizer.h"
-#include "../ModelData.h"
-#include "../LccrfDataType.h"
-#include "../DataIterator.h"
-#include "../util.h"
-
+#include "util/util.h"
+#include <boost/make_shared.hpp>
+#include <boost/test/unit_test.hpp>
+#include <iostream>
 
 BOOST_AUTO_TEST_CASE(ReadNLines) {
     std::vector<std::string> lines;
