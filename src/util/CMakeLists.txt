@@ -10,15 +10,12 @@ target_include_directories(utils
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-file(GLOB TestFiles "test/*.cpp")
-# test case
-find_package(Boost 1.54 REQUIRED
-  COMPONENTS unit_test_framework)
+file(GLOB TestFiles "test/test_stringop.cpp")
 
 foreach(TestUnit ${TestFiles})
 	get_filename_component(TestUnitName ${TestUnit} NAME_WE)
 	add_executable(${TestUnitName} ${TestUnit})
-	target_link_libraries(${TestUnitName} utils ${Boost_LIBRARIES})
+	target_link_libraries(${TestUnitName} utils Boost::unit_test_framework)
 	add_test(NAME ${TestUnitName}
 	  COMMAND ${TestUnitName})
 endforeach(TestUnit)

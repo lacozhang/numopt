@@ -1,10 +1,8 @@
 cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 
-find_package(Boost 1.54 REQUIRED
-  COMPONENTS unit_test_framework)
 #start unit test block
 add_executable(lccrf_test "src//lccrf_test.cpp")
-target_link_libraries(lccrf_test model crflib dataop utils ${Boost_LIBRARIES})
+target_link_libraries(lccrf_test model crflib dataop utils Boost::unit_test_framework)
 set_target_properties(lccrf_test 
   PROPERTIES RUNTIME_OUTPUT_DIRECTORY 
   ${CMAKE_CURRENT_BINARY_DIR}/testbin)

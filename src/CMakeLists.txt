@@ -36,14 +36,7 @@ find_package(Boost 1.54 REQUIRED COMPONENTS
   thread 
   unit_test_framework)
 
-add_library(boost INTERFACE IMPORTED)
-set_property(TARGET boost 
-  PROPERTY INTERFACE_INCLUDE_DIRECTORIES 
-  ${Boost_INCLUDE_DIR})
-
 if(Boost_FOUND)
-    include_directories(${Boost_INCLUDE_DIRS})
-    link_directories(${Boost_LIBRARY_DIR})
 else(Boost_FOUND)
     message(FATAL_ERROR "Can not find Boost")
 endif()
@@ -62,6 +55,11 @@ if(OPENMP_FOUND)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif(OPENMP_FOUND)
+
+
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(util)
 add_subdirectory(dataop)
