@@ -1,7 +1,6 @@
-#pragma once
-#define BOOST_TEST_MODULE "UtilStringOp"
+#define BOOST_TEST_MODULE "utilstringop"
 #include <boost/test/unit_test.hpp>
-#include <util/stringop.h>
+#include "util/stringop.h"
 
 // Test Split Function
 BOOST_AUTO_TEST_CASE(StringSplitOperation) {

@@ -1,6 +1,5 @@
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0.0)
 
-project(datastruct)
 find_package(Protobuf REQUIRED)
 file(GLOB ALL_PROTOS "*.proto")
 
@@ -13,22 +12,22 @@ foreach(PROTO_FILE ${ALL_PROTOS})
   list(APPEND PROTO_SRCS ${${PROTO_NAME}_SRCS})
 endforeach(PROTO_FILE)
 
-add_library(datastruct STATIC ${PROTO_HDRS} ${PROTO_SRCS})
+add_library(proto STATIC ${PROTO_HDRS} ${PROTO_SRCS})
 
-add_custom_command(TARGET datastruct PRE_BUILD
+add_custom_command(TARGET proto PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory "include/proto")
-add_custom_command(TARGET datastruct PRE_BUILD
+add_custom_command(TARGET proto PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E make_directory "src")
 
-add_custom_command(TARGET datastruct POST_BUILD
+add_custom_command(TARGET proto POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${PROTO_HDRS} "include/proto")
 
-add_custom_command(TARGET datastruct POST_BUILD
+add_custom_command(TARGET proto POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy ${PROTO_SRCS} "src")
 
-target_include_directories(datastruct PUBLIC 
+target_include_directories(proto PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include/proto>)
 
-target_link_libraries(datastruct ${Protobuf_LIBRARIES})
+target_link_libraries(proto ${Protobuf_LIBRARIES})
 

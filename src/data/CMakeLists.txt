@@ -8,15 +8,15 @@ target_include_directories(dataop_new PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(dataop_new datastruct utils)
+target_link_libraries(dataop_new proto utils glog::glog)
 
 set(TestFiles 
-	"test/text_parser_test.cpp")
+  "test/text_parser_test.cpp")
 
 foreach(TestUnit ${TestFiles})
-	get_filename_component(TestUnitName ${TestUnit} NAME_WE)
-	add_executable(${TestUnitName} ${TestUnit})
-	target_link_libraries(${TestUnitName} dataop_new Boost::unit_test_framework)
-	add_test(NAME ${TestUnitName}
-	  COMMAND ${TestUnitName})
+  get_filename_component(TestUnitName ${TestUnit} NAME_WE)
+  add_executable(${TestUnitName} ${TestUnit})
+  target_link_libraries(${TestUnitName} dataop_new)
+  add_test(NAME ${TestUnitName}
+  COMMAND ${TestUnitName})
 endforeach(TestUnit)

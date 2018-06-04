@@ -2,9 +2,9 @@
 #ifndef __LCCRF_MODEL_H__
 #define __LCCRF_MODEL_H__
 
-#include <unordered_set>
-#include <boost/signals2/detail/auto_buffer.hpp>
 #include "AbstractModel.h"
+#include <boost/signals2/detail/auto_buffer.hpp>
+#include <unordered_set>
 
 class LccrfModel : public AbstractModel<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>
 {
