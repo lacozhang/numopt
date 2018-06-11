@@ -3,7 +3,7 @@ package mltools;
 import "range.proto";
 
 message MatrixInfo{
-	enum Type {
+  enum Type {
 		DENSE = 1;
 		SPARSE = 2;
 		SPARSE_BINARY = 3;
@@ -22,5 +22,4 @@ message MatrixInfo{
 	optional uint64 nnz = 6;
 	optional uint32 sizeof_idx = 7;
 	optional uint32 sizeof_val = 8;
-
 }

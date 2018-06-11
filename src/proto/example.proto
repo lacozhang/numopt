@@ -20,6 +20,7 @@ message SlotInfo {
 }
 
 // each sample will have multiple slot, with different features
+// each slot can have different set of keys
 message ExampleInfo {
     repeated SlotInfo slot = 1;
     optional uint64 num_ex = 2;
@@ -29,10 +30,10 @@ message Slot {
     optional int32 id = 1;
     repeated uint64 key = 2 [packed=true];
     repeated float val = 3 [packed=true];
-    optional float impt = 4 [default=1.0];
+    optional float wgt = 4 [default=1.0];
 }
 
 message Example {
     repeated Slot slot = 1;
-    optional float eximpt = 2 [default=1.0];
+    optional float wgt = 2 [default=1.0];
 }

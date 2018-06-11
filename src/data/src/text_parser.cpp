@@ -24,24 +24,35 @@
 
 namespace mltools {
 
+extern const int kSlotIdMax;
+
 void ExampleParser::init(TextFormat format, bool ignore_feag_grp) {
   ignore_feat_grp_ = ignore_feag_grp;
   switch (format) {
-  case DataConfig::LIBSVM:
+  case DataConfig::LIBSVM: {
+#ifdef XDEBUG
+    LOG(INFO) << "LIB SVM format";
+#endif // XDEBUG
     parser_ = [this](char *line, Example *ex) -> bool {
       return parseLibsvm(line, ex);
     };
-    break;
-  case DataConfig::VW:
+  } break;
+  case DataConfig::VW: {
+#ifdef XDEBUG
+    LOG(INFO) << "VW Format";
+#endif
     parser_ = [this](char *line, Example *ex) -> bool {
       return parseVw(line, ex);
     };
-    break;
-  case DataConfig::CRITEO:
+  } break;
+  case DataConfig::CRITEO: {
+#ifdef XDEBUG
+    LOG(INFO) << "CRITEO Format";
+#endif
     parser_ = [this](char *line, Example *ex) -> bool {
       return parseCriteo(line, ex);
     };
-    break;
+  } break;
   case DataConfig::ADFEA:
   case DataConfig::TERAFEA:
   case DataConfig::DENSE:
@@ -61,6 +72,10 @@ bool ExampleParser::toProto(char *line, Example *ex) {
 // libsvm format
 // label feature_d:weight feature_id:weight
 bool ExampleParser::parseLibsvm(char *line, Example *ex) {
+#ifdef XDEBUG
+  LOG(INFO) << "Start parsing LibSVM";
+#endif
+
   char *saveptr;
   // label
   float label = 0;
@@ -77,21 +92,42 @@ bool ExampleParser::parseLibsvm(char *line, Example *ex) {
   auto feat_slot = ex->add_slot();
   feat_slot->set_id(1);
   uint64 idx = 0, last_idx = 0;
+  float val = 0;
+  bool dfltval = false;
   while (pch != NULL) {
     char *it = pch;
-    while (*it != ':' && *it != '\0')
+    val = 0;
+    dfltval = false;
+    while (*it != ':' && *it != '\0') {
       ++it;
-    if (*it == '\0') {
-      LOG(ERROR) << "text sample format error " << pch;
+    }
+    if (*it == ':') {
+      *it = '\0';
+    } else {
+      dfltval = true;
+    }
+
+    if (!strtou64(pch, &idx)) {
+#ifdef XDEBUG
+      LOG(INFO) << "Libsvm feature index incorrect: " << pch;
+#endif
       return false;
     }
-    if (!strtou64(pch, &idx))
+    if (!dfltval && !strtofloat(it + 1, &val)) {
+#ifdef XDEBUG
+      LOG(INFO) << "Libsvm feature value incorrect: " << (it + 1);
+#endif
       return false;
-    float val;
-    if (!strtofloat(it + 1, &val))
+    } else if (dfltval) {
+      val = 1.0;
+    }
+
+    if (last_idx > idx) {
+#ifdef XDEBUG
+      LOG(INFO) << "Libsvm feature index must follow ascending order";
+#endif
       return false;
-    if (last_idx > idx)
-      return false;
+    }
     last_idx = idx;
 
     feat_slot->add_key(idx);
@@ -134,7 +170,7 @@ bool ExampleParser::parseVw(char *line, Example *ex) {
       slot->add_val(val);
       break;
     case 2:
-      ex->set_eximpt(val);
+      ex->set_wgt(val);
       break;
     default: {
       LOG(ERROR) << "too much fields in label";
@@ -169,11 +205,11 @@ bool ExampleParser::parseVw(char *line, Example *ex) {
     if (!ignore_feat_grp_) {
       if (strlen(pch2) == 0) {
         MurmurHash3_x64_128(" ", 1, 512927377, murmur_out);
-        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % 4096;
+        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % kSlotIdMax;
       } else {
         // TODO: support feature group scaling factor in the future
         MurmurHash3_x64_128(pch2, strlen(pch2), 512927377, murmur_out);
-        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % 4096;
+        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % kSlotIdMax;
       }
     }
 

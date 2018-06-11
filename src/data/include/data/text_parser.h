@@ -3,8 +3,8 @@
  *
  *       Filename:  text_parser.h
  *
- *    Description:  Read training samples in various text format (libsvm, vw,
- * criteo etc.)
+ *    Description:  The main interface for read training samples in various text
+ * format (libsvm, vw, criteo etc.)
  *
  *        Version:  1.0
  *        Created:  05/07/2018 19:41:58
