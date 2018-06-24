@@ -14,4 +14,4 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/lccrf_test.txt
   COPYONLY)
 
 add_library(test_main "src/test_main.cpp")
-target_link_libraries(test_main gtest gflags)
+target_link_libraries(test_main gtest gflags glog::glog)

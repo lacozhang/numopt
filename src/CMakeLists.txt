@@ -49,7 +49,8 @@ find_package(Boost 1.54 REQUIRED COMPONENTS
 
 if(Boost_FOUND)
 else(Boost_FOUND)
-    message(FATAL_ERROR "Can not find Boost")
+  include_directories(${Boost_INCLUDE_DIRS})
+  message(FATAL_ERROR "Can not find Boost")
 endif()
 
 find_package(Eigen3 3.0.0 REQUIRED)
@@ -106,13 +107,13 @@ target_include_directories(gtest_main
   PUBLIC $<BUILD_INTERFACE:${gtest_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 
+add_subdirectory(proto)
 add_subdirectory(util)
 add_subdirectory(dataop)
 add_subdirectory(model)
 add_subdirectory(optimizer)
 
 # genertate libray datastruct
-add_subdirectory(proto)
 add_subdirectory(data)
 add_subdirectory(nn)
 add_subdirectory(crflib)

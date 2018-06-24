@@ -4,22 +4,22 @@ import "range.proto";
 
 message MatrixInfo{
   enum Type {
-		DENSE = 1;
-		SPARSE = 2;
-		SPARSE_BINARY = 3;
-	}
+    DENSE = 1;
+    SPARSE = 2;
+    SPARSE_BINARY = 3;
+  }
 
-	required Type type = 1;
-	required bool row_major = 2;
+  required Type type = 1;
+  required bool row_major = 2;
 
-	// e.g. feature group id
-	optional int32 grp_id = 3;
+  // e.g. feature group id
+  optional int32 grp_id = 3;
 
-	// data size
-	required PbRange row = 4;
-	required PbRange col = 5;
+  // data size
+  required PbRange row = 4;
+  required PbRange col = 5;
 
-	optional uint64 nnz = 6;
-	optional uint32 sizeof_idx = 7;
-	optional uint32 sizeof_val = 8;
+  optional uint64 nnz = 6;
+  optional uint32 sizeof_idx = 7;
+  optional uint32 sizeof_val = 8;
 }

@@ -1,6 +1,7 @@
 /*
 include widely used library, define available types
 */
+#pragma once
 
 #include <Eigen/Dense>
 #include <Eigen/Sparse>

@@ -76,7 +76,7 @@ private:
 		return src.good();
 	}
 
-	std::fstream& sink_;
+        std::fstream &sink_;
 };
 
 boost::program_options::variables_map ParseArgs(int argc, const char* argv[],

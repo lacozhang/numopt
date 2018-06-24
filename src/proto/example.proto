@@ -19,7 +19,7 @@ message SlotInfo {
     optional uint64 nnz_ex = 6;
 }
 
-// each sample will have multiple slot, with different features
+// each sample will have multiple feature slot, with different features.
 // each slot can have different set of keys
 message ExampleInfo {
     repeated SlotInfo slot = 1;
