@@ -8,49 +8,50 @@
 #include "util/typedef.h"
 #include <boost/program_options.hpp>
 
-template <class ParameterType,
-	class SampleType, class LabelType, 
-	class SparseGradientType, class DenseGradientType>
+template <class ParameterType, class SampleType, class LabelType,
+          class SparseGradientType, class DenseGradientType>
 class AbstractModel {
 public:
+  typedef DataIteratorBase<SampleType, LabelType> DataIterator;
 
-	typedef DataIteratorBase<SampleType, LabelType> DataIterator;
+  AbstractModel() : optionsdesc_("Model spec options") {}
+  virtual ~AbstractModel() {}
 
-	AbstractModel() : optionsdesc_("Model spec options") {}
+  virtual void InitFromCmd(int argc, const char *argv[]) = 0;
+  virtual void InitFromData(DataIterator &iterator) = 0;
+  virtual void Init() = 0;
+  virtual boost::program_options::options_description &Options() {
+    return optionsdesc_;
+  }
 
-	virtual void InitFromCmd(int argc, const char* argv[]) = 0;
-	virtual void InitFromData(DataIterator& iterator) = 0;
-    virtual void Init() = 0;
-	virtual boost::program_options::options_description& Options() {
-		return optionsdesc_;
-	}
+  virtual ParameterType &GetParameters() = 0;
+  virtual ParameterType &GetParameters() const = 0;
 
-	virtual ParameterType& GetParameters() = 0;
-	virtual ParameterType& GetParameters() const = 0;
+  virtual size_t FeatureDimension() const = 0;
 
-	virtual size_t FeatureDimension() const = 0;
+  virtual bool LoadModel(std::string model) = 0;
+  virtual bool SaveModel(std::string model) = 0;
+  LossFunc LossFunction() { return losstype_; }
 
-	virtual bool LoadModel(std::string model) = 0;
-	virtual bool SaveModel(std::string model) = 0;
-	LossFunc LossFunction() {
-		return losstype_;
-	}
+  // calculate the gradient with respect to data samples
+  virtual double Learn(SampleType &samples, LabelType &labels,
+                       SparseGradientType &grad) = 0;
+  virtual double Learn(SampleType &samples, LabelType &labels,
+                       DenseGradientType &grad) = 0;
 
-	// calculate the gradient with respect to data samples
-	virtual double Learn(SampleType& samples, LabelType& labels, SparseGradientType& grad) = 0;
-	virtual double Learn(SampleType& samples, LabelType& labels, DenseGradientType& grad) = 0;
+  // inference model on new samples
+  virtual void Inference(SampleType &samples, LabelType &labels) = 0;
 
-	// inference model on new samples
-	virtual void Inference(SampleType& samples, LabelType& labels) = 0;
-
-	// evaluate model performance
-	virtual double Evaluate(SampleType& samples, LabelType& labels, std::string& summary) = 0;
+  // evaluate model performance
+  virtual double Evaluate(SampleType &samples, LabelType &labels,
+                          std::string &summary) = 0;
 
 protected:
-	boost::program_options::options_description optionsdesc_;
-	LossFunc losstype_;
+  boost::program_options::options_description optionsdesc_;
+  LossFunc losstype_;
 };
 
-// template class AbstractModel<DenseVector, DataSamples, LabelVector, SparseVector, DenseVector>;
-// template class AbstractModel<DenseVector, LccrfSamples, LccrfLabels, SparseVector, DenseVector>;
+// template class AbstractModel<DenseVector, DataSamples, LabelVector,
+// SparseVector, DenseVector>; template class AbstractModel<DenseVector,
+// LccrfSamples, LccrfLabels, SparseVector, DenseVector>;
 #endif // __ABSTRACT_MODEL_H__
