@@ -128,7 +128,6 @@ double BinaryLinearModel::Learn(DataSamples & samples, LabelVector & labels, Spa
 	grad.resizeNonZeros(samples.nonZeros());
 	grad.setZero();
 
-	size_t featcnt = 0;
 	for (int i = 0; i < samples.rows(); ++i) {
 		double loss = loss_->dloss(xtw.coeff(i), labels.coeff(i));
 		avgloss += loss_->loss(xtw.coeff(i), labels.coeff(i));

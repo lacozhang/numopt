@@ -31,7 +31,7 @@ public:
 		return *param_;
 	}
 
-	size_t FeatureDimension() const {
+	size_t FeatureDimension() const override {
 		return featdim_;
 	}
 

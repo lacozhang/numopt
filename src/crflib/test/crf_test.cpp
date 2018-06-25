@@ -1,4 +1,3 @@
-#pragma once
 #define BOOST_TEST_MODULE "CRFTest"
 #include "crflib/crftemplate.h"
 #include "crflib/lccrfeaturizer.h"

@@ -48,8 +48,8 @@ find_package(Boost 1.54 REQUIRED COMPONENTS
   unit_test_framework)
 
 if(Boost_FOUND)
-else(Boost_FOUND)
   include_directories(${Boost_INCLUDE_DIRS})
+else(Boost_FOUND)
   message(FATAL_ERROR "Can not find Boost")
 endif()
 

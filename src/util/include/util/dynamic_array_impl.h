@@ -183,16 +183,16 @@ template <typename V> size_t DArray<V>::nnz() const {
   return nnzCount;
 }
 
-template <typename V>
-std::shared_ptr<Matrix<V>> DArray<V>::SMatrix(size_t rows, size_t cols) {
-  MatrixInfo info;
-  info.set_type(MatrixInfo::DENSE);
-  info.set_row_major(false);
-  SizeR(0, size_).to(info.mutable_row());
-  SizeR(0, 1).to(info.mutable_col());
-  info.set_nnz(size_);
-  info.set_sizeof_val(sizeof(V));
-  return std::shared_ptr<Matrix<V>>(new DenseMatrix(info, *this));
-}
+//template <typename V>
+//std::shared_ptr<Matrix<V>> DArray<V>::SMatrix(size_t rows, size_t cols) {
+//  MatrixInfo info;
+//  info.set_type(MatrixInfo::DENSE);
+//  info.set_row_major(false);
+//  SizeR(0, size_).to(info.mutable_row());
+//  SizeR(0, 1).to(info.mutable_col());
+//  info.set_nnz(size_);
+//  info.set_sizeof_val(sizeof(V));
+//  return std::shared_ptr<Matrix<V>>(new DenseMatrix(info, *this));
+//}
 
 } // namespace mltools
