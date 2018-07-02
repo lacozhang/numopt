@@ -183,8 +183,8 @@ template <typename V> size_t DArray<V>::nnz() const {
   return nnzCount;
 }
 
-//template <typename V>
-//std::shared_ptr<Matrix<V>> DArray<V>::SMatrix(size_t rows, size_t cols) {
+// template <typename V>
+// std::shared_ptr<Matrix<V>> DArray<V>::SMatrix(size_t rows, size_t cols) {
 //  MatrixInfo info;
 //  info.set_type(MatrixInfo::DENSE);
 //  info.set_row_major(false);

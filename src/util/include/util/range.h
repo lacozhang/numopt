@@ -105,22 +105,19 @@ std::ostream &operator<<(std::ostream &os, Range<T> &obj) {
 }
 } // namespace mltools
 
-
 namespace std {
 
 // support for using range object as key for std::map or std::unordered_map
-template<typename T>
-struct hash<mltools::Range<T> >{
-std::size_t operator()(mltools::Range<T> const& obj) const {
+template <typename T> struct hash<mltools::Range<T>> {
+  std::size_t operator()(mltools::Range<T> const &obj) const {
     return static_cast<size_t>(obj.begin() ^ obj.end() << 1);
-   }
+  }
 };
 
-template<typename T>
-struct hash<std::pair<int, mltools::Range<T>>> {
-    size_t operator()(std::pair<int, mltools::Range<T>> const& obj) const {
-        return (obj.first ^ obj.second.begin() ^ obj.second.end());
-    }
+template <typename T> struct hash<std::pair<int, mltools::Range<T>>> {
+  size_t operator()(std::pair<int, mltools::Range<T>> const &obj) const {
+    return (obj.first ^ obj.second.begin() ^ obj.second.end());
+  }
 };
 
-} // namesapce std
+} // namespace std

@@ -13,17 +13,12 @@ enum class OptMethod {
   LBFGS,  // Limited BFGS
   PGD,    // Proximal Gradient Descent
   CD,     // coordinate descent
-  BCD,     // block coordinate descent
+  BCD,    // block coordinate descent
   SVRG,   // stochastic variance reduction gradient
   None
 };
 
-enum class ModelType {
-	Linear,
-	LCCRF,
-	SMCRF,
-	None
-};
+enum class ModelType { Linear, LCCRF, SMCRF, None };
 
 struct LearnParameters {
   double l1_, l2_;
@@ -42,11 +37,11 @@ public:
     l2_ = 1.0;
 
     learningrate_ = 1e-3;
-	learningratedecay_ = 1e-4;
+    learningratedecay_ = 1e-4;
     batchsize_ = -1;
-	maxiter_ = 5;
+    maxiter_ = 5;
     funceps_ = gradeps_ = 1e-3;
-	averge_ = false;
+    averge_ = false;
   }
 };
 

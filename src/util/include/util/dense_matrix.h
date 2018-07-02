@@ -34,7 +34,7 @@ public:
   }
   DenseMatrix(const MatrixInfo &info, const DArray<V> &value)
       : Matrix<V>(info, value) {}
-  virtual ~DenseMatrix(){}
+  virtual ~DenseMatrix() {}
 
   void resize(size_t rows, size_t cols, size_t nnz, bool rowMajor) override;
 

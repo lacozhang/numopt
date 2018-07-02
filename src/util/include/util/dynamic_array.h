@@ -316,7 +316,7 @@ public:
   /**
    * @brief return the data in Eigen::Matrix format
    */
-//  std::shared_ptr<Matrix<V>> SMatrix(size_t rows = -1, size_t cols = -1);
+  //  std::shared_ptr<Matrix<V>> SMatrix(size_t rows = -1, size_t cols = -1);
 
 private:
   size_t size_;
@@ -324,6 +324,6 @@ private:
   V *data_;
   std::shared_ptr<void> ptr_;
 };
-}
+} // namespace mltools
 
 #endif // __DYNAMIC_ARRAY_H__
