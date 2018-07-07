@@ -71,7 +71,7 @@ private:
   std::thread producer_thr_;
   std::vector<std::thread> consumers_thrs_;
   ThreadSafeLimitedQueue<T> queue_;
-  Barrier blocker_;
+  mltools::Barrier blocker_;
 };
 
 #endif // !__PRODUCER_CONSUMER_H__

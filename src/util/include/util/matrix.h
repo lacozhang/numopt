@@ -50,7 +50,8 @@ using MatrixPtrInitList = std::initializer_list<MatrixPtrList<V>>;
   using Matrix<V>::outerSize;
 
 template <typename V> class Matrix {
-  pubic : Matrix() {}
+public:
+  Matrix() {}
   explicit Matrix(const MatrixInfo &info) : info_(info) {}
   Matrix(const MatrixInfo &info, const DArray<V> &value)
       : info_(info), value_(value) {}
@@ -88,11 +89,13 @@ template <typename V> class Matrix {
   virtual MatrixPtr<V> trans() const = 0;
 
   MatrixPtr<V> toRowMajor() {
-    return (rowMajor() ? MatrixPtr(this, [](Matrix<V> *p) {}) : alterStorage());
+    return (rowMajor() ? MatrixPtr<V>(this, [](Matrix<V> *p) {})
+                       : alterStorage());
   }
 
   MatrixPtr<V> toColMajor() {
-    return (colMajor() ? MatrixPtr(this, [](Matrix<V> *p) {}) : alterStorage());
+    return (colMajor() ? MatrixPtr<V>(this, [](Matrix<V> *p) {})
+                       : alterStorage());
   }
 
   virtual MatrixPtr<V> alterStorage() = 0;

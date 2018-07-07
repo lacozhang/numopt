@@ -49,7 +49,6 @@ public:
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ThreadPool);
-  ThreadPool(const ThreadPool &);
 
   const int numWorkers_;
   std::list<Task> tasks_;

@@ -2,12 +2,14 @@
 
 #include "proto/dataconfig.pb.h"
 #include "proto/param.pb.h"
+#include "util/common.h"
 #include "util/range.h"
 #include "gtest/gtest.h"
 #include <Eigen/Core>
 #include <atomic>
 #include <cstring>
 #include <initializer_list>
+#include <string>
 
 #ifndef __DYNAMIC_ARRAY_H__
 #define __DYNAMIC_ARRAY_H__
@@ -314,9 +316,35 @@ public:
   }
 
   /**
-   * @brief return the data in Eigen::Matrix format
+   * @brief return the data in mltools::DenseMatrix class as column vector
    */
-  //  std::shared_ptr<Matrix<V>> SMatrix(size_t rows = -1, size_t cols = -1);
+  std::shared_ptr<Matrix<V>> denseMatrix(size_t rows = -1, size_t cols = -1);
+
+  /**
+   * @brief Return the compressed array
+   */
+  DArray<char> compressTo() const;
+
+  /// @brief uncompress the data in src of size srcSize, but this array need to
+  /// be large enough.
+  void uncompressFrom(const char *src, size_t srcSize);
+  void uncompressFrom(const DArray<char> &src) {
+    uncompressFrom(src.data(), src.size());
+  }
+
+  /// @brief read the specified segment from binary file *fileName*
+  bool readFromFile(SizeR range, const std::string &fileName);
+  bool readFromFile(const std::string &fileName) {
+    return readFromFile(SizeR::all(), fileName);
+  }
+  bool readFromFile(SizeR range, DataConfig &config);
+
+  /// @brief Write all the values to file in binary mode
+  bool writeToFile(const std::string &fileName) {
+    return writeToFile(SizeR(0, size_), fileName);
+  }
+  /// @brief Write all the values within segment range to file in binary mode
+  bool writeToFile(SizeR range, const std::string &fileName);
 
 private:
   size_t size_;
@@ -324,6 +352,13 @@ private:
   V *data_;
   std::shared_ptr<void> ptr_;
 };
+
+template <typename V>
+std::ostream &operator<<(std::ostream &os, DArray<V> &val) {
+  os << dbgstr(val.data(), 10);
+  return os;
+}
+
 } // namespace mltools
 
 #endif // __DYNAMIC_ARRAY_H__

@@ -56,7 +56,7 @@ public:
 
   virtual MatrixPtr<V> rowBlock(SizeR range) const override {
     if (colMajor()) {
-      assert(range, SizeR(0, rows()));
+      assert(range == SizeR(0, rows()));
     }
     auto info = info_;
     range.to(info.mutable_row());
@@ -66,7 +66,7 @@ public:
 
   virtual MatrixPtr<V> colBlock(SizeR range) const override {
     if (rowMajor()) {
-      assert(range, SizeR(0, cols()));
+      assert(range == SizeR(0, cols()));
       LOG(FATAL) << "Can't extract several columns for row major matrix";
     }
     auto info = info_;
@@ -104,7 +104,7 @@ void DenseMatrix<V>::resize(size_t rows, size_t cols, size_t nnz,
   value_.setValue();
 }
 
-template <typename V> MatrixPtr<V> alterStorage() const {
+template <typename V> MatrixPtr<V> DenseMatrix<V>::alterStorage() const {
   auto inner = innerSize(), outer = outerSize();
   assert(value_.size() == inner * outer);
   DArray<V> newArray(value_.size());
