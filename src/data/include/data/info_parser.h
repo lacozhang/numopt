@@ -17,7 +17,7 @@
  *
  * =====================================================================================
  */
-
+#pragma once
 #include "proto/dataconfig.pb.h"
 #include "proto/example.pb.h"
 #include "util/integral_types.h"

@@ -13,7 +13,7 @@
 #include "util/common.h"
 #include "util/dynamic_array.h"
 #include "util/matrix.h"
-#include "util/threadpoo.h"
+#include "util/threadpool.h"
 
 namespace mltools {
 template <typename I, typename V> class SparseMatrix;
@@ -30,7 +30,7 @@ public:
 
   virtual void times(V *x, V *y) const override { templateTimes(x, y); }
 
-  virtual MatrixPtr<V> dotTimes(const Matrix<V> &B) const override;
+  virtual MatrixPtr<V> dotTimes(const MatrixPtr<V> &B) const override;
 
   virtual MatrixPtr<V> trans() const override {
     auto sm = std::make_shared<SparseMatrix<I, V>>(*this);
@@ -75,7 +75,7 @@ private:
     if (rowMajor()) {
       for (auto rowIdx = rowRange.begin(); rowIdx < rowRange.end(); ++rowIdx) {
         y[rowIdx] = 0.0;
-        if (offset_[rowIdx] == offset[rowIdx + 1])
+        if (offset_[rowIdx] == offset_[rowIdx + 1])
           continue;
         if (binary()) {
           for (auto colOffset = offset_[rowIdx];
@@ -162,7 +162,7 @@ template <typename I, typename V>
 MatrixPtr<V> SparseMatrix<I, V>::colBlock(SizeR range) const {
   assert(range.valid());
   if (rowMajor()) {
-    assert(range.size(), cols());
+    assert(range.size() == cols());
     LOG(INFO) << "For row major matrix, only support return whole matrix";
     return MatrixPtr<V>(new SparseMatrix<I, V>(info_, offset_, index_, value_));
   } else {
@@ -195,8 +195,8 @@ MatrixPtr<V> SparseMatrix<I, V>::rowBlock(SizeR range) const {
 template <typename I, typename V>
 MatrixPtr<V> SparseMatrix<I, V>::alterStorage() const {
   assert(!empty());
-  size_t innerSize = innerSize();
-  size_t outerSize = outerSize();
+  size_t innerSize = this->innerSize();
+  size_t outerSize = this->outerSize();
   if (innerSize >= (size_t)kuint32max) {
     LOG(ERROR) << "Please run localize at first";
   }
@@ -228,7 +228,7 @@ MatrixPtr<V> SparseMatrix<I, V>::alterStorage() const {
     ThreadPool pool(numThreads);
     for (int i = 0; i < numThreads; ++i) {
       SizeR range = SizeR(0, innerSize).evenDivide(numThreads, i);
-      pool.add([this, range, &newOffset, &newIndex, &newValue]() {
+      pool.add([this, range, outerSize, &newOffset, &newIndex, &newValue]() {
         for (int i = 0; i < outerSize; ++i) {
           if (offset_[i] == offset_[i + 1]) {
             continue;

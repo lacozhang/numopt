@@ -3,8 +3,14 @@ cmake_minimum_required(VERSION 2.8.10)
 add_library(dataop_new STATIC 
   "include/data/text_parser.h"
   "include/data/info_parser.h"
+  "include/data/slot_reader.h"
+  "include/data/stream_reader.h"
+  "include/data/common.h"
   "src/text_parser.cpp"
-  "src/info_parser.cpp")
+  "src/info_parser.cpp"
+  "src/slot_reader.cpp"
+  "src/stream_reader.cpp"
+  "src/common.cpp")
 
 target_include_directories(dataop_new PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
