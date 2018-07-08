@@ -27,6 +27,7 @@
 #include "data/info_parser.h"
 #include "util/sparse_matrix.h"
 #include "data/common.h"
+#include "util/recordio.h"
 
 namespace mltools {
   DECLARE_uint64(hash_kernel);
@@ -94,17 +95,17 @@ namespace mltools {
       dataFile_->close();
       dataFile_ = nullptr;
     }
-    while(nextFileIdx_ < maxNumFiles_ && !reachDataEnd_) {
+    while(true) {
+      if(nextFileIdx_ >= maxNumFiles_) {
+        reachDataEnd_ = true;
+        return false;
+      }
       dataFile_ = File::open(data_.file(nextFileIdx_++), "r");
       if(dataFile_ != nullptr) {
         break;
       }
     }
-    
-    if(nextFileIdx_ >= maxNumFiles_) {
-      reachDataEnd_ = true;
-    }
-    return dataFile_ != nullptr;
+    return true;
   }
   
   template <typename V>
@@ -124,17 +125,70 @@ namespace mltools {
   
   template <typename V>
   void StreamReader<V>::parseExample(const Example &ex, int numReads) {
+    if(examples_) {
+      examples_->push_back(ex);
+    }
+    if(!matrices_) {
+      return;
+    }
     if(!infoParser_.add(ex)) {
       return;
     }
     for(int i=0; i<ex.slot_size(); ++i) {
       auto& slot = ex.slot(i);
       auto& vslot = vslots_[slot.id()];
-      vslot.val_.ad
+      auto keySize = slot.key_size();
+      if(FLAGS_hash_kernel > 0) {
+        for(int i=0; i<keySize; ++i) {
+          vslot.idx_.push_back(slot.key(i)%FLAGS_hash_kernel);
+        }
+      } else {
+        for(int i=0; i<keySize; ++i) {
+          vslot.idx_.push_back(slot.key(i));
+        }
+      }
+      
+      auto valSize = slot.val_size();
+      for(int i=0; i<valSize; ++i) {
+        vslot.val_.push_back(slot.val(i));
+      }
+      
+      while(vslot.cnt_.size() < numReads) {
+        vslot.cnt_.push_back(0);
+      }
+      
+      vslot.cnt_.push_back(std::max(keySize, valSize));
     }
   }
   
   
+  template <typename V>
+  bool StreamReader<V>::readMatricesFromText() {
+    int numReads = 0;
+    while(numReads < numExamples_ && !reachDataEnd_) {
+      while(true) {
+        auto ret = dataFile_->readLine(line_, kMaxLineLength_);
+        if(ret != nullptr) {
+          int len = std::strlen(ret);
+          while(len > 0 && (ret[len-1] == '\n' || ret[len-1] == '\r')) {
+            --len;
+          }
+          Example ex;
+          if(textParser_.toProto(line_, &ex)) {
+            parseExample(ex, numReads);
+            numReads ++;
+            break;
+          }
+        } else {
+          if(!openNextFile()) {
+            break;
+          }
+        }
+      }
+    }
+    fillMatrices();
+    return !reachDataEnd_;
+  }
 }
 
 #endif // __STREAM_READER_H__
