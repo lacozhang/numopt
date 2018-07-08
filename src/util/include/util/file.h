@@ -59,6 +59,8 @@ public:
     return (filepath.size() > 3) &&
            (std::string(filepath.end() - 3, filepath.end()) == ".gz");
   }
+  
+  virtual ~File();
 
   /// @brief read at most "size" bytes to pre-allocated buffer "buff"
   size_t read(void *const buff, size_t size);
@@ -102,7 +104,7 @@ public:
   bool close();
 
   /// @brief size of file
-  size_t size();
+  size_t size() const;
 
   /// @brief seek a position, start from head
   bool seek(size_t pos);
@@ -110,21 +112,21 @@ public:
   std::string filename() const { return name_; }
 
   /// @brief check file is open or not
-  bool isOpen() const { return (f_ != NULL); }
+  bool isOpen() const { return (f_ != NULL) || (gz_ != NULL); }
 
 private:
   File(FILE *fdesc, const std::string &filePath) : f_(fdesc), name_(filePath) {
     gz_ = NULL;
-    isGz_ = false;
+    isgz_ = false;
   }
 
   File(gzFile gz, const std::string &filePath) : gz_(gz), name_(filePath) {
-    isGz_ = true;
+    isgz_ = true;
   }
 
   FILE *f_ = NULL;
   gzFile gz_ = NULL;
-  bool isGZ_ = false;
+  bool isgz_ = false;
   const std::string name_;
 };
 
@@ -145,7 +147,7 @@ void writeProtoToASCIIFileOrDie(const GProto &proto,
 bool writeProtoToFile(const GProto &proto, const std::string &filepath);
 void writeProtoToFileOrDie(const GProto &proto, const std::string &filepath);
 
-std::string hadoopFS(const HDSFConfig &conf);
+std::string hadoopFS(const HDFSConfig &conf);
 
 bool dirExists(const std::string &dir);
 bool dirCreate(const std::string &dir);
@@ -158,4 +160,4 @@ std::string getPath(const std::string &fullpath);
 std::string getFilename(const std::string &filepath);
 } // namespace mltools
 
-#eneif // __FILE_H__
+#endif // __FILE_H__
