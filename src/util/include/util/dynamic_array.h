@@ -3,6 +3,7 @@
 #include "proto/dataconfig.pb.h"
 #include "proto/param.pb.h"
 #include "util/common.h"
+#include "util/file.h"
 #include "util/range.h"
 #include "gtest/gtest.h"
 #include <Eigen/Core>

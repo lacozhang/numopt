@@ -3,6 +3,7 @@
 #include "util/dynamic_array.h"
 #include <algorithm>
 #include <random>
+#include <snappy.h>
 
 namespace mltools {
 
@@ -205,6 +206,70 @@ bool DArray<V>::readFromFile(SizeR range, const std::string &fileName) {
 }
 
 template <typename V>
-bool DArray<V>::readFromFile(SizeR range, DataConfig &data) {}
+bool DArray<V>::readFromFile(SizeR range, DataConfig &data) {
+  if (range == SizeR::all()) {
+    range = SizeR(0, File::size(data.file(0)) / sizeof(V));
+  }
+  if (range.empty()) {
+    clear();
+    return true;
+  }
+  File *f = File::open(data, "r");
+  if ((f == NULL) || (!f->isOpen())) {
+    return false;
+  }
+  resize(range.size());
+  if (range.begin() > 0) {
+    f->seek(range.begin() * sizeof(V));
+  }
+  auto nread = range.size() * sizeof(V);
+  return (f->read(ptr_.get(), nread) == nread) && (f->close());
+}
+
+template <typename V>
+bool DArray<V>::writeToFile(SizeR range, const std::string &filepath) {
+  if (range.empty()) {
+    return true;
+  }
+  if (filepath.empty() || !range.valid() || range.end() >= size_) {
+    LOG(ERROR) << "parameter error, failed to write to file at " << __FILE__
+               << __LINE__;
+    return false;
+  }
+
+  File *f = File::open(filepath, "w");
+  if ((f == NULL) || (!f->isOpen())) {
+    return false;
+  }
+  V *src = static_cast<V *>(ptr_.get());
+  src += range.begin();
+  size_t nwrite = range.size() * sizeof(V);
+  return (f->write(src, nwrite) == nwrite) && (f->flush()) && (f->close());
+}
+
+template <typename V>
+void DArray<V>::uncompressFrom(const char *src, size_t srcSize) {
+  if (srcSize == 0) {
+    clear();
+    return;
+  }
+  size_t rawSize = 0;
+  CHECK(snappy::GetUncompressedLength(src, srcSize, &rawSize));
+  ASSERT_EQ((rawSize / sizeof(V)) * sizeof(V), rawSize);
+  resize(rawSize / sizeof(V));
+  CHECK(snappy::RawUncompress(src, srcSize, static_cast<char *>(data_)));
+}
+
+template <typename V> DArray<char> DArray<V>::compressTo() const {
+  if (empty()) {
+    return DArray<char>();
+  }
+  size_t srcSize = size_ * sizeof(V), dstSize = 0;
+  dstSize = snappy::MaxCompressedLength(srcSize);
+  DArray<char> res(dstSize);
+  snappy::RawCompress(data_, srcSize, res.data(), &dstSize);
+  res.resize(dstSize);
+  return res;
+}
 
 } // namespace mltools
