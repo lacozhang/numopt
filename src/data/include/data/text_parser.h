@@ -38,5 +38,5 @@ private:
   bool ignore_feat_grp_;
   std::function<bool(char *, Example *)> parser_;
 };
-}
+} // namespace mltools
 #endif // __TEXT_PARSER_H__

@@ -17,14 +17,13 @@
  */
 
 #include "data/text_parser.h"
+#include "data/common.h"
 #include "util/murmurhash3.h"
 #include "util/strtonum.h"
 #include <glog/logging.h>
 #include <string.h>
 
 namespace mltools {
-
-extern const int kSlotIdMax;
 
 void ExampleParser::init(TextFormat format, bool ignore_feag_grp) {
   ignore_feat_grp_ = ignore_feag_grp;
@@ -205,11 +204,13 @@ bool ExampleParser::parseVw(char *line, Example *ex) {
     if (!ignore_feat_grp_) {
       if (strlen(pch2) == 0) {
         MurmurHash3_x64_128(" ", 1, 512927377, murmur_out);
-        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % kSlotIdMax;
+        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) %
+                      static_cast<int>(FeatureConstants::kSlotIdMax);
       } else {
         // TODO: support feature group scaling factor in the future
         MurmurHash3_x64_128(pch2, strlen(pch2), 512927377, murmur_out);
-        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) % kSlotIdMax;
+        feat_grp_id = (murmur_out[0] ^ murmur_out[1]) %
+                      static_cast<int>(FeatureConstants::kSlotIdMax);
       }
     }
 

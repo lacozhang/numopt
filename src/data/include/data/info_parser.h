@@ -18,16 +18,14 @@
  * =====================================================================================
  */
 #pragma once
+#include "data/common.h"
 #include "proto/dataconfig.pb.h"
 #include "proto/example.pb.h"
 #include "util/integral_types.h"
-
 #ifndef __INFO_PARSER_H__
 #define __INFO_PARSER_H__
 
 namespace mltools {
-
-extern const int kSlotIdMax = 4096;
 
 class InfoParser {
 public:
@@ -35,12 +33,12 @@ public:
   ~InfoParser();
   bool add(Example &ex);
   bool clear();
-  const ExampleInfo &info() const;
+  const ExampleInfo &info();
 
 private:
   size_t num_ex_;
   ExampleInfo info_;
-  SlotInfo slotsInfo_[kSlotIdMax];
+  SlotInfo slotsInfo_[static_cast<int>(FeatureConstants::kSlotIdMax)];
 };
 } // namespace mltools
 

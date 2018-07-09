@@ -6,7 +6,7 @@ namespace mltools {
 
 InfoParser::InfoParser() {
   info_.Clear();
-  for (int i = 0; i < kSlotIdMax; ++i) {
+  for (int i = 0; i < static_cast<int>(FeatureConstants::kSlotIdMax); ++i) {
     slotsInfo_[i].Clear();
   }
   num_ex_ = 0;
@@ -17,7 +17,7 @@ InfoParser::~InfoParser() {}
 bool InfoParser::add(Example &ex) {
   for (int i = 0; i < ex.slot_size(); ++i) {
     auto &slot = ex.slot(i);
-    if (slot.id() >= kSlotIdMax) {
+    if (slot.id() >= static_cast<int>(FeatureConstants::kSlotIdMax)) {
       LOG(WARNING) << "Slot id " << slot.id() << " larger than kSlotIdMax";
       return false;
     }
@@ -45,6 +45,33 @@ bool InfoParser::add(Example &ex) {
 
   ++num_ex_;
   return true;
+}
+
+bool InfoParser::clear() {
+  info_.Clear();
+  num_ex_ = 0;
+  for (auto &slot : slotsInfo_) {
+    slot.Clear();
+  }
+  return true;
+}
+
+const ExampleInfo &InfoParser::info() {
+  info_.set_num_ex(num_ex_);
+  info_.clear_slot();
+  for (int i = 0; i < static_cast<int>(FeatureConstants::kSlotIdMax); ++i) {
+    auto &slot = slotsInfo_[i];
+    if (!slot.nnz_ele()) {
+      continue;
+    }
+    slot.set_id(i);
+    if (i == 0) {
+      slot.set_min_key(0);
+      slot.set_max_key(1);
+    }
+    *(info_.add_slot()) = slot;
+  }
+  return info_;
 }
 
 } // namespace mltools

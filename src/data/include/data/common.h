@@ -22,13 +22,16 @@
 #include "proto/matrix.pb.h"
 #include "util/common.h"
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __DATA_COMMON_H__
+#define __DATA_COMMON_H__
 
 namespace mltools {
+
 DECLARE_string(input);
 DECLARE_string(output);
 DECLARE_string(format);
+
+enum class FeatureConstants { kSlotIdMax = 4096 };
 
 /// @brief search all the files match regex "conf"
 DataConfig searchFiles(const DataConfig &conf);
@@ -52,4 +55,4 @@ MatrixInfo readMatrixInfo(const ExampleInfo &info, int slotId, int sizeOfIdx,
 DataConfig shuffleFiles(const DataConfig &data);
 } // namespace mltools
 
-#endif // __COMMON_H__
+#endif // __DATA_COMMON_H__

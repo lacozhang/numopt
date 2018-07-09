@@ -1,19 +1,24 @@
 /*
  * =====================================================================================
  *
- *       Filename:  slot_reader.cpp
+ *       Filename:  stream_reader_test.cpp
  *
- *    Description:  implement coordinate fashion reading
+ *    Description:  Test for stream reader
  *
  *        Version:  1.0
- *        Created:  07/08/2018 13:50:51
+ *        Created:  07/08/2018 21:30:54
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:
+ *   Organization:  
  *
  * =====================================================================================
  */
 
-#include "data/slot_reader.h"
+#include "data/stream_reader.h"
+#include "gtest/gtest.h"
+
+TEST(streamreader, init) {
+  mltools::StreamReader<float> test;
+}

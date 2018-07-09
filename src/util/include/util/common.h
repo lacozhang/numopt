@@ -17,8 +17,8 @@
  */
 
 #pragma once
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#ifndef __UTIL_COMMON_H__
+#define __UTIL_COMMON_H__
 
 #include <libgen.h>
 #include <stdio.h>
@@ -118,4 +118,4 @@ template <typename V> inline string dbgstr(const V *data, int n, int m = 5) {
 
 } // namespace mltools
 
-#endif // __COMMON_H__
+#endif // __UTIL_COMMON_H__
