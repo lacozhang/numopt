@@ -46,6 +46,7 @@ DataConfig ithFile(const DataConfig &conf, int i, std::string suffix = "");
 /// @brief merge files
 DataConfig appendFiles(const DataConfig &confA, const DataConfig &confB);
 
+/// @brief merge examples info from two different training data
 ExampleInfo mergeExampleInfo(const ExampleInfo &infoA,
                              const ExampleInfo &infoB);
 
