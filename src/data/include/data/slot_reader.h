@@ -20,6 +20,7 @@
 #include "data/common.h"
 #include "proto/example.pb.h"
 #include "util/dynamic_array_impl.h"
+#include <string>
 
 namespace mltools {
 class SlotReader {
@@ -47,6 +48,17 @@ public:
   }
 
 private:
+  struct VSlot {
+    DArray<float> val_;
+    DArray<uint64> idx_;
+    DArray<uint16> cnt_;
+    bool writeToFile(const std::string &prefix) {
+      return cnt_.writeToFile(prefix + ".rowsiz") &&
+             idx_.writeToFile(prefix + ".colidx") &&
+             val_.writeToFile(prefix + ".value");
+    }
+  };
+
   std::string cacheName(const DataConfig &data, int slotId) const;
   size_t nnzEle(int slotId) const;
   bool readOneFile(const DataConfig &data, int ithFile);

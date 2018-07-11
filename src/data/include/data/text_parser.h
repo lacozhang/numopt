@@ -21,9 +21,7 @@
 #include "proto/example.pb.h"
 #include <functional>
 
-#ifndef __TEXT_PARSER_H__
 namespace mltools {
-
 // read data in txt format, convert to Proto Buffer Example
 class ExampleParser {
 public:
@@ -39,4 +37,3 @@ private:
   std::function<bool(char *, Example *)> parser_;
 };
 } // namespace mltools
-#endif // __TEXT_PARSER_H__
