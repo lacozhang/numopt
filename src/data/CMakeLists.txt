@@ -21,7 +21,8 @@ target_link_libraries(data proto utils glog::glog)
 
 set(TestFiles 
   "test/text_parser_test.cpp"
-  "test/stream_reader_test.cpp")
+  "test/stream_reader_test.cpp"
+  "test/slot_reader_test.cpp")
 
 foreach(TestUnit ${TestFiles})
   get_filename_component(TestUnitName ${TestUnit} NAME_WE)

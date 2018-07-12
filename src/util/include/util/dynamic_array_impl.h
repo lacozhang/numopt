@@ -257,7 +257,7 @@ void DArray<V>::uncompressFrom(const char *src, size_t srcSize) {
   CHECK(snappy::GetUncompressedLength(src, srcSize, &rawSize));
   ASSERT_EQ((rawSize / sizeof(V)) * sizeof(V), rawSize);
   resize(rawSize / sizeof(V));
-  CHECK(snappy::RawUncompress(src, srcSize, static_cast<char *>(data_)));
+  CHECK(snappy::RawUncompress(src, srcSize, reinterpret_cast<char *>(data_)));
 }
 
 template <typename V> DArray<char> DArray<V>::compressTo() const {
