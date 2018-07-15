@@ -131,6 +131,7 @@ void StreamReader<V>::parseExample(const Example &ex, int numReads) {
   }
   for (int i = 0; i < ex.slot_size(); ++i) {
     auto &slot = ex.slot(i);
+    CHECK_LT(slot.id(), static_cast<size_t>(FeatureConstants::kSlotIdMax));
     auto &vslot = vslots_[slot.id()];
     auto keySize = slot.key_size();
     if (FLAGS_hash_kernel > 0) {

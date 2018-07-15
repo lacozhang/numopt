@@ -1,0 +1,24 @@
+syntax = "proto2";
+package mltools;
+import "range.proto";
+
+message Node {
+  enum Role {
+    SERVER = 0;
+    WORKER = 1;
+    SCHEDULER = 3; // each running application has only one scheduler;
+    GROUP = 4; // virtual node, represent a goroup of servers
+    UNUSED = 5;
+  }
+
+  required Role role = 1;
+  optional string id = 2;
+  optional int32 rank = 5;
+
+  // represent the host information about this node
+  optional string hostname = 3;
+  optional string port = 4;
+
+  // used for parameter server, the range in charged by this node
+  optional PbRange key = 6;
+}
