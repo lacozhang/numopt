@@ -1,26 +1,19 @@
 /*
  * =====================================================================================
  *
- *       Filename:  test_message.cpp
+ *       Filename:  heartbeat_info.cpp
  *
- *    Description:  test code for message related components
+ *    Description:  main implementation
  *
  *        Version:  1.0
- *        Created:  07/15/2018 10:27:46
+ *        Created:  07/15/2018 20:27:01
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
-#include "gtest/gtest.h"
-#include "system/message.h"
-
-TEST(Message, init) {
-  mltools::Message msg;
-  msg.ShortDebugString();
-  msg.DebugString();
-}
+#include "system/heartbeat_info.h"

@@ -3,8 +3,18 @@ cmake_minimum_required(VERSION 2.8.10)
 add_library(system STATIC 
   "include/system/message.h"
   "include/system/van.h"
+  "include/system/postoffice.h"
+  "include/system/manager.h"
+  "include/system/assigner.h"
+  "include/system/env.h"
+  "include/system/heartbeat_info.h"
   "src/message.cpp"
-  "src/van.cpp")
+  "src/van.cpp"
+  "src/postoffice.cpp"
+  "src/manager.cpp"
+  "src/assigner.cpp"
+  "src/env.cpp"
+  "src/heartbeat_info.cpp")
 
 target_include_directories(system PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

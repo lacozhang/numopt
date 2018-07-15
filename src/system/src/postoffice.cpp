@@ -1,26 +1,19 @@
 /*
  * =====================================================================================
  *
- *       Filename:  test_message.cpp
+ *       Filename:  postoffice.cpp
  *
- *    Description:  test code for message related components
+ *    Description:  implementation of postoffice.h
  *
  *        Version:  1.0
- *        Created:  07/15/2018 10:27:46
+ *        Created:  07/15/2018 20:10:19
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
-#include "gtest/gtest.h"
-#include "system/message.h"
-
-TEST(Message, init) {
-  mltools::Message msg;
-  msg.ShortDebugString();
-  msg.DebugString();
-}
+#include "system/postoffice.h"

@@ -17,7 +17,7 @@ message Node {
 
   // represent the host information about this node
   optional string hostname = 3;
-  optional string port = 4;
+  optional int32 port = 4;
 
   // used for parameter server, the range in charged by this node
   optional PbRange key = 6;
