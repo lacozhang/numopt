@@ -113,8 +113,8 @@ add_subdirectory(dataop)
 add_subdirectory(model)
 add_subdirectory(optimizer)
 
-# genertate libray datastruct
 add_subdirectory(data)
+add_subdirectory(system)
 add_subdirectory(nn)
 add_subdirectory(crflib)
 add_subdirectory(mltools)

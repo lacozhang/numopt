@@ -1,3 +1,4 @@
+syntax = "proto2";
 package mltools;
 import "assign_op.proto";
 

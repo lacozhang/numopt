@@ -24,10 +24,7 @@ set(TestFiles
   "test/stream_reader_test.cpp"
   "test/slot_reader_test.cpp")
 
-foreach(TestUnit ${TestFiles})
-  get_filename_component(TestUnitName ${TestUnit} NAME_WE)
-  add_executable(${TestUnitName} ${TestUnit})
-  target_link_libraries(${TestUnitName} data test_main)
-  add_test(NAME ${TestUnitName}
-  COMMAND ${TestUnitName})
-endforeach(TestUnit)
+add_executable(data_test ${TestFiles})
+target_link_libraries(data_test data test_main)
+add_test(NAME data_test
+    COMMAND data_test)
