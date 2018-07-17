@@ -343,4 +343,13 @@ bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
   VLOG(1) << "FROM : " << msg->sender_ << msg->ShortDebugString();
   return true;
 }
+
+void Van::statistics() {
+  auto gb = [](size_t x) { return x / 1e9; };
+  LOG(INFO) << myNode_.id() << "Receive "
+            << gb(receivedFromLocal_ + receivedFromOthers_) << " (local "
+            << gb(receivedFromLocal_) << " ) GBytes,"
+            << "Send    " << gb(sentToLocal_ + sentToOthers_) << " (local "
+            << gb(sentToLocal_) << " ) GBytes";
+}
 } // namespace mltools
