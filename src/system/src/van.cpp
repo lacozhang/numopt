@@ -132,9 +132,9 @@ void Van::monitor() {
 
     if (event == ZMQ_EVENT_DISCONNECTED) {
       auto &manager = PostOffice::getInstance().manager();
-      if(isScheduler()) {
+      if (isScheduler()) {
         Lock l(fdToNodeIdMu_);
-        if(fdToNodeId_.find(value) == fdToNodeId_.end()){
+        if (fdToNodeId_.find(value) == fdToNodeId_.end()) {
           LOG(WARNING) << "cannot find the node id for Fd = " << value;
           continue;
         }
@@ -143,8 +143,8 @@ void Van::monitor() {
         manager.nodeDisconnected(scheduler_.id());
       }
     }
-    
-    if(event == ZMQ_EVENT_MONITOR_STOPPED) {
+
+    if (event == ZMQ_EVENT_MONITOR_STOPPED) {
       break;
     }
   }
@@ -163,11 +163,12 @@ void Van::init() {
   zmq_ctx_set(context_, ZMQ_MAX_SOCKETS, 65536);
   bind();
   connect(scheduler_);
-  
-  if(isScheduler()) {
+
+  if (isScheduler()) {
     CHECK(!zmq_socket_monitor(receiver_, "inproc://monitor", ZMQ_EVENT_ALL));
   } else {
-    CHECK(!zmq_socket_monitor(senders_[scheduler_.id()], "inproc://monitor", ZMQ_EVENT_ALL));
+    CHECK(!zmq_socket_monitor(senders_[scheduler_.id()], "inproc://monitor",
+                              ZMQ_EVENT_ALL));
   }
   monitorThread_ = new std::thread(&Van::monitor, this);
   monitorThread_->detach();
@@ -181,5 +182,165 @@ void Van::disconnect(const Node &node) {
   }
   senders_.erase(id);
   VLOG(1) << "Disconnect from " << node.id();
+}
+
+bool Van::send(Message *msg, size_t *sendBytes) {
+  CHECK_NOTNULL(msg);
+  CHECK_NOTNULL(sendBytes);
+
+  NodeID recverId = msg->recver_;
+  auto it = senders_.find(recverId);
+  if (it == senders_.end()) {
+    LOG(WARNING) << "There is no socker to node " << recverId;
+    return false;
+  }
+  void *socket = it->second;
+
+  bool has_key = !msg->key_.empty();
+  if (has_key) {
+    msg->task_.set_has_key(has_key);
+  } else {
+    msg->task_.clear_has_key();
+  }
+  int n = has_key + msg->value_.size();
+  size_t dataSize = 0;
+
+  size_t taskSize = msg->task_.ByteSize();
+  char *taskBuff = new char[taskSize + 5];
+  CHECK(msg->task_.SerializeToArray(taskBuff, taskSize))
+      << "failed to serialize task " << msg->task_.ShortDebugString();
+
+  int tag = ZMQ_SNDMORE;
+  if (n == 0) {
+    tag = 0;
+  }
+  zmq_msg_t taskMsg;
+  zmq_msg_init_data(&taskMsg, taskBuff, taskSize, freeData, nullptr);
+  while (true) {
+    if (zmq_msg_send(&taskMsg, socket, tag) == taskSize) {
+      break;
+    }
+    if (errno == EINTR) {
+      continue;
+    }
+    LOG(WARNING) << "failed to send to node " << recverId
+                 << zmq_strerror(errno);
+    return false;
+  }
+  dataSize += taskSize;
+
+  for (int i = 0; i < n; ++i) {
+    DArray<char> *data = new DArray<char>(
+        (i == 0 && has_key) ? msg->key_ : msg->value_[i - has_key]);
+    if (data == nullptr) {
+      LOG(ERROR) << "Failed to allocate memory";
+      return false;
+    }
+    zmq_msg_t dataMsg;
+    zmq_msg_init_data(&dataMsg, data->data(), data->size(), freeData, data);
+    if (i == n - 1) {
+      tag = 0;
+    }
+    while (true) {
+      if (zmq_msg_send(&dataMsg, socket, tag) == data->size()) {
+        break;
+      }
+      if (errno == EINTR) {
+        continue;
+      }
+      LOG(WARNING) << "failed to send data to " << recverId
+                   << " errno : " << zmq_strerror(errno);
+      return false;
+    }
+    dataSize += data->size();
+  }
+
+  *sendBytes += dataSize;
+  if (hostnames_[recverId] == myNode_.hostname()) {
+    sentToLocal_ += dataSize;
+  } else {
+    sentToOthers_ += dataSize;
+  }
+  VLOG(1) << "To " << msg->recver_ << " " << msg->ShortDebugString();
+  return true;
+}
+
+bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
+  size_t dataSize = 0;
+  msg->clear_data();
+  for (int i = 0;; ++i) {
+    zmq_msg_t *zmsg = new zmq_msg_t;
+    CHECK(zmq_msg_init(zmsg) == 0) << zmq_strerror(errno);
+    while (true) {
+      if (zmq_msg_recv(zmsg, receiver_, 0) != -1) {
+        break;
+      }
+      if (errno == EINTR) {
+        continue;
+      }
+      LOG(WARNING) << "failed to receive message, error : "
+                   << zmq_strerror(errno);
+      return false;
+    }
+    char *buf = CHECK_NOTNULL((char *)zmq_msg_data(zmsg));
+    size_t size = zmq_msg_size(zmsg);
+    dataSize += size;
+
+    if (i == 0) {
+      // first message is the identity of the sender
+      msg->sender_ = std::string(buf, size);
+      msg->recver_ = myNode_.id();
+      zmq_msg_close(zmsg);
+      delete zmsg;
+    } else if (i == 1) {
+      CHECK(msg->task_.ParseFromArray(buf, size))
+          << "failed to parse string from " << msg->sender_ << ". this is "
+          << myNode_.id() << size;
+      if (isScheduler() && msg->task_.control() &&
+          msg->task_.ctrl().cmd() == Control::REQUEST_APP) {
+        // In the start time of every work, they will send such message to
+        // scheduler to get the config. The scheduler will store the file
+        // descriptor for performance monitoring.
+        int val[64];
+        size_t valLen = msg->sender_.size();
+        CHECK_LT(valLen, 64 * sizeof(int));
+        std::memcpy(val, msg->sender_.data(), valLen);
+        CHECK(!zmq_getsockopt(receiver_, ZMQ_FD, (char *)val, &valLen))
+            << "Failed to get the file descriptor of " << msg->sender_;
+        CHECK_EQ(valLen, 4);
+        int fd = val[0];
+        VLOG(1) << "node [" << msg->sender_ << "] is on file descriptor " << fd;
+        Lock l(fdToNodeIdMu_);
+        fdToNodeId_[fd] = msg->sender_;
+      }
+      zmq_msg_close(zmsg);
+      delete msg;
+    } else {
+      // keys & values from sender's message
+      DArray<char> data(buf, size, false);
+      data.pointer().reset(buf, [zmsg](char *) {
+        zmq_msg_close(zmsg);
+        delete zmsg;
+      });
+      if (i == 2 && msg->task_.has_key()) {
+        msg->key_ = data;
+      } else {
+        msg->value_.push_back(data);
+      }
+    }
+
+    if (!zmq_msg_more(zmsg)) {
+      CHECK_GT(i, 0);
+      break;
+    }
+  }
+  *recvBytes += dataSize;
+  if (hostnames_[msg->sender_] == myNode_.hostname()) {
+    receivedFromLocal_ += dataSize;
+  } else {
+    receivedFromOthers_ += dataSize;
+  }
+  VLOG(1) << "FROM : " << msg->sender_ << msg->ShortDebugString();
+  return true;
 }
 } // namespace mltools
