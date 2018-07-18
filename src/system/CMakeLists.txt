@@ -21,7 +21,7 @@ target_include_directories(system PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(system utils glog::glog)
+target_link_libraries(system utils glog::glog data)
 
 set(TestFiles 
   "test/test_message.cpp"

@@ -17,3 +17,17 @@
  */
 
 #pragma once
+namespace mltools {
+  /**
+   * @brief Setup environment
+   */
+  class Env {
+  public:
+    Env() {}
+    ~Env() {}
+    
+    void init(char *argv0);
+  private:
+    void initGlog(char *argv0);
+  };
+}
