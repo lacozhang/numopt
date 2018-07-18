@@ -22,7 +22,6 @@
 #include "system/van.h"
 #include "util/common.h"
 #include "util/file.h"
-#include "util/local_machine.h"
 
 namespace mltools {
 DEFINE_int32(num_servers, 0, "number of servers");
@@ -36,9 +35,7 @@ DEFINE_string(scheduler, "role:SCHEDULER,hostname:'127.0.0.1',port:8000,id:'H'",
               "scheduler node definition");
 DEFINE_string(interface, "", "network interface");
 
-void Env::init(char *argv0) {
-  initGlog(argv0);
-}
+void Env::init(char *argv0) { initGlog(argv0); }
 
 void Env::initGlog(char *argv0) {
   if (FLAGS_log_dir.empty()) {
