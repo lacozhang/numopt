@@ -1,34 +1,19 @@
 /*
  * =====================================================================================
  *
- *       Filename:  env.h
+ *       Filename:  filter.h
  *
- *    Description:  environment variable
+ *    Description:  interface defined for all filters
  *
  *        Version:  1.0
- *        Created:  07/15/2018 20:23:31
+ *        Created:  07/19/2018 08:55:25
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:
+ *   Organization:  
  *
  * =====================================================================================
  */
 
 #pragma once
-namespace mltools {
-/**
- * @brief Setup environment
- */
-class Env {
-public:
-  Env() {}
-  ~Env() {}
-
-  void init(char *argv0);
-
-private:
-  void initGlog(char *argv0);
-};
-} // namespace mltools

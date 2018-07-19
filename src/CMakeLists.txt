@@ -114,6 +114,7 @@ add_subdirectory(model)
 add_subdirectory(optimizer)
 
 add_subdirectory(data)
+add_subdirectory(filter)
 add_subdirectory(system)
 add_subdirectory(nn)
 add_subdirectory(crflib)

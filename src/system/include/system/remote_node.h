@@ -1,34 +1,25 @@
 /*
  * =====================================================================================
  *
- *       Filename:  env.h
+ *       Filename:  remote_node.h
  *
- *    Description:  environment variable
+ *    Description:  entity represent other worker & servers
  *
  *        Version:  1.0
- *        Created:  07/15/2018 20:23:31
+ *        Created:  07/18/2018 21:17:42
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:
+ *   Organization:  
  *
  * =====================================================================================
  */
 
 #pragma once
-namespace mltools {
-/**
- * @brief Setup environment
- */
-class Env {
-public:
-  Env() {}
-  ~Env() {}
+#include "util/common.h"
+#include "proto/task.pb.h"
+#include "system/van.h"
+#include "postoffice.h"
+#include "filter/filter.h"
 
-  void init(char *argv0);
-
-private:
-  void initGlog(char *argv0);
-};
-} // namespace mltools

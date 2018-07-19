@@ -1,34 +1,21 @@
 /*
  * =====================================================================================
  *
- *       Filename:  env.h
+ *       Filename:  executor.h
  *
- *    Description:  environment variable
+ *    Description:  maintain the task request & response for customer
  *
  *        Version:  1.0
- *        Created:  07/15/2018 20:23:31
+ *        Created:  07/18/2018 21:14:49
  *       Revision:  none
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:
+ *   Organization:  
  *
  * =====================================================================================
  */
 
 #pragma once
-namespace mltools {
-/**
- * @brief Setup environment
- */
-class Env {
-public:
-  Env() {}
-  ~Env() {}
-
-  void init(char *argv0);
-
-private:
-  void initGlog(char *argv0);
-};
-} // namespace mltools
+#include "system/remote_node.h"
+#include "system/message.h"

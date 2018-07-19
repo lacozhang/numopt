@@ -26,7 +26,8 @@ namespace mltools {
 
 /**
  * @brief Van used as the interface to network, all the messages from one node
- * to another node must go through Van
+ * to another node must go through Van. Van also maintain the connection to
+ * scheduler and all other nodes.
  *
  */
 class Van {
