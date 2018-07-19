@@ -11,11 +11,7 @@ target_include_directories(crflib
 target_link_libraries(crflib utils)
 
 set(TestFiles "test/crf_test.cpp")
-
-foreach(TestUnit ${TestFiles})
-	get_filename_component(TestUnitName ${TestUnit} NAME_WE)
-	add_executable(${TestUnitName} ${TestUnit})
-	target_link_libraries(${TestUnitName} crflib Boost::unit_test_framework Boost::filesystem Boost::log)
-	add_test(NAME ${TestUnitName}
-	  COMMAND ${TestUnitName})
-endforeach(TestUnit)
+add_executable(crflib_test ${TestFiles})
+target_link_libraries(crflib_test crflib Boost::unit_test_framework Boost::filesystem Boost::log)
+add_test(NAME crflib_test
+    COMMAND crflib_test)

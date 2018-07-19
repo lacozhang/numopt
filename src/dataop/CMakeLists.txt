@@ -12,10 +12,7 @@ target_link_libraries(dataop nn model utils)
 set(TestFiles 
 	"test/test_dataop.cpp")
 
-foreach(TestUnit ${TestFiles})
-	get_filename_component(TestUnitName ${TestUnit} NAME_WE)
-	add_executable(${TestUnitName} ${TestUnit})
-	target_link_libraries(${TestUnitName} dataop nn Boost::unit_test_framework)
-	add_test(NAME ${TestUnitName}
-	  COMMAND ${TestUnitName})
-endforeach(TestUnit)
+add_executable(dataop_test ${TestFiles})
+target_link_libraries(dataop_test dataop nn Boost::unit_test_framework)
+add_test(NAME dataop_test
+    COMMAND dataop_test)

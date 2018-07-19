@@ -8,13 +8,18 @@ add_library(system STATIC
   "include/system/assigner.h"
   "include/system/env.h"
   "include/system/heartbeat_info.h"
+  "include/system/customer.h"
+  "include/system/remote_node.h"
+  "include/system/executor.h"
   "src/message.cpp"
   "src/van.cpp"
   "src/postoffice.cpp"
   "src/manager.cpp"
   "src/assigner.cpp"
   "src/env.cpp"
-  "src/heartbeat_info.cpp")
+  "src/heartbeat_info.cpp"
+  "src/remote_node.cpp"
+  "src/executor.cpp")
 
 target_include_directories(system PUBLIC 
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

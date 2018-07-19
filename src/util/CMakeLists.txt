@@ -16,10 +16,7 @@ target_link_libraries(utils proto gtest)
 set(TestFiles "test/test_stringop.cpp"
   "test/test_misc.cpp")
 
-foreach(TestUnit ${TestFiles})
-  get_filename_component(TestUnitName ${TestUnit} NAME_WE)
-  add_executable(${TestUnitName} ${TestUnit})
-  target_link_libraries(${TestUnitName} utils test_main)
-  add_test(NAME ${TestUnitName} 
-    COMMAND ${TestUnitName})
-endforeach(TestUnit)
+add_executable(utils_test ${TestFiles})
+target_link_libraries(utils_test utils test_main)
+add_test(NAME utils_test
+    COMMAND utils_test)
