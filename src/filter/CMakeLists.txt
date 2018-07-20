@@ -9,7 +9,7 @@ target_include_directories(filter PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(filter utils glog::glog data)
+target_link_libraries(filter utils glog::glog data system)
 
 set(TestFiles 
   "test/test_filter.cpp")

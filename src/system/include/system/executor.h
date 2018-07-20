@@ -11,11 +11,11 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
 #pragma once
-#include "system/remote_node.h"
 #include "system/message.h"
+#include "system/remote_node.h"

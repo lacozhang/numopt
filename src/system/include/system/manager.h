@@ -37,7 +37,7 @@ public:
   void init(char *argv0);
   void run();
   void stop();
-  
+
   /// @brief key function to distribute incoming message.
   bool process(Message *msg);
 
@@ -81,7 +81,7 @@ private:
   }
 
   void createApp(const std::string &conf);
-  
+
   /// @brief runed by main thread.
   App *app_ = nullptr;
   std::string appConf_;
