@@ -11,6 +11,8 @@ add_library(system STATIC
   "include/system/customer.h"
   "include/system/remote_node.h"
   "include/system/executor.h"
+  "include/system/monitor.h"
+  "include/system/sysutil.h"
   "src/message.cpp"
   "src/van.cpp"
   "src/postoffice.cpp"

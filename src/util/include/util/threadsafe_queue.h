@@ -3,8 +3,6 @@
 #include <mutex>
 #include <queue>
 
-#ifndef __THREADSAFE_QUEUE_H__
-
 template <typename T> class ThreadSafeQueue {
 public:
   ThreadSafeQueue() {}
@@ -43,5 +41,3 @@ private:
   std::condition_variable cond_;
   std::queue<T> dat_;
 };
-
-#endif // !__THREADSAFE_QUEUE_H__

@@ -32,10 +32,10 @@ namespace mltools {
 class PostOffice {
 public:
   SINGLETON(PostOffice);
-  ~PostOffice() {}
+  ~PostOffice();
 
   /**
-   * @brief Starts the system
+   * @brief Starts the system, entry point of system.
    */
   void Run(int *argc, char ***);
 
@@ -45,11 +45,13 @@ public:
   void Stop() { manager_.stop(); }
 
   /**
-   * @brief deliver the message for posting.
+   * @brief deliver the message for delivery to other nodes. There is one
+   * dedicated thread for this task.
    */
   void Queue(Message *msg);
 
   Manager &manager() { return manager_; }
+  HeartbeatInfo &perf() { return perfMonitor_; }
 
 private:
   PostOffice();
@@ -62,6 +64,7 @@ private:
   ThreadSafeQueue<Message *> sendingQueue_;
 
   Manager manager_;
+  HeartbeatInfo perfMonitor_;
 
   // key: <sender, customer_id>, value: messages will be packed
   std::map<std::pair<NodeID, int>, std::vector<Message *>> pack_;

@@ -30,7 +30,8 @@ class App;
 class Customer;
 
 /**
- * @brief Manager class responsible for the global connection of process. Each new connection to a remote node must go through manager.
+ * @brief Manager class responsible for the global connection of process. Each
+ * new connection to a remote node must go through manager.
  */
 class Manager {
 public:
@@ -38,15 +39,19 @@ public:
   ~Manager();
 
   void init(char *argv0);
+
+  /// @brief entry point of whole system.
   void run();
+
   void stop();
 
-  /// @brief key function to distribute incoming message. called in PostOffice::recvThread_.
+  /// @brief key function to distribute incoming message. called in
+  /// PostOffice::recvThread_.
   bool process(Message *msg);
 
   /// @brief node managment: the connection between nodes.
   void addNode(const Node &node);
-  
+
   void removeNode(const NodeID &nodeId);
 
   void nodeDisconnected(const NodeID &nodeId);
