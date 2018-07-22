@@ -59,7 +59,7 @@ public:
     return (filepath.size() > 3) &&
            (std::string(filepath.end() - 3, filepath.end()) == ".gz");
   }
-  
+
   virtual ~File();
 
   /// @brief read at most "size" bytes to pre-allocated buffer "buff"
