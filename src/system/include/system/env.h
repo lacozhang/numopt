@@ -26,6 +26,7 @@ public:
   Env() {}
   ~Env() {}
 
+  /// @brief setup logger related configs.
   void init(char *argv0);
 
 private:

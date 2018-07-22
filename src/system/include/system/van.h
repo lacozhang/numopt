@@ -35,6 +35,7 @@ public:
   Van() {}
   ~Van();
 
+  /// @brief setup listening connection/init connection to scheduler.
   void init();
 
   void disconnect(const Node &node);
