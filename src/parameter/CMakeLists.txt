@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 2.8.10)
 
 add_library(parameter STATIC 
   "include/parameter/parameter.h"
+  "include/parameter/kv_vector.h"
+  "include/parameter/kv_map.h"
+  "include/parameter/kv_layer.h"
   "src/parameter.cpp")
 
 target_include_directories(parameter PUBLIC 
@@ -9,7 +12,7 @@ target_include_directories(parameter PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(parameter utils glog::glog)
+target_link_libraries(parameter utils system glog::glog)
 
 set(TestFiles 
   "test/test_parameter.cpp")

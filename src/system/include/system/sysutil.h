@@ -33,4 +33,6 @@ inline Node MyNode() {
 }
 
 inline std::string MyNodeID() { return MyNode().id(); }
+  
+inline Range<Key> MyKeyRange() { return Range<Key>(MyNode().key()); }
 } // namespace mltools
