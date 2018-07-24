@@ -18,6 +18,9 @@
 
 #include "parameter/parameter.h"
 #include "system/sysutil.h"
+#include "parameter/kv_vector.h"
+#include "parameter/kv_map.h"
+#include "parameter/kv_layer.h"
 
 namespace mltools {
   void Parameter::processRequest(mltools::Message *request) {

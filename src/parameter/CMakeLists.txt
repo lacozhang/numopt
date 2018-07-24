@@ -12,7 +12,7 @@ target_include_directories(parameter PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(parameter utils system glog::glog)
+target_link_libraries(parameter utils system filter glog::glog)
 
 set(TestFiles 
   "test/test_parameter.cpp")
