@@ -48,6 +48,7 @@ public:
    * Just invoke the assign operator to finish the job with only pointer copy
    */
   template <typename W> explicit DArray(DArray<W> &arr);
+  template <typename W> explicit DArray(const DArray<W> &arr);
 
   /**
    * @brief Zero-copy assign operator

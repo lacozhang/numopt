@@ -31,6 +31,18 @@ inline std::string SchedulerID() {
 inline Node MyNode() {
   return PostOffice::getInstance().manager().van().myNode();
 }
+  
+inline Node::Role MyRole() {
+  return MyNode().role();
+}
+  
+inline bool IsWorker() {
+  return MyRole() == Node::WORKER;
+}
+
+inline bool IsServer() {
+  return MyRole() == Node::SERVER;
+}
 
 inline std::string MyNodeID() { return MyNode().id(); }
   

@@ -45,6 +45,12 @@ template <typename V> template <typename W> DArray<V>::DArray(DArray<W> &arr) {
 
 template <typename V>
 template <typename W>
+DArray<V>::DArray(const DArray<W> &arr) {
+  *this = arr;
+}
+
+template <typename V>
+template <typename W>
 void DArray<V>::operator=(const DArray<W> &arr) {
   size_ = (arr.size() * sizeof(W)) / sizeof(V);
   capacity_ = (arr.capacity() * sizeof(W)) / sizeof(V);
