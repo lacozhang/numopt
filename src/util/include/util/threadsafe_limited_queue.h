@@ -4,45 +4,73 @@
 #include <condition_variable>
 #include <mutex>
 #include <queue>
-
-#ifndef __THREADSAFE_LIMITED_QUEUE_H__
+#include <glog/logging.h>
 
 template <typename T> class ThreadSafeLimitedQueue {
 public:
+  ThreadSafeLimitedQueue() {}
   explicit ThreadSafeLimitedQueue(int capacity) {
-    capacity_ = capacity;
-    nomore_ = false;
+    setCapacity(capacity);
+    size_ = 0;
   }
-
-  void push(T &val, bool nomore) {
-    if (nomore_)
-      BOOST_LOG_TRIVIAL(error) << "Call push when done";
-    std::unique_lock<std::mutex> lk(mut_);
-    emptycond_.wait(lk, [this] { return dat_.size() < capacity_; });
-    dat_.push(std::move(val));
-    fullcond_.notify_all();
-    nomore_ = nomore;
-  }
-
-  bool pop(T &val) {
-    std::unique_lock<std::mutex> lk(mut_);
-    if (nomore_ && dat_.empty())
-      return false;
-    fullcond_.wait(lk, [this] { return nomore_ || !dat_.empty(); });
-    if (!dat_.empty()) {
-      val = std::move(dat_.front());
-      dat_.pop();
+  
+  void push(const T &val, size_t size, bool finished = false) {
+    CHECK(!nomore_) << "The work is done, do not call push";
+    if(size > capacity_) {
+      LOG(WARNING) << "object size " << size << " exceed maxium capacity " << capacity_ << ", you will be blocked forever";
     }
+    if(!finished && size == 0) {
+      LOG(INFO) << "insert object of size 0";
+      return;
+    }
+    std::unique_lock<std::mutex> lk(mu_);
+    fullcond_.wait(lk, [this, size](){
+      return (size_ + size) <= capacity_;
+    });
+    dat_.push(std::move(std::make_pair(val, size)));
+    size_ += size;
+    nomore_ = finished;
     emptycond_.notify_all();
+  }
+  
+  bool pop(T &val) {
+    std::unique_lock<std::mutex> lk(mu_);
+    if(nomore_ && dat_.empty()) {
+      return false;
+    }
+    emptycond_.wait(lk, [this]{
+      return !dat_.empty();
+    });
+    std::pair<T, size_t> item = std::move(dat_.front());
+    if(item.second == 0) {
+      CHECK(false);
+      return false;
+    }
+    
+    val = std::move(item.first);
+    size_ -= item.second;
+    dat_.pop();
+    fullcond_.notify_all();
     return true;
+  }
+  
+  void setCapacity(int capacity) {
+    capacity_ = capacity;
+  }
+  
+  size_t size() const {
+    std::lock_guard<std::mutex> lk(mu_);
+    return size_;
+  }
+  
+  bool empty() const {
+    return size() == 0;
   }
 
 private:
-  bool nomore_;
-  int capacity_;
-  std::queue<T> dat_;
-  mutable std::mutex mut_;
+  bool nomore_ = false;
+  int capacity_ = 0, size_ = 0;
+  std::queue<std::pair<T, size_t>> dat_;
+  mutable std::mutex mu_;
   std::condition_variable emptycond_, fullcond_;
 };
-
-#endif // !__THREADSAFE_LIMITED_QUEUE_H__

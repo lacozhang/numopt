@@ -38,7 +38,7 @@ template <typename K, typename V, typename E = KVMapEntry<V>,
           typename S = KVMapState>
 class KVMap : public Parameter {
 public:
-    KVMap(int k = 1, int id = NextCustomerID()) : Parameter(id), k_k) {
+    KVMap(int k = 1, int id = NextCustomerID()) : Parameter(id), k_(k) {
       CHECK_GT(k, 0);
     }
 

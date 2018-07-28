@@ -23,7 +23,7 @@ namespace mltools {
 
 template <typename K, typename V>
 void ParallelOrderedMatch(const K *srcKey, const K *srcKeyEnd, const V *srcVal,
-                          const k *dstKey, const K *dstKeyEnd, V *dstVal, int k,
+                          const K *dstKey, const K *dstKeyEnd, V *dstVal, int k,
                           AssignOpType op, size_t grainsize, size_t *n) {
   size_t srcLen = std::distance(srcKey, srcKeyEnd);
   size_t dstLen = std::distance(dstKey, dstKeyEnd);
@@ -51,7 +51,7 @@ void ParallelOrderedMatch(const K *srcKey, const K *srcKeyEnd, const V *srcVal,
       }
     }
   } else {
-    std::thread th(ParallelOrderedMatch<K, V>, srcKey, srcKeyEnd, srcVal,
+    std::thread thr(ParallelOrderedMatch<K, V>, srcKey, srcKeyEnd, srcVal,
                    dstKey, dstKey + dstLen / 2, dstVal, k, op, grainsize, n);
     size_t m = 0;
     ParallelOrderedMatch<K, V>(srcKey, srcKeyEnd, srcVal, dstKey + dstLen / 2,
@@ -84,10 +84,9 @@ size_t ParallelOrderedMatch(
       std::max(range.size() * k / numThreads + 5, (size_t)1024 * 1024);
   size_t n = 0;
   ParallelOrderedMatch<K, V>(
-      srckey.begin(), srcKey.end(), srcVal.begin(),
+      srcKey.begin(), srcKey.end(), srcVal.begin(),
       dstKey.begin() + range.begin(), dstKey.begin() + range.end(),
       dstVal->begin() + range.begin() * k, k, op, grainsize, &n);
-    );
 }
 
 template <typename K, typename V>

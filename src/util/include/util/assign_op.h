@@ -47,7 +47,7 @@ T &AssignOp(T &right, const T &left, const AssignOpType &op) {
   return right;
 }
 
-template <typename I>
+template <typename T>
 T &AssignOpI(T &right, const T &left, const AssignOpType &op) {
   switch (op) {
   case AssignOpType::ASSIGN:

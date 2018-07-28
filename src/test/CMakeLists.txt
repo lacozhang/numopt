@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.10 FATAL_ERROR)
 
 #start unit test block
 add_executable(lccrf_test "src//lccrf_test.cpp")
-target_link_libraries(lccrf_test model crflib dataop utils Boost::unit_test_framework)
+target_link_libraries(lccrf_test model crflib dataop utils Boost::unit_test_framework glog::glog)
 add_test(NAME lccrf_test
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin 
   COMMAND ${CMAKE_BINARY_DIR}/bin/lccrf_test)

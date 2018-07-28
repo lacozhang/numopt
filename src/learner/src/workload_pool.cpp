@@ -55,7 +55,6 @@ bool WorkloadPool::assign(const NodeID &node, Workload *load) {
       return true;
     }
   }
-
   return false;
 }
 

@@ -13,6 +13,6 @@ set(TestFiles
 	"test/test_dataop.cpp")
 
 add_executable(dataop_test ${TestFiles})
-target_link_libraries(dataop_test dataop nn Boost::unit_test_framework)
+target_link_libraries(dataop_test dataop nn Boost::unit_test_framework glog::glog)
 add_test(NAME dataop_test
     COMMAND dataop_test)

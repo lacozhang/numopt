@@ -42,7 +42,7 @@ public:
   typedef std::function<void(const Progress &, Progress *)> Merger;
   void setMerger(Merger merger) { merger_ = merger; }
 
-  virtual void ProcessRequest(Messager *request) {
+  virtual void ProcessRequest(Message *request) {
     NodeID sender = request->sender_;
     Progress prog;
     CHECK(prog.ParseFromString(request->task_.msg()));
@@ -52,7 +52,7 @@ public:
       progress_[sender] = prog;
     }
 
-    double time = time_.stop();
+    double time = timer_.stop();
     if (time > interval_ && printer_) {
       totalTime_ += time;
       printer_(totalTime_, &progress_);

@@ -13,7 +13,7 @@ target_include_directories(learner PUBLIC
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(learner utils system filter glog::glog)
+target_link_libraries(learner system filter utils glog::glog)
 
 set(TestFiles 
   "test/test_learner.cpp")

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "proto/matrix.pb.h"
 #include "util/dense_matrix.h"
 #include "util/dynamic_array.h"
