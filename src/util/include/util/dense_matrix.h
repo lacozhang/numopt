@@ -101,7 +101,7 @@ void DenseMatrix<V>::resize(size_t rows, size_t cols, size_t nnz,
   info_.set_sizeof_val(sizeof(V));
 
   value_.resize(nnz);
-  value_.setValue();
+  value_.setZero();
 }
 
 template <typename V> MatrixPtr<V> DenseMatrix<V>::alterStorage() {

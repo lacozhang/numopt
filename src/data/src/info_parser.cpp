@@ -14,7 +14,7 @@ InfoParser::InfoParser() {
 
 InfoParser::~InfoParser() {}
 
-bool InfoParser::add(Example &ex) {
+bool InfoParser::add(const Example &ex) {
   for (int i = 0; i < ex.slot_size(); ++i) {
     auto &slot = ex.slot(i);
     if (slot.id() >= static_cast<int>(FeatureConstants::kSlotIdMax)) {

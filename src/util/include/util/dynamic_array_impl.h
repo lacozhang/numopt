@@ -235,7 +235,7 @@ bool DArray<V>::readFromFile(SizeR range, DataConfig &data) {
 }
 
 template <typename V>
-bool DArray<V>::writeToFile(SizeR range, const std::string &filepath) {
+bool DArray<V>::writeToFile(SizeR range, const std::string &filepath) const {
   if (range.empty()) {
     return true;
   }

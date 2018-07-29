@@ -47,6 +47,7 @@ static double milliToc(system_clock::time_point start) {
   return static_cast<double>(counts);
 }
 
+/*
 static struct timespec hwtic() {
   struct timespec tc;
   clock_gettime(CLOCK_MONOTONIC_RAW, &tc);
@@ -59,6 +60,7 @@ static double hwtoc(struct timespec start) {
   return (double)((curr.tv_sec - start.tv_sec) +
                   (curr.tv_nsec - start.tv_nsec) * 1e-9);
 }
+*/
 
 class ScopedTimer {
 public:

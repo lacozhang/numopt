@@ -31,7 +31,7 @@ class InfoParser {
 public:
   InfoParser();
   ~InfoParser();
-  bool add(Example &ex);
+  bool add(const Example &ex);
   bool clear();
   const ExampleInfo &info();
 

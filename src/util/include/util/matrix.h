@@ -105,7 +105,7 @@ public:
 
   virtual bool writeToBinFile(std::string filename) const = 0;
 
-  virtual size_t memSize() { return value_.size() * sizeof(V); }
+  virtual size_t memSize() const { return value_.size() * sizeof(V); }
 
   const MatrixInfo &info() const { return info_; }
   MatrixInfo &info() { return info_; }

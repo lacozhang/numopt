@@ -56,11 +56,11 @@ public:
   DArray<I> index() const { return index_; }
   DArray<size_t> offset() const { return offset_; }
 
-  virtual size_t memSize() const {
+  virtual size_t memSize() const override{
     return offset_.memSize() + index_.memSize() + value_.size();
   }
 
-  virtual void resize(size_t rows, size_t cols, size_t nnz, bool rowMajor) {
+  virtual void resize(size_t rows, size_t cols, size_t nnz, bool rowMajor) override {
     assert(false);
   }
 
@@ -118,7 +118,7 @@ private:
     }
   }
 
-  template <typename W> void templateTimes(const W *x, W *y) {
+  template <typename W> void templateTimes(const W *x, W *y) const {
     SizeR rowRange(0, rows());
     int numThreads = FLAGS_num_threads;
     assert(numThreads > 0);
@@ -268,7 +268,7 @@ std::string SparseMatrix<I, V>::debugString() const {
   std::stringstream ss;
   int nnz = offset_.back() - offset_.front();
   ss << info_.DebugString() << std::endl
-     << "offset: " << offset_ << std::endl
+     << "offset: " << dbgstr(offset_.data(), offset_.size()) << std::endl
      << "index:  " << dbgstr(index_.data() + offset_[0], nnz) << std::endl;
   if (!binary()) {
     ss << "value: " << dbgstr(value_.data() + offset_[0], nnz) << std::endl;

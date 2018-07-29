@@ -45,7 +45,9 @@ public:
   void startWorkers();
 
   Task getNextTask();
-  void stopOnBarrier();
+  void stopOnBarrier() {
+    barrier_.Block();
+  }
 
 private:
   DISALLOW_COPY_AND_ASSIGN(ThreadPool);

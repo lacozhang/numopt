@@ -161,4 +161,22 @@ HeartbeatReport HeartbeatInfo::get() {
   last_ = snapshot_now;
   return report;
 }
+  
+  void HeartbeatInfo::init(const string& interface, const string& hostname) {
+    interface_ = interface;
+    hostname_ = hostname;
+    
+    // get cpu core number
+    char buffer[1024];
+    FILE *fp_pipe = popen("grep 'processor' /proc/cpuinfo | wc -l", "r");
+    CHECK(nullptr != fp_pipe);
+    CHECK(nullptr != fgets(buffer, sizeof(buffer), fp_pipe));
+    string core_str(buffer);
+    core_str.resize(core_str.size() - 1);
+    cpuCoreNumbers_ = std::stoul(core_str);
+    pclose(fp_pipe);
+    
+    // initialize internal status
+    get();
+  }
 } // namespace mltools

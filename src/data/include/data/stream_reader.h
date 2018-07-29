@@ -186,12 +186,12 @@ template <typename V> bool StreamReader<V>::readMatricesFromText() {
 
 template <typename V> bool StreamReader<V>::readMatricesFromProto() {
   int numReads = 0;
-  auto reader(dataFile_);
+  RecordReader reader(dataFile_);
   Example ex;
   while (numReads < numExamples_ && !reachDataEnd_) {
     while (true) {
       if (reader.readProtoMessage(&ex)) {
-        parseExample(&ex, numReads);
+        parseExample(ex, numReads);
         ++numReads;
         break;
       } else {

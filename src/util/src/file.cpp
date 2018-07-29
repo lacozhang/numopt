@@ -323,11 +323,10 @@ bool dirExists(const std::string &path) {
   if (info.st_mode & S_IFDIR) {
     return true;
   }
-
   return true;
 }
 
-bool createDir(const std::string &path) {
+bool dirCreate(const std::string &path) {
   return mkdir(path.c_str(), 0755) == 0;
 }
 } // namespace mltools

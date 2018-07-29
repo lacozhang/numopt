@@ -33,6 +33,16 @@ endif(MSVC)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(glog 0.3.5 REQUIRED)
 find_package(gflags REQUIRED)
+find_package(ZeroMQ REQUIRED)
+find_package(zlib REQUIRED)
+
+if(ZLIB_FOUND)
+  include_directories(${ZLIB_INCLUDE_DIRS})
+else(ZLIB_FOUND)
+  message(FATAL_ERROR "Zlib not found")
+endif()
+
+find_package(snappy REQUIRED)
 
 # setup boost for numopt
 

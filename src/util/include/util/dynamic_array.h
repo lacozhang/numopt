@@ -267,11 +267,11 @@ public:
   const V *end() const { return data() + size(); }
 
   V back() const {
-    CHECK_TRUE(!empty());
+    assert(!empty());
     return data_[size_ - 1];
   }
   V front() const {
-    CHECK_TRUE(!empty());
+    assert(!empty());
     return data_[0];
   }
 
@@ -342,11 +342,12 @@ public:
   bool readFromFile(SizeR range, DataConfig &config);
 
   /// @brief Write all the values to file in binary mode
-  bool writeToFile(const std::string &fileName) {
+  bool writeToFile(const std::string &fileName) const {
     return writeToFile(SizeR(0, size_), fileName);
   }
+  
   /// @brief Write all the values within segment range to file in binary mode
-  bool writeToFile(SizeR range, const std::string &fileName);
+  bool writeToFile(SizeR range, const std::string &fileName) const;
 
 private:
   size_t size_;
