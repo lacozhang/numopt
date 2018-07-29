@@ -118,6 +118,9 @@ add_subdirectory(filter)
 add_subdirectory(system)
 add_subdirectory(parameter)
 add_subdirectory(learner)
+add_subdirectory(app/linear_method)
+
+# other library do not depend on ps structure
 add_subdirectory(nn)
 add_subdirectory(crflib)
 add_subdirectory(mltools)

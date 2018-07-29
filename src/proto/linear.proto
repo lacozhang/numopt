@@ -1,0 +1,96 @@
+syntax = "proto2";
+package mltools.linear;
+import "dataconfig.proto";
+import "bcd.proto";
+import "filter.proto";
+
+message Config {
+  optional DataConfig training_data = 1;
+  optional DataConfig validation_data = 2;
+
+  optional DataConfig model_output = 4;
+  optional DataConfig model_input = 5;
+
+  optional LossConfig loss = 10;
+  optional PenaltyConfig penalty = 11;
+
+  optional LearningRateConfig learning_rate = 12;
+
+  optional SGDConfig async_sgd = 17;
+  optional BCDConfig darlin = 15;
+}
+
+
+extend BCDConfig {
+  // Used by the trust region method. All changes of parameters will be bounded
+  // by *delta*. *delta* is updated according to the convergence,  whose intial
+  // value is *delta_init_value* and maximal value is *delta_max_value*
+  optional double delta_init_value = 101 [default = 1];
+  optional double delta_max_value = 102 [default = 5];
+
+  // kkt_filter_threshold = max_gradient_violation / num_examples *
+  // kkt_filter_threshold_ratio. increasing this number reduces the effect of
+  // kkt filter.
+  optional double kkt_filter_threshold_ratio = 103 [default = 10];
+}
+
+message SGDConfig {
+  enum Algo {
+    STANDARD = 1;
+    FTRL = 2;
+  }
+
+  required Algo algo = 1;
+  
+  optional int32 minibatch = 2 [default = 1000];
+  optional int32 data_buf = 12 [default = 1000];
+  optional bool ada_grad = 5 [default = true];
+  optional int32 max_delay = 4 [default = 0];
+  
+  // the number of data pass
+  optional int32 num_data_pass = 11 [default = 1];
+  
+  // in second.
+  optional int32 report_interval = 3 [default = 1];
+
+  // feature cutoff value
+  optional int32 tail_feature_freq = 6 [default = 0];
+
+  // count-min sketch parameter
+  optional float countmin_n = 8 [default = 1e8];
+  optional int32 countmin_k = 7 [default = 3];
+
+  repeated FilterConfig push_filter = 13;
+  repeated FilterConfig pull_filter = 14;
+}
+
+message LossConfig {
+  enum Type {
+    SQUARE = 1;
+    LOGIT = 2;
+    HINGE = 3;
+    SQUARE_HINGE = 4;
+  }
+  required Type type = 1;
+}
+
+message PenaltyConfig {
+  enum Type {
+    L1 = 1; // lanbda(0) * ||w||_1 + lambda(1)*||w||_F^2
+    L2 = 2; // lambda(0) * ||w||_F^2
+  }
+
+  required Type type = 1;
+  repeated double lambda = 2;
+}
+
+message LearningRateConfig {
+  enum Type {
+    CONSTANT = 1; // = alpha 
+    DECAY = 2; // = alpha / (beta + x)
+  }
+
+  optional Type type = 1;
+  optional double alpha = 2;
+  optional double beta = 3;
+}

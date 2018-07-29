@@ -267,11 +267,11 @@ public:
   const V *end() const { return data() + size(); }
 
   V back() const {
-    ASSERT_TRUE(!empty());
+    CHECK_TRUE(!empty());
     return data_[size_ - 1];
   }
   V front() const {
-    ASSERT_TRUE(!empty());
+    CHECK_TRUE(!empty());
     return data_[0];
   }
 

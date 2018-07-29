@@ -28,7 +28,7 @@ public:
                const DArray<I> &index, DArray<V> value)
       : Matrix<V>(info, value), offset_(offset), index_(index) {}
 
-  virtual void times(V *x, V *y) const override { templateTimes(x, y); }
+  virtual void times(const V *x, V *y) const override { templateTimes(x, y); }
 
   virtual MatrixPtr<V> dotTimes(const MatrixPtr<V> &B) const override;
 
@@ -38,7 +38,7 @@ public:
     return sm;
   }
 
-  virtual MatrixPtr<V> alterStorage() const override;
+  virtual MatrixPtr<V> alterStorage() override;
   virtual std::string debugString() const override;
 
   virtual bool writeToBinFile(std::string name) const override {
@@ -193,7 +193,7 @@ MatrixPtr<V> SparseMatrix<I, V>::rowBlock(SizeR range) const {
 }
 
 template <typename I, typename V>
-MatrixPtr<V> SparseMatrix<I, V>::alterStorage() const {
+MatrixPtr<V> SparseMatrix<I, V>::alterStorage() {
   assert(!empty());
   size_t innerSize = this->innerSize();
   size_t outerSize = this->outerSize();
