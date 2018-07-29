@@ -54,7 +54,7 @@ public:
 
     virtual void getValue(Message *msg) override;
     virtual void setValue(const Message *msg) override;
-    virtual void writeToFile(std::string filepath);
+    virtual void writeToFile(std::string filepath) override;
 
   protected:
     int k_;

@@ -26,13 +26,13 @@ namespace mltools {
 namespace linear {
 
 template <typename T> class Loss {
-
+public:
   /// @brief evaluate the loss value
   virtual T evaluate(const MatrixPtrList<T> &data) = 0;
 
   /// @brief compute the gradients of the data
   virtual void compute(const MatrixPtrList<T> &data,
-                       MatrixPtrList<T> &gradients) = 0;
+                       MatrixPtrList<T> gradients) = 0;
 };
 
 template <typename T> class ScalarLoss : public Loss<T> {
@@ -43,7 +43,7 @@ public:
   virtual T evaluate(const EArray &y, const EArray &Xw) = 0;
 
   virtual void compute(const EArray &y, const MatrixPtr<T> &X, const EArray &Xw,
-                       EArray &gradient, EArray &diagHession) = 0;
+                       EArray gradient, EArray diagHession) = 0;
 
   virtual T evaluate(const MatrixPtrList<T> &data) override {
     CHECK_EQ(data.size(), 2);
@@ -54,14 +54,14 @@ public:
   }
 
   virtual void compute(const MatrixPtrList<T> &data,
-                       MatrixPtrList<T> &gradients) override {
+                       MatrixPtrList<T> gradients) override {
     if (gradients.size() == 0) {
       return;
     }
 
     CHECK_EQ(data.size(), 3);
     auto y = data[0]->value();
-    auto X = data[1]->value();
+    auto X = data[1];
     auto Xw = data[2]->value();
 
     CHECK_EQ(y.size(), Xw.size());
@@ -99,8 +99,8 @@ public:
   }
 
   virtual void compute(const EArrayMap &y, const MatrixPtr<T> &X,
-                       const EArrayMap &Xw, EArrayMap &gradient,
-                       EArrayMap &diagHession) {
+                       const EArrayMap &Xw, EArrayMap gradient,
+                       EArrayMap diagHession) override {
     EArray tau = 1 / (1 + exp(y * Xw));
     if (gradient.size()) {
       gradient = X->transTimes(-y * tau);
@@ -123,8 +123,8 @@ public:
   }
 
   virtual void compute(const EArrayMap &y, const MatrixPtr<T> &X,
-                       const EArrayMap &Xw, EArrayMap &gradient,
-                       EArrayMap &diagHession) {
+                       const EArrayMap &Xw, EArrayMap gradient,
+                       EArrayMap diagHession) {
     gradient = -2 * X->transTimes(y * (y * Xw > 1.0).template cast<T>());
   }
 };

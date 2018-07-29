@@ -51,4 +51,17 @@ inline bool IsScheduler() {
 inline std::string MyNodeID() { return MyNode().id(); }
   
 inline Range<Key> MyKeyRange() { return Range<Key>(MyNode().key()); }
+
+  inline void StartSystem(int argc, char *argv[]) {
+    PostOffice::getInstance().Run(&argc, &argv);
+  }
+  
+  inline void StopSystem() {
+    PostOffice::getInstance().Stop();
+  }
+  
+  inline int RunSystem(int argc, char *argv[]) {
+    StartSystem(argc, argv); StopSystem();
+    return 0;
+  }
 } // namespace mltools

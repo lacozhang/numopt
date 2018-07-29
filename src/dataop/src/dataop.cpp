@@ -849,7 +849,7 @@ bool estimate_nn_sequence(const std::string& filepath, int& sparsebinary, int& s
     int threads = std::thread::hardware_concurrency() - 2;
     if (threads <= 0) threads = 1;
     BOOST_LOG_TRIVIAL(info) << "Number of Threads : " << threads;
-    ProducerConsumer<std::vector<std::string>> worker(1000, threads);
+    mltools::ProducerConsumer<std::vector<std::string>> worker(1000, threads);
 
     std::function<bool(std::vector<std::string>&)> producer = [&src](std::vector<std::string>& lines) {
         return read_lines(src, lines, 50000);
@@ -997,7 +997,7 @@ bool load_nn_sequence(const std::string& filepath,
     std::mutex datamut;
     int threads = std::thread::hardware_concurrency() - 2;
     if (threads <= 0) threads = 1;
-    ProducerConsumer<std::vector<std::vector<std::string>>> worker(1000, threads);
+    mltools::ProducerConsumer<std::vector<std::vector<std::string>>> worker(1000, threads);
     int maxsentences = 10000;
     
     std::function<bool(std::vector<std::vector<std::string>>&)> producer = [&src, maxsentences](std::vector<std::vector<std::string>>& sentence) {

@@ -85,14 +85,14 @@ public:
   }
 
   void start() {
-    dataPrefetcher_.StartProducer(
-        [this](MatrixPtrList<V> &data, size_t &size) -> bool {
-          bool ret = reader_.readMatrices(batchSize_, &data);
-          for (const auto &mat : data) {
-            size += mat->memSize();
-          }
-          return ret;
-        });
+    std::function<bool(MatrixPtrList<V>&, size_t&)> func = [this](MatrixPtrList<V> &data, size_t &size) -> bool {
+      bool ret = reader_.readMatrices(batchSize_, &data);
+      for (const auto &mat : data) {
+        size += mat->memSize();
+      }
+      return ret;
+    };
+    dataPrefetcher_.StartProducer(func);
   }
 
   bool read(MatrixPtr<V> &Y, MatrixPtr<V> &X, DArray<Key> &key) {

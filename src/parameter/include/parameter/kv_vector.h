@@ -69,7 +69,7 @@ public:
   void clear(int chl) {
     Lock l(mu_);
     data_[chl].key_.clear();
-    data_[chl].value_.clear();
+    data_[chl].val_.clear();
   }
 
   /// @brief return cached data at timestamp
@@ -157,7 +157,7 @@ void KVVector<K, V>::setValue(const Message *msg) {
     // merge keys without value update
     kv.key_ = kv.key_.setUnion(recvKeys);
     // clear the values, because value is not alighed with key anymore.
-    kv.value_.clear();
+    kv.val_.clear();
     VLOG(1) << "merge new keys, now size " << kv.key_.size();
     return;
   } else if (kv.key_.empty()) {
@@ -170,11 +170,11 @@ void KVVector<K, V>::setValue(const Message *msg) {
     if (!bufferValue_) {
       CHECK_EQ(i, 0) << "can only support one value";
       CHECK_EQ(recvVal.size(), recvKeys.size() * k_);
-      if (kv.value_.empty()) {
-        kv.value_ = DArray<V>(kv.key_.size() * k_, 0);
+      if (kv.val_.empty()) {
+        kv.val_ = DArray<V>(kv.key_.size() * k_, 0);
       }
-      CHECK_EQ(kv.key_.size() * k_, kv.value_.size());
-      size_t n = ParallelOrderedMatch(recvKeys, recvVal, kv.key_, &kv.value_,
+      CHECK_EQ(kv.key_.size() * k_, kv.val_.size());
+      size_t n = ParallelOrderedMatch(recvKeys, recvVal, kv.key_, &kv.val_,
                                       k_, AssignOpType::PLUS);
       CHECK_EQ(n, recvKeys.size() * k_);
       VLOG(1) << recvKeys.size() << " matched";
@@ -190,7 +190,8 @@ void KVVector<K, V>::setValue(const Message *msg) {
           buf.idxRange_ = idxRange;
           buf.channel_ = chl;
         } else {
-          CHECK_EQ(buf.idxRange_, idxRange);
+          CHECK_EQ(buf.idxRange_.begin(), idxRange.begin());
+          CHECK_EQ(buf.idxRange_.end(), idxRange.end());
           CHECK_EQ(buf.channel_, chl);
         }
       }
@@ -224,9 +225,9 @@ template <typename K, typename V> void KVVector<K, V>::getValue(Message *msg) {
 
   Lock l(mu_);
   auto &kv = data_[chl];
-  CHECK_EQ(kv.key_.size() * k_, kv.value_.size());
+  CHECK_EQ(kv.key_.size() * k_, kv.val_.size());
   DArray<V> val;
-  size_t n = ParallelOrderedMatch(kv.keys_, kv.value_, recvKeys, &val, k_);
+  size_t n = ParallelOrderedMatch(kv.key_, kv.val_, recvKeys, &val, k_);
   CHECK_LE(n, recvKeys.size() * k_);
   VLOG(1) << "matched " << n << " keys";
   msg->clear_value();

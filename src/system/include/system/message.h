@@ -157,7 +157,7 @@ void sliceKOfVMessage(const Message &msg, const std::vector<Range<Key>> &krs,
       CHECK_EQ(krs[i - 1].end(), krs[i].begin());
     }
     K k = static_cast<K>(msgKeyRange.end());
-    pos[i + 1] = std::lower_bound(keys.begin(), keys.end()) - keys.begin();
+    pos[i + 1] = std::lower_bound(keys.begin(), keys.end(), k) - keys.begin();
   }
 
   // set the keys and values for each message independently.

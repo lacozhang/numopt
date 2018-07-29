@@ -87,6 +87,7 @@ size_t ParallelOrderedMatch(
       srcKey.begin(), srcKey.end(), srcVal.begin(),
       dstKey.begin() + range.begin(), dstKey.begin() + range.end(),
       dstVal->begin() + range.begin() * k, k, op, grainsize, &n);
+  return n;
 }
 
 template <typename K, typename V>

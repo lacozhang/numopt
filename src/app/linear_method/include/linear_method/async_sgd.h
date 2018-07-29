@@ -91,7 +91,7 @@ protected:
     SGDState() {}
     SGDState(const PenaltyConfig &regConf, const LearningRateConfig &lrConf) {
       lr_ = std::shared_ptr<LearningRate<V>>(new LearningRate<V>(lrConf));
-      reg_ = std::shared_ptr<Penalty<V>>(new Penalty<V>(regConf));
+      reg_ = std::shared_ptr<Penalty<V>>(createPenalty<V>(regConf));
     }
     virtual ~SGDState() {}
 
@@ -146,7 +146,7 @@ protected:
       V sigma = (sqrtNNew - sqrtN_) / st->lr_->alpha();
       z_ += grad - sigma * w_;
       sqrtN_ = sqrtNNew;
-      V eta = st->lr->eval(sqrtN_);
+      V eta = st->lr_->eval(sqrtN_);
       w_ = st->reg_->proximal(-z_ * eta, eta);
 
       // update state.
@@ -167,6 +167,10 @@ protected:
       w_ = st->reg_->proximal(w_ - eta * grad, eta);
 
       st->updateWeight(w_, wOld);
+    }
+    
+    void get(V *data, void *state) {
+      *data = w_;
     }
 
     V w_ = 0;
@@ -205,7 +209,7 @@ private:
     VLOG(1) << "workload data : " << load.data().ShortDebugString();
     const auto &sgd = conf_.async_sgd();
     MinibatchReader<V> reader;
-    reader.initReader(load.data(), sgd.mini_batch(), sgd.data_buf());
+    reader.initReader(load.data(), sgd.minibatch(), sgd.data_buf());
     reader.initFilter(sgd.countmin_n(), sgd.countmin_k(),
                       sgd.tail_feature_freq());
     reader.start();
@@ -224,7 +228,7 @@ private:
               << "-by-" << data.second->cols();
 
       auto req = Parameter::request(id, -1, {}, sgd.pull_filter());
-      model_[id].key = key;
+      model_[id].key_ = key;
       model_.pull(req, key, [this, id]() { computeGradient(id); });
     }
 
@@ -244,18 +248,18 @@ private:
     VLOG(1) << "compute gradient ";
 
     DArray<V> Xw(Y->rows());
-    auto w = model_[id].value;
+    auto w = model_[id].val_;
     Xw.eigenArray() = *X * w.eigenArray();
     SGDProgress prog;
-    prog.add_objective(loss_->evaluate({Y, Xw.SMatrix()}));
+    prog.add_objective(loss_->evaluate({Y, Xw.denseMatrix()}));
     prog.add_auc(Evaluation<V>::auc(Y->value(), Xw));
     prog.add_accuracy(Evaluation<V>::accuracy(Y->value(), Xw));
     prog.set_num_examples_processed(prog.num_examples_processed() + Xw.size());
     this->reporter_.report(prog);
     DArray<V> grad(X->cols());
-    loss_->compute({Y, X, Xw.SMatrix()}, {grad.SMatrix()});
+    loss_->compute({Y, X, Xw.denseMatrix()}, {grad.denseMatrix()});
     auto req = Parameter::request(id, -1, {}, conf_.async_sgd().push_filter());
-    model_.push(req, model_[id].key, {grad}, [this]() { ++processedBatch_; });
+    model_.push(req, model_[id].key_, {grad}, [this]() { ++processedBatch_; });
     model_.clear(id);
   }
 

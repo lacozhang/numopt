@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef __PRODUCER_CONSUMER_H__
-
 #include "barrier.h"
 #include "threadsafe_limited_queue.h"
 #include <boost/log/trivial.hpp>
@@ -9,6 +7,8 @@
 #include <glog/logging.h>
 #include <thread>
 #include <vector>
+
+namespace mltools {
 
 template <typename T> class ProducerConsumer {
 public:
@@ -109,5 +109,4 @@ private:
   ThreadSafeLimitedQueue<T> queue_;
   mltools::Barrier blocker_;
 };
-
-#endif // !__PRODUCER_CONSUMER_H__
+}

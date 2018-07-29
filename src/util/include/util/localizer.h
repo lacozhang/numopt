@@ -40,7 +40,7 @@ public:
   void countUniqIndex(const MatrixPtr<V> &mat, DArray<I> *uniqIdx,
                       DArray<C> *idxFreq) {
     mat_ = std::static_pointer_cast<SparseMatrix<I, V>>(mat);
-    countUniqIndex(mat->index(), uniqIdx, idxFreq);
+    countUniqIndex(mat_->index(), uniqIdx, idxFreq);
   }
 
   MatrixPtr<V> remapIndex(const DArray<I> &idxDict);
@@ -97,21 +97,21 @@ void Localizer<I, V>::countUniqIndex(const DArray<I> &idx, DArray<I> *uniqIdx,
   uint32 cnt = 0;
   for (const Pair &v : pair_) {
     if (v.k_ != curr) {
-      uniqIdx->push(curr);
+      uniqIdx->push_back(curr);
       curr = v.k_;
       if (idxFreq) {
         C tcnt = static_cast<C>(std::min(cnt, cntMax));
-        idxFreq->push(tcnt);
+        idxFreq->push_back(tcnt);
       }
       cnt = 0;
     }
     ++cnt;
   }
 
-  uniqIdx->push(curr);
+  uniqIdx->push_back(curr);
   if (idxFreq) {
     C tcnt = static_cast<C>(std::min(cnt, cntMax));
-    idxFreq->push(tcnt);
+    idxFreq->push_back(tcnt);
   }
 }
 
@@ -156,7 +156,7 @@ MatrixPtr<V> Localizer<I, V>::remapIndex(const MatrixInfo &info,
     }
   }
 
-  DArray<uint32> newIndex(matched);
+  DArray<I> newIndex(matched);
   DArray<size_t> newOffset(offset.size());
   newOffset[0] = 0;
   DArray<V> newValue(std::min(value.size(), (size_t)matched));

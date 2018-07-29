@@ -29,7 +29,7 @@ public:
   virtual ~Parameter() {}
 
   typedef std::initializer_list<int> Timestamps;
-  typedef ::google::protobuf::RepeatedField<FilterConfig> Filters;
+  typedef ::google::protobuf::RepeatedPtrField<FilterConfig> Filters;
 
   /// @brief create a request task general for parameters.
   static Task request(int channel, int ts = Message::kInvalidTime,

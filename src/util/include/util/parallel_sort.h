@@ -26,7 +26,7 @@ void ParallelSort(T *data, size_t len, size_t grainsize, const Fn &cmp) {
   if (len <= grainsize) {
     std::sort(data, data + len, cmp);
   } else {
-    std::thread thr(ParallelSort<T, Fn>(data, len / 2, grainsize, cmp));
+    std::thread thr(ParallelSort<T, Fn>, data, len / 2, grainsize, cmp);
     ParallelSort(data + len / 2, len - len / 2, grainsize, cmp);
     thr.join();
     std::inplace_merge(data, data + len / 2, data + len, cmp);

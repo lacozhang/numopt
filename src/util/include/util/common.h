@@ -17,8 +17,6 @@
  */
 
 #pragma once
-#ifndef __UTIL_COMMON_H__
-#define __UTIL_COMMON_H__
 
 #include <libgen.h>
 #include <stdio.h>
@@ -76,9 +74,6 @@ typedef std::string NodeID;
 typedef std::lock_guard<std::mutex> Lock;
 using std::string;
 
-#define LL LOG(ERROR)
-#define LI LOG(INFO)
-
 DECLARE_int32(num_threads);
 
 // print the array's head and tail
@@ -118,4 +113,3 @@ template <typename V> inline string dbgstr(const V *data, int n, int m = 5) {
 
 } // namespace mltools
 
-#endif // __UTIL_COMMON_H__
