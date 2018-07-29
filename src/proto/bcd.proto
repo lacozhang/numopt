@@ -91,3 +91,8 @@ message BCDCall {
   optional DataConfig data = 10;
   optional int32 time = 12;
 }
+
+message LoadDataResponse {
+  optional ExampleInfo example_info = 1;
+  optional int32 hit_cache = 2;
+}

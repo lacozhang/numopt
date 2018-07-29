@@ -52,10 +52,10 @@ namespace mltools {
       return pair_.size() * sizeof(Pair) + (mat_ == nullptr ? 0 : mat_->memSize());
     }
     
-  private:
     MatrixPtr<V> remapIndex(const MatrixInfo &info, const DArray<size_t> &offset,
                             const DArray<I> &index, const DArray<V> &value,
                             const DArray<I> &idxdict) const;
+  private:
 #pragma pack(push)
 #pragma pack(4)
     struct Pair {
