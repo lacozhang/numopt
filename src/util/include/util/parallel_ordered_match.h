@@ -52,7 +52,7 @@ void ParallelOrderedMatch(const K *srcKey, const K *srcKeyEnd, const V *srcVal,
     }
   } else {
     std::thread thr(ParallelOrderedMatch<K, V>, srcKey, srcKeyEnd, srcVal,
-                   dstKey, dstKey + dstLen / 2, dstVal, k, op, grainsize, n);
+                    dstKey, dstKey + dstLen / 2, dstVal, k, op, grainsize, n);
     size_t m = 0;
     ParallelOrderedMatch<K, V>(srcKey, srcKeyEnd, srcVal, dstKey + dstLen / 2,
                                dstKeyEnd, dstVal + (dstLen / 2) * k, k, op,

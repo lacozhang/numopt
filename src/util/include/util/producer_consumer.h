@@ -6,9 +6,9 @@
 #include "threadsafe_limited_queue.h"
 #include <boost/log/trivial.hpp>
 #include <functional>
+#include <glog/logging.h>
 #include <thread>
 #include <vector>
-#include <glog/logging.h>
 
 template <typename T> class ProducerConsumer {
 public:
@@ -20,12 +20,12 @@ public:
     consumers_ = consumers;
     setCapacity(capacity);
   }
-  
-  void StartProducer(std::function<bool(T&, size_t&)> &func) {
-    producer_thr_ = std::move(std::thread([this, &func](){
+
+  void StartProducer(std::function<bool(T &, size_t &)> &func) {
+    producer_thr_ = std::move(std::thread([this, &func]() {
       T entry;
       bool done = false;
-      while(!done) {
+      while (!done) {
         size_t size = 0;
         done = !func(entry, size);
         queue_.push(entry, size, done);
@@ -44,11 +44,11 @@ public:
       }
     }));
   }
-  
-  void StartConsumer(const std::function<void(const T&)> &func) {
-    consumers_thrs_.emplace_back(std::move(std::thread([this, func](){
+
+  void StartConsumer(const std::function<void(const T &)> &func) {
+    consumers_thrs_.emplace_back(std::move(std::thread([this, func]() {
       T entry;
-      while(pop(entry)) {
+      while (pop(entry)) {
         func(entry);
       }
     })));
@@ -89,20 +89,15 @@ public:
   void BlockProducer() {
     if (producer_thr_.joinable()) {
       producer_thr_.join();
-    }
-    else {
+    } else {
       LOG(ERROR) << "Producer thread not joinable";
     }
   }
-  
-  void setCapacity(int size) {
-    queue_.setCapacity(size*4096);
-  }
-  
-  bool pop(T &data) {
-    return queue_.pop(data);
-  }
-  
+
+  void setCapacity(int size) { queue_.setCapacity(size * 4096); }
+
+  bool pop(T &data) { return queue_.pop(data); }
+
   void push(const T &entry, size_t size = 1, bool finished = false) {
     queue_.push(entry, size, finished);
   }

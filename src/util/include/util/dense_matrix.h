@@ -52,7 +52,7 @@ public:
     return MatrixPtr<V>();
   }
 
-  virtual MatrixPtr<V> alterStorage() const override;
+  virtual MatrixPtr<V> alterStorage() override;
 
   virtual MatrixPtr<V> rowBlock(SizeR range) const override {
     if (colMajor()) {
@@ -104,7 +104,7 @@ void DenseMatrix<V>::resize(size_t rows, size_t cols, size_t nnz,
   value_.setValue();
 }
 
-template <typename V> MatrixPtr<V> DenseMatrix<V>::alterStorage() const {
+template <typename V> MatrixPtr<V> DenseMatrix<V>::alterStorage() {
   auto inner = innerSize(), outer = outerSize();
   assert(value_.size() == inner * outer);
   DArray<V> newArray(value_.size());
