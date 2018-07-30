@@ -56,11 +56,12 @@ public:
   DArray<I> index() const { return index_; }
   DArray<size_t> offset() const { return offset_; }
 
-  virtual size_t memSize() const override{
+  virtual size_t memSize() const override {
     return offset_.memSize() + index_.memSize() + value_.size();
   }
 
-  virtual void resize(size_t rows, size_t cols, size_t nnz, bool rowMajor) override {
+  virtual void resize(size_t rows, size_t cols, size_t nnz,
+                      bool rowMajor) override {
     assert(false);
   }
 

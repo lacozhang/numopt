@@ -11,20 +11,15 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
-
 #include "util/recordio.h"
 
 namespace mltools {
-  bool RecordReader::valid() const {
-    return f_ && f_->isOpen();
-  }
-  
-  bool RecordWriter::valid() const {
-    return f_ && f_->isOpen();
-  }
-}
+bool RecordReader::valid() const { return f_ && f_->isOpen(); }
+
+bool RecordWriter::valid() const { return f_ && f_->isOpen(); }
+} // namespace mltools

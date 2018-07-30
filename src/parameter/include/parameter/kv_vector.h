@@ -44,7 +44,7 @@ public:
    * @param id id of customer
    */
   KVVector(bool bufferValue = false, int k = 1, int id = NextCustomerID())
-      : Parameter(id), bufferValue_(bufferValue), k_(k) {
+      : Parameter(id), k_(k), bufferValue_(bufferValue) {
     CHECK_GT(k, 0);
   }
   virtual ~KVVector() {}
@@ -174,8 +174,8 @@ void KVVector<K, V>::setValue(const Message *msg) {
         kv.val_ = DArray<V>(kv.key_.size() * k_, 0);
       }
       CHECK_EQ(kv.key_.size() * k_, kv.val_.size());
-      size_t n = ParallelOrderedMatch(recvKeys, recvVal, kv.key_, &kv.val_,
-                                      k_, AssignOpType::PLUS);
+      size_t n = ParallelOrderedMatch(recvKeys, recvVal, kv.key_, &kv.val_, k_,
+                                      AssignOpType::PLUS);
       CHECK_EQ(n, recvKeys.size() * k_);
       VLOG(1) << recvKeys.size() << " matched";
     } else {
@@ -192,6 +192,7 @@ void KVVector<K, V>::setValue(const Message *msg) {
         } else {
           CHECK_EQ(buf.idxRange_.begin(), idxRange.begin());
           CHECK_EQ(buf.idxRange_.end(), idxRange.end());
+          CHECK_EQ(buf.idxRange_, idxRange);
           CHECK_EQ(buf.channel_, chl);
         }
       }

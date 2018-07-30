@@ -38,28 +38,27 @@ template <typename K, typename V, typename E = KVMapEntry<V>,
           typename S = KVMapState>
 class KVMap : public Parameter {
 public:
-    KVMap(int k = 1, int id = NextCustomerID()) : Parameter(id), k_(k) {
-      CHECK_GT(k, 0);
-    }
+  KVMap(int k = 1, int id = NextCustomerID()) : Parameter(id), k_(k) {
+    CHECK_GT(k, 0);
+  }
 
-    virtual ~KVMap() {}
+  virtual ~KVMap() {}
 
-    void setState(const S &s) { state_ = s; }
+  void setState(const S &s) { state_ = s; }
 
-    virtual void slice(const Message &request,
-                       const std::vector<Range<Key>> &krs,
-                       std::vector<Message *> *msgs) override {
-      sliceKOfVMessage<V>(request, krs, msgs);
-    }
+  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
+                     std::vector<Message *> *msgs) override {
+    sliceKOfVMessage<V>(request, krs, msgs);
+  }
 
-    virtual void getValue(Message *msg) override;
-    virtual void setValue(const Message *msg) override;
-    virtual void writeToFile(std::string filepath) override;
+  virtual void getValue(Message *msg) override;
+  virtual void setValue(const Message *msg) override;
+  virtual void writeToFile(std::string filepath) override;
 
-  protected:
-    int k_;
-    S state_;
-    std::unordered_map<K, E> data_;
+protected:
+  int k_;
+  S state_;
+  std::unordered_map<K, E> data_;
 };
 
 template <typename K, typename V, typename E, typename S>

@@ -109,4 +109,4 @@ private:
   ThreadSafeLimitedQueue<T> queue_;
   mltools::Barrier blocker_;
 };
-}
+} // namespace mltools

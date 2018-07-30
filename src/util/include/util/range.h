@@ -100,7 +100,7 @@ template <typename T> Range<T> Range<T>::evenDivide(size_t n, size_t i) const {
 }
 
 template <typename T>
-std::ostream &operator<<(std::ostream &os, Range<T> &obj) {
+std::ostream &operator<<(std::ostream &os, const Range<T> &obj) {
   return (os << obj.toString());
 }
 } // namespace mltools

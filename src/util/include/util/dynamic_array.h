@@ -345,7 +345,7 @@ public:
   bool writeToFile(const std::string &fileName) const {
     return writeToFile(SizeR(0, size_), fileName);
   }
-  
+
   /// @brief Write all the values within segment range to file in binary mode
   bool writeToFile(SizeR range, const std::string &fileName) const;
 

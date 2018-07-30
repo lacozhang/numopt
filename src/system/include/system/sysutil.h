@@ -31,37 +31,28 @@ inline std::string SchedulerID() {
 inline Node MyNode() {
   return PostOffice::getInstance().manager().van().myNode();
 }
-  
-inline Node::Role MyRole() {
-  return MyNode().role();
-}
-  
-inline bool IsWorker() {
-  return MyRole() == Node::WORKER;
-}
 
-inline bool IsServer() {
-  return MyRole() == Node::SERVER;
-}
+inline Node::Role MyRole() { return MyNode().role(); }
 
-inline bool IsScheduler() {
-  return MyRole() == Node::SCHEDULER;
-}
+inline bool IsWorker() { return MyRole() == Node::WORKER; }
+
+inline bool IsServer() { return MyRole() == Node::SERVER; }
+
+inline bool IsScheduler() { return MyRole() == Node::SCHEDULER; }
 
 inline std::string MyNodeID() { return MyNode().id(); }
-  
+
 inline Range<Key> MyKeyRange() { return Range<Key>(MyNode().key()); }
 
-  inline void StartSystem(int argc, char *argv[]) {
-    PostOffice::getInstance().Run(&argc, &argv);
-  }
-  
-  inline void StopSystem() {
-    PostOffice::getInstance().Stop();
-  }
-  
-  inline int RunSystem(int argc, char *argv[]) {
-    StartSystem(argc, argv); StopSystem();
-    return 0;
-  }
+inline void StartSystem(int argc, char *argv[]) {
+  PostOffice::getInstance().Run(&argc, &argv);
+}
+
+inline void StopSystem() { PostOffice::getInstance().Stop(); }
+
+inline int RunSystem(int argc, char *argv[]) {
+  StartSystem(argc, argv);
+  StopSystem();
+  return 0;
+}
 } // namespace mltools
