@@ -168,10 +168,8 @@ protected:
 
       st->updateWeight(w_, wOld);
     }
-    
-    void get(V *data, void *state) {
-      *data = w_;
-    }
+
+    void get(V *data, void *state) { *data = w_; }
 
     V w_ = 0;
     V sumSqGrad_ = 0;
