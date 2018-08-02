@@ -345,7 +345,8 @@ protected:
     if (bcdConf_.init_w().type() == ParamInitConfig::ZERO) {
       dual_.setValue(1);
     } else {
-      dual_.eigenArray() = exp(label_->value().eigenArray() * dual_.eigenArray());
+      dual_.eigenArray() =
+          exp(label_->value().eigenArray() * dual_.eigenArray());
     }
 
     for (int grp : featGroup_) {
@@ -353,6 +354,15 @@ protected:
       activeSet_[grp].resize(n, true);
       delta_[grp].resize(n, bcdConf_.GetExtension(delta_init_value));
     }
+  }
+
+  virtual void evaluate(BCDProgress *prog) override {
+    busyTimer_.start();
+    mu_.lock(); // lock the dual_
+    prog->set_objective(log(1 + 1 / dual_.eigenArray()).sum());
+    mu_.unlock();
+    prog->add_busy_time(busyTimer_.stop());
+    busyTimer_.restart();
   }
 
   virtual void update(int time, Message *msg) override {

@@ -31,10 +31,13 @@ App *App::Create(const std::string &confStr) {
   if (conf.has_darlin()) {
     switch (role) {
     case Node::SCHEDULER:
+      app = new DarlinScheduler(conf);
       break;
     case Node::WORKER:
+      app = new DarlinWorker(conf);
       break;
     case Node::SERVER:
+      app = new DarlinServer(conf);
       break;
     default:
       break;
