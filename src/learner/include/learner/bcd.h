@@ -126,7 +126,6 @@ protected:
    */
   virtual void preprocessData(int time, Message *msg) = 0;
 
-private:
   const int timeRatio_ = 3;
   // feature group
   std::vector<int> featGroup_;
@@ -173,8 +172,8 @@ protected:
     for (int i = 0; i < grpSize; ++i, time += 3) {
       model_.waitReceivedRequest(time, kWorkerGroup);
       auto &grp = model_[featGroup_[i]];
-      grp.value.resize(grp.key_.size());
-      grp.value.setValue(bcdConf_.init_w());
+      grp.val_.resize(grp.key_.size());
+      grp.val_.setValue(bcdConf_.init_w());
       model_.finishReceivedRequest(time + 1, kWorkerGroup);
     }
     model_.clearFilter();
@@ -382,7 +381,9 @@ private:
         });
   }
 
-  bool dataCache(const std::string &name, bool load) {}
+  bool dataCache(const std::string &name, bool load) {
+    return false;
+  }
 
   SlotReader slotReader_;
 

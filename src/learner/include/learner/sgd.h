@@ -85,7 +85,8 @@ public:
   }
 
   void start() {
-    std::function<bool(MatrixPtrList<V>&, size_t&)> func = [this](MatrixPtrList<V> &data, size_t &size) -> bool {
+    std::function<bool(MatrixPtrList<V> &, size_t &)> func =
+        [this](MatrixPtrList<V> &data, size_t &size) -> bool {
       bool ret = reader_.readMatrices(batchSize_, &data);
       for (const auto &mat : data) {
         size += mat->memSize();

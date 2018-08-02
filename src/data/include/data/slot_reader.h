@@ -81,7 +81,7 @@ template <typename V> DArray<V> SlotReader::value(int slotId) const {
   }
   for (int i = 0; i < data_.file_size(); ++i) {
     std::string cacheFilepath = cacheName(ithFile(data_, i), slotId) + ".value";
-    DArray<V> raw;
+    DArray<char> raw;
     CHECK(raw.readFromFile(cacheFilepath));
     DArray<V> full;
     full.uncompressFrom(raw);
@@ -90,7 +90,7 @@ template <typename V> DArray<V> SlotReader::value(int slotId) const {
     val.resize(currSize);
     std::memcpy(val.data() + prevSize, full.data(), sizeof(V) * full.size());
   }
-  ASSERT_EQ(val.size(), nnzEle(slotId)) << " Read corrupted data";
+  CHECK_EQ(val.size(), nnzEle(slotId)) << " Read corrupted data";
   return val;
 }
 } // namespace mltools
