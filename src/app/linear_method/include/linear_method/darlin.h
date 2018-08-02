@@ -3,7 +3,9 @@
  *
  *       Filename:  darlin.h
  *
- *    Description:  block coordinate descent algorithm
+ *    Description:  block coordinate descent algorithm; the so-called darlin
+ * system is very similar to methods in
+ * https://www.csie.ntu.edu.tw/~cjlin/papers/liblinear.pdf .
  *
  *        Version:  1.0
  *        Created:  07/29/2018 10:01:49
