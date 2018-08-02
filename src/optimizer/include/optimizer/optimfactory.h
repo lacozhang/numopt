@@ -97,7 +97,7 @@ public:
     name = "sdca";
     Register<StochasticDCA<DenseVector, DataSamples, LabelVector, SparseVector,
                            DenseVector>>(name);
-        }
+  }
 };
 
 class LccrfFactory
@@ -124,7 +124,7 @@ public:
     name = "pgd";
     Register<ProxGradientDescent<DenseVector, LccrfSamples, LccrfLabels,
                                  SparseVector, DenseVector>>(name);
-        }
+  }
 };
 
 #endif // __OPTIM_FACTORY_H__

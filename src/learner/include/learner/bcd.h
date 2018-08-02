@@ -381,9 +381,7 @@ private:
         });
   }
 
-  bool dataCache(const std::string &name, bool load) {
-    return false;
-  }
+  bool dataCache(const std::string &name, bool load) { return false; }
 
   SlotReader slotReader_;
 

@@ -5,42 +5,51 @@
 
 #include "nnmodule.h"
 namespace NNModel {
-    class TextConvLayer : public NNLayerBase<RowRealMatrix, RowRealMatrix, RowRealMatrix, RowRealMatrix> {
-    public:
+class TextConvLayer : public NNLayerBase<RowRealMatrix, RowRealMatrix,
+                                         RowRealMatrix, RowRealMatrix> {
+public:
+  typedef NNLayerBase<RowRealMatrix, RowRealMatrix, RowRealMatrix,
+                      RowRealMatrix>
+      BaseType;
 
-        typedef NNLayerBase<RowRealMatrix, RowRealMatrix, RowRealMatrix, RowRealMatrix> BaseType;
+  TextConvLayer(double *parambase, double *gradbase, int numfilters,
+                int windowsize, int convsize, int stride);
+  ~TextConvLayer() {}
 
-        TextConvLayer(double* parambase, double* gradbase, int numfilters, int windowsize, int convsize, int stride);
-        ~TextConvLayer() {}
-        
-        void Forward(const RowRealMatrix& input, boost::shared_ptr<RowRealMatrix>& output);
-        void Backward(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin, boost::shared_ptr<RowRealMatrix>& gradout);
+  void Forward(const RowRealMatrix &input,
+               boost::shared_ptr<RowRealMatrix> &output);
+  void Backward(const RowRealMatrix &input,
+                const boost::shared_ptr<RowRealMatrix> &gradin,
+                boost::shared_ptr<RowRealMatrix> &gradout);
 
-        void Backward(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin) {
-            BaseType::Backward(input, gradin);
-        }
-        void ResetParamGrad() {
-            grad_.setZero();
-        }
+  void Backward(const RowRealMatrix &input,
+                const boost::shared_ptr<RowRealMatrix> &gradin) {
+    BaseType::Backward(input, gradin);
+  }
+  void ResetParamGrad() { grad_.setZero(); }
 
-    protected:
-        void ParamGrad(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin) {
-            BaseType::ParamGrad(input, gradin);
-        }
-        void InputGrad(const RowRealMatrix& input, const boost::shared_ptr<RowRealMatrix>& gradin, boost::shared_ptr<RowRealMatrix>& gradout) {
-            BaseType::InputGrad(input, gradin, gradout);
-        }
+protected:
+  void ParamGrad(const RowRealMatrix &input,
+                 const boost::shared_ptr<RowRealMatrix> &gradin) {
+    BaseType::ParamGrad(input, gradin);
+  }
+  void InputGrad(const RowRealMatrix &input,
+                 const boost::shared_ptr<RowRealMatrix> &gradin,
+                 boost::shared_ptr<RowRealMatrix> &gradout) {
+    BaseType::InputGrad(input, gradin, gradout);
+  }
 
-    private:
-        inline int outputrowsize(size_t inputrows) {
-            int count = 0;
-            for (int i = 0; i + windowsize_ <= inputrows; i += stride_) ++count;
-            return count + 1;
-        }
+private:
+  inline int outputrowsize(size_t inputrows) {
+    int count = 0;
+    for (int i = 0; i + windowsize_ <= inputrows; i += stride_)
+      ++count;
+    return count + 1;
+  }
 
-        Eigen::Map<RowRealMatrix> param_, grad_;
-        int stride_, numfilters_, convsize_, windowsize_;
-    };
-}
+  Eigen::Map<RowRealMatrix> param_, grad_;
+  int stride_, numfilters_, convsize_, windowsize_;
+};
+} // namespace NNModel
 
 #endif // !__TEXTCONV_H__

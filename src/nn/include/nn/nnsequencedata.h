@@ -9,233 +9,192 @@
 
 namespace NNModel {
 
-	class SentenceFeature {
-	public:
-		SentenceFeature() {
-		}
+class SentenceFeature {
+public:
+  SentenceFeature() {}
 
-		~SentenceFeature() {
+  ~SentenceFeature() {}
 
-		}
+  DataSamples &SparseBinaryFeature() { return sparsebinary_; }
 
-		DataSamples& SparseBinaryFeature() {
-			return sparsebinary_;
-		}
+  DataSamples::ConstRowXpr SparseBinaryFeature(int pos) const {
+    return sparsebinary_.row(pos);
+  }
 
-		DataSamples::ConstRowXpr SparseBinaryFeature(int pos) const {
-			return sparsebinary_.row(pos);
-		}
+  DataSamples &SparseFeature() { return sparse_; }
 
-		DataSamples& SparseFeature() {
-			return sparse_;
-		}
+  DataSamples::ConstRowXpr SparseFeature(int pos) const {
+    return sparse_.row(pos);
+  }
 
-		DataSamples::ConstRowXpr SparseFeature(int pos) const {
-			return sparse_.row(pos);
-		}
+  DenseMatrix &DenseFeature() { return dense_; }
 
-		DenseMatrix& DenseFeature() {
-			return dense_;
-		}
+  DenseMatrix::ConstRowXpr DenseFeature(int pos) const {
+    return dense_.row(pos);
+  }
 
-		DenseMatrix::ConstRowXpr DenseFeature(int pos) const {
-			return dense_.row(pos);
-		}
+private:
+  DataSamples sparsebinary_;
+  DataSamples sparse_;
+  DenseMatrix dense_;
+};
 
-	private:
-		DataSamples sparsebinary_;
-		DataSamples sparse_;
-		DenseMatrix dense_;
-	};
+class SentenceLabel {
+public:
+  const static int UNKNOWN = -1;
 
-	class SentenceLabel {
-	public:
+  SentenceLabel() { labels_.resize(0); }
 
-		const static int UNKNOWN = -1;
+  explicit SentenceLabel(int size) {
+    labels_.resize(size);
+    for (int i = 0; i < labels_.size(); ++i) {
+      labels_.coeffRef(i) = SentenceLabel::UNKNOWN;
+    }
+  }
 
-		SentenceLabel() {
-			labels_.resize(0);
-		}
+  ~SentenceLabel() {}
 
-		explicit SentenceLabel(int size) {
-			labels_.resize(size);
-			for (int i = 0; i < labels_.size(); ++i) {
-				labels_.coeffRef(i) = SentenceLabel::UNKNOWN;
-			}
-		}
+  int GetLabel(int idx) { return labels_[idx]; }
 
-		~SentenceLabel() {
-		}
+  void SetLabel(int idx, int label) { labels_[idx] = label; }
 
-		int GetLabel(int idx) {
-			return labels_[idx];
-		}
+  LabelVector &GetLabels() { return labels_; }
 
-		void SetLabel(int idx, int label) {
-			labels_[idx] = label;
-		}
+  void SetLabels(std::vector<int> &labels) {
+    labels_.resize(labels.size());
+    for (int i = 0; i < labels.size(); ++i)
+      labels_.coeffRef(i) = labels[i];
+  }
 
-		LabelVector& GetLabels() {
-			return labels_;
-		}
+  void SetLabels(LabelVector &labels) { labels_ = labels; }
 
-		void SetLabels(std::vector<int>& labels) {
-			labels_.resize(labels.size());
-			for (int i = 0; i < labels.size(); ++i)
-				labels_.coeffRef(i) = labels[i];
-		}
+private:
+  LabelVector labels_;
+};
 
-		void SetLabels(LabelVector& labels) {
-			labels_ = labels;
-		}
+class NNSequenceFeature {
+public:
+  NNSequenceFeature() {
+    features_.clear();
+    spbinarysize_ = spfloatsize_ = densesize_ = 0;
+    nullfeat_.reset();
+  }
+  ~NNSequenceFeature() {}
 
-	private:
-		LabelVector labels_;
-	};
+  void AppendSequenceFeature(boost::shared_ptr<SentenceFeature> &feat) {
+    features_.push_back(std::move(feat));
+  }
 
-	class NNSequenceFeature {
-	public:
-		NNSequenceFeature(){
-			features_.clear();
-			spbinarysize_ = spfloatsize_ = densesize_ = 0;
-			nullfeat_.reset();
-		}
-		~NNSequenceFeature(){}
+  void SetSequenceFeature(boost::shared_ptr<SentenceFeature> &feat, int index) {
+    while (index >= features_.size()) {
+      BOOST_LOG_TRIVIAL(info) << "increase the size of features";
+      features_.resize(2 * features_.size());
+    }
 
-		void AppendSequenceFeature(boost::shared_ptr<SentenceFeature>& feat){
-			features_.push_back(std::move(feat));
-		}
+    features_[index] = feat;
+  }
 
-		void SetSequenceFeature(boost::shared_ptr<SentenceFeature>& feat, int index){
-			while (index >= features_.size()) {
-				BOOST_LOG_TRIVIAL(info) << "increase the size of features";
-				features_.resize(2 * features_.size());
-			}
+  boost::shared_ptr<SentenceFeature> &GetSequenceFeature(int index) {
+    if (index < features_.size()) {
+      return features_[index];
+    }
+    BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+    return nullfeat_;
+  }
 
-			features_[index] = feat;
-		}
+  std::vector<boost::shared_ptr<SentenceFeature>> &SampleFeatures() {
+    return features_;
+  }
 
-		boost::shared_ptr<SentenceFeature>& GetSequenceFeature(int index){
-			if (index < features_.size()) {
-				return features_[index];
-			}
-			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
-			return nullfeat_;
-		}
+  boost::shared_ptr<SentenceFeature> &operator[](int index) {
+    return features_[index];
+  }
 
-		std::vector<boost::shared_ptr<SentenceFeature>>& SampleFeatures(){
-			return features_;
-		}
+  size_t NumSamples() { return features_.size(); }
 
-		boost::shared_ptr<SentenceFeature>& operator[](int index){
-			return features_[index];
-		}
+  size_t GetSparseBinarySize() { return spbinarysize_; }
 
-		size_t NumSamples() {
-			return features_.size();
-		}
+  void SetSparseBinarySize(size_t size) { spbinarysize_ = size; }
 
-		size_t GetSparseBinarySize(){
-			return spbinarysize_;
-		}
+  size_t GetSparseFloatSize() { return spfloatsize_; }
 
-		void SetSparseBinarySize(size_t size){
-			spbinarysize_ = size;
-		}
+  void SetSparseFloatSize(size_t size) { spfloatsize_ = size; }
 
-		size_t GetSparseFloatSize(){
-			return spfloatsize_;
-		}
+  size_t GetDenseSize() { return densesize_; }
 
-		void SetSparseFloatSize(size_t size){
-			spfloatsize_ = size;
-		}
+  void SetDenseSize(size_t size) { densesize_ = size; }
 
-		size_t GetDenseSize(){
-			return densesize_;
-		}
+private:
+  std::vector<boost::shared_ptr<SentenceFeature>> features_;
+  boost::shared_ptr<SentenceFeature> nullfeat_;
+  size_t spbinarysize_, spfloatsize_, densesize_;
+};
 
-		void SetDenseSize(size_t size){
-			densesize_ = size;
-		}
+class NNSequenceLabel {
+public:
+  NNSequenceLabel() {
+    labels_.clear();
+    labelsize_ = 0;
+    nullabel_.reset();
+  }
+  ~NNSequenceLabel() {}
 
-	private:
-		std::vector<boost::shared_ptr<SentenceFeature>> features_;
-        boost::shared_ptr<SentenceFeature> nullfeat_;
-		size_t spbinarysize_, spfloatsize_, densesize_;
-	};
+  void AppendSequenceLabel(boost::shared_ptr<SentenceLabel> &label) {
+    labels_.push_back(std::move(label));
+  }
 
-	class NNSequenceLabel {
-	public:
-		NNSequenceLabel(){
-			labels_.clear();
-			labelsize_ = 0;
-			nullabel_.reset();
-		}
-		~NNSequenceLabel(){}
+  void SetSequenceLabel(boost::shared_ptr<SentenceLabel> &label, int idx) {
+    while (idx >= labels_.size()) {
+      BOOST_LOG_TRIVIAL(info) << "Increase the size of labels";
+      labels_.resize(2 * labels_.size());
+    }
 
-        void AppendSequenceLabel(boost::shared_ptr<SentenceLabel>& label) {
-            labels_.push_back(std::move(label));
-        }
+    labels_[idx] = label;
+  }
 
-		void SetSequenceLabel(boost::shared_ptr<SentenceLabel>& label, int idx){
-			while (idx >= labels_.size()) {
-				BOOST_LOG_TRIVIAL(info) << "Increase the size of labels";
-				labels_.resize(2 * labels_.size());
-			}
+  boost::shared_ptr<SentenceLabel> &GetSequenceLabel(int index) {
+    if (index < labels_.size())
+      return labels_[index];
 
-			labels_[idx] = label;
-		}
+    BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+    return nullabel_;
+  }
 
-		boost::shared_ptr<SentenceLabel>& GetSequenceLabel(int index){
-			if (index < labels_.size())
-				return labels_[index];
+  std::vector<boost::shared_ptr<SentenceLabel>> &SampleLabels() {
+    return labels_;
+  }
+  boost::shared_ptr<SentenceLabel> &operator[](int index) {
+    return labels_[index];
+  }
 
-			BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
-			return nullabel_;
-		}
+  size_t GetLabelSize() { return labelsize_; }
 
-		std::vector<boost::shared_ptr<SentenceLabel>>& SampleLabels(){
-			return labels_;
-		}
-		boost::shared_ptr<SentenceLabel>& operator[](int index){
-			return labels_[index];
-		}
+  void SetLabelSize(size_t numlabels) { labelsize_ = numlabels; }
 
-		size_t GetLabelSize() {
-			return labelsize_;
-		}
+  size_t NumSamples() { return labels_.size(); }
 
-		void SetLabelSize(size_t numlabels){
-			labelsize_ = numlabels;
-		}
+private:
+  std::vector<boost::shared_ptr<SentenceLabel>> labels_;
+  boost::shared_ptr<SentenceLabel> nullabel_;
+  size_t labelsize_;
+};
 
-		size_t NumSamples() {
-			return labels_.size();
-		}
+struct NNSequenceEstimate {
+  int sparsebinarysize_, sparsefloatsize_, densesize_, labelsize_;
+  NNSequenceEstimate() {
+    sparsebinarysize_ = sparsefloatsize_ = densesize_ = labelsize_ = 0;
+  }
+};
 
-	private:
-		std::vector<boost::shared_ptr<SentenceLabel>> labels_;
-        boost::shared_ptr<SentenceLabel> nullabel_;
-		size_t labelsize_;
-	};
+struct NNSequenceParse {
+  std::vector<boost::shared_ptr<SentenceFeature>> feats_;
+  std::vector<boost::shared_ptr<SentenceLabel>> labels_;
 
-    struct NNSequenceEstimate {
-        int sparsebinarysize_, sparsefloatsize_, densesize_, labelsize_;
-        NNSequenceEstimate() {
-            sparsebinarysize_ = sparsefloatsize_ = densesize_ = labelsize_ = 0;
-        }
-    };
-
-    struct NNSequenceParse {
-        std::vector<boost::shared_ptr<SentenceFeature>> feats_;
-        std::vector<boost::shared_ptr<SentenceLabel>> labels_;
-
-        NNSequenceParse() {
-            feats_.clear();
-            labels_.clear();
-        }
-    };
-}
+  NNSequenceParse() {
+    feats_.clear();
+    labels_.clear();
+  }
+};
+} // namespace NNModel
 
 #endif // !__NNSEQUENCE_DATA_H__
