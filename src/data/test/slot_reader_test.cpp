@@ -11,14 +11,12 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
-#include "gtest/gtest.h"
 #include "data/slot_reader.h"
+#include "gtest/gtest.h"
 
-TEST(SlotReader, init) {
-  mltools::SlotReader reader;
-}
+TEST(SlotReader, init) { mltools::SlotReader reader; }

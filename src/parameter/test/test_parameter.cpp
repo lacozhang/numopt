@@ -11,9 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
-
-

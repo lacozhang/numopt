@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -22,7 +22,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-
 
 TEST(DataParser, SimpleLibSVM) {
   mltools::ExampleParser parser;

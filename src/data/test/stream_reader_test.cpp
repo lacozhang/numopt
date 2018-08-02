@@ -11,7 +11,7 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
@@ -19,6 +19,4 @@
 #include "data/stream_reader.h"
 #include "gtest/gtest.h"
 
-TEST(streamreader, init) {
-  mltools::StreamReader<float> test;
-}
+TEST(streamreader, init) { mltools::StreamReader<float> test; }

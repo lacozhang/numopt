@@ -2,11 +2,13 @@
 #include "model/LccrfDataType.h"
 #include "util/util.h"
 
-template<class SampleType, class LabelType>
-const char* DataIteratorBase<SampleType, LabelType>::kBaseBatchSizeOption = "batch";
+template <class SampleType, class LabelType>
+const char *DataIteratorBase<SampleType, LabelType>::kBaseBatchSizeOption =
+    "batch";
 
-template<class SampleType, class LabelType>
-const char* DataIteratorBase<SampleType, LabelType>::kBaseRandomSeedOption = "seed";
+template <class SampleType, class LabelType>
+const char *DataIteratorBase<SampleType, LabelType>::kBaseRandomSeedOption =
+    "seed";
 
 template <class SampleType, class LabelType>
 DataIteratorBase<SampleType, LabelType>::DataIteratorBase()

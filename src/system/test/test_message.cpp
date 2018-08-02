@@ -11,13 +11,13 @@
  *       Compiler:  gcc
  *
  *         Author:  lacozhang (), lacozhang@gmail.com
- *   Organization:  
+ *   Organization:
  *
  * =====================================================================================
  */
 
-#include "gtest/gtest.h"
 #include "system/message.h"
+#include "gtest/gtest.h"
 
 TEST(Message, init) {
   mltools::Message msg;

@@ -24,5 +24,4 @@ TEST(util, stringsplitoperation) {
 
   std::string test4 = "abcd e d xe";
   Util::Split(test4, res, "\t", false);
-
 }
