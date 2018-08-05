@@ -11,7 +11,7 @@ target_include_directories(utils
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(utils proto gtest ${ZLIB_LIBRARIES})
+target_link_libraries(utils proto gtest ${ZLIB_LIBRARIES} Snappy::snappy)
 
 set(TestFiles "test/test_stringop.cpp"
   "test/test_misc.cpp")

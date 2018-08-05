@@ -51,6 +51,10 @@ public:
     return (begin_ == rhs.begin_) && (end_ == rhs.end_);
   }
 
+  bool operator!=(const Range &rhs) const {
+    return (begin_ != rhs.begin_) || (end_ != rhs.end_);
+  }
+
   Range operator+(const T v) const { return Range(begin_ + v, end_ + v); }
   Range operator-(const T v) const { return Range(begin_ - v, end_ - v); }
   Range operator*(const T v) const { return Range(begin_ * v, end_ * v); }

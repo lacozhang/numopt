@@ -12,9 +12,6 @@
 #include <initializer_list>
 #include <string>
 
-#ifndef __DYNAMIC_ARRAY_H__
-#define __DYNAMIC_ARRAY_H__
-
 namespace mltools {
 
 template <typename V> class Matrix;
@@ -26,11 +23,7 @@ template <typename V> class Matrix;
  */
 template <typename V> class DArray {
 public:
-  DArray() {
-    size_ = capacity_ = 0;
-    data_ = nullptr;
-    ptr_ = std::shared_ptr<void>(nullptr);
-  }
+  DArray() { defaultInit(); }
   ~DArray() {}
 
   /**
@@ -39,23 +32,14 @@ public:
    * The values of created array is not initialized, can be done via setValue or
    * setZero.
    */
-  DArray(size_t n) { resize(n); }
-  DArray(size_t n, V val) { resize(n, val); }
-
-  /**
-   * @brief Zero-copy constructor
-   *
-   * Just invoke the assign operator to finish the job with only pointer copy
-   */
-  template <typename W> explicit DArray(DArray<W> &arr);
-  template <typename W> explicit DArray(const DArray<W> &arr);
-
-  /**
-   * @brief Zero-copy assign operator
-   *
-   * copy the pointer & shared_ptr, no new array allocated, should be fast
-   */
-  template <typename W> void operator=(const DArray<W> &arr);
+  DArray(size_t n) {
+    defaultInit();
+    resize(n);
+  }
+  DArray(size_t n, V val) {
+    defaultInit();
+    resize(n, val);
+  }
 
   /**
    * @brief Zero-copy constructor
@@ -69,6 +53,40 @@ public:
   DArray(V *data, size_t size, bool deletable = true) {
     reset(data, size, deletable);
   }
+
+  /**
+   * @brief Zero-copy constructor
+   *
+   * Just invoke the assign operator to finish the job with only pointer copy
+   */
+  template <typename W> explicit DArray(const DArray<W> &arr);
+
+  /**
+   * @brief Copy from initializer list
+   *
+   * @param list
+   */
+  template <typename W> DArray(const std::initializer_list<W> &list);
+
+  /**
+   * @brief Copy from initializer list
+   *
+   * @param list
+   */
+  template <typename W> void operator=(const std::initializer_list<W> &list);
+
+  /**
+   * @brief Zero-copy assign operator
+   *
+   * copy the pointer & shared_ptr, no new array allocated, should be fast
+   */
+  template <typename W> void operator=(const DArray<W> &arr);
+
+  /// @brief Compare with different array
+  template <typename W> bool operator==(const DArray<W> &rhs) const;
+
+  /// @brief Compare operator
+  template <typename W> bool operator!=(const DArray<W> &rhs) const;
 
   void clear() { reset(nullptr, 0, false); }
 
@@ -95,20 +113,6 @@ public:
    */
   template <typename RndAccessIt>
   void copyFrom(const RndAccessIt beginIt, const RndAccessIt endIt);
-
-  /**
-   * @brief Copy from initializer list
-   *
-   * @param list
-   */
-  template <typename W> DArray(const std::initializer_list<W> &list);
-
-  /**
-   * @brief Copy from initializer list
-   *
-   * @param list
-   */
-  template <typename W> void operator=(const std::initializer_list<W> &list);
 
   /**
    * @brief Resize the array to n elements
@@ -177,10 +181,10 @@ public:
    */
   size_t memSize() const { return capacity_ * sizeof(V); }
 
+  /**
+   * @brief allocate memory but not used
+   */
   void reserve(size_t n);
-
-  /// @brief Compare with different array
-  template <typename W> bool operator==(const DArray<W> &rhs) const;
 
   /**
    * @brief Resize the array to n element & reset all the values to val
@@ -246,6 +250,11 @@ public:
   bool empty() const { return size() == 0; }
 
   /**
+   * @brief compare data array values
+   */
+  bool valueCompare(const void *lhs, const void *rhs, size_t size) const;
+
+  /**
    * @brief Return the capacity of current array
    */
   size_t capacity() const { return capacity_; }
@@ -270,13 +279,14 @@ public:
     assert(!empty());
     return data_[size_ - 1];
   }
+
   V front() const {
     assert(!empty());
     return data_[0];
   }
 
-  V &operator[](int i) { return data_[i]; }
-  const V &operator[](int i) const { return data_[i]; }
+  V &operator[](const int i) { return data_[i]; }
+  const V &operator[](const int i) const { return data_[i]; }
 
   void append(const DArray<V> &tail);
   void push_back(const V &val);
@@ -350,6 +360,12 @@ public:
   bool writeToFile(SizeR range, const std::string &fileName) const;
 
 private:
+  void defaultInit() {
+    size_ = capacity_ = 0;
+    data_ = nullptr;
+    ptr_ = std::shared_ptr<void>(nullptr);
+  }
+
   size_t size_;
   size_t capacity_;
   V *data_;
@@ -357,11 +373,9 @@ private:
 };
 
 template <typename V>
-std::ostream &operator<<(std::ostream &os, DArray<V> &val) {
+std::ostream &operator<<(std::ostream &os, const DArray<V> &val) {
   os << dbgstr(val.data(), 10);
   return os;
 }
 
 } // namespace mltools
-
-#endif // __DYNAMIC_ARRAY_H__

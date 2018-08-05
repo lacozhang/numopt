@@ -41,10 +41,6 @@ template <typename V> void DArray<V>::setValue(V val) {
   }
 }
 
-template <typename V> template <typename W> DArray<V>::DArray(DArray<W> &arr) {
-  *this = arr;
-}
-
 template <typename V>
 template <typename W>
 DArray<V>::DArray(const DArray<W> &arr) {
@@ -95,6 +91,7 @@ void DArray<V>::operator=(const std::initializer_list<W> &list) {
 template <typename V>
 DArray<V> DArray<V>::segment(const Range<size_t> &range) const {
   EXPECT_TRUE(range.valid());
+  EXPECT_GE(range.begin(), 0);
   EXPECT_LE(range.end(), size());
   DArray<V> result = *this;
   result.data_ += range.begin();
@@ -131,6 +128,12 @@ template <typename V> SizeR DArray<V>::findRange(const Range<V> &bound) const {
 }
 
 template <typename V>
+bool DArray<V>::valueCompare(const void *lhs, const void *rhs,
+                             size_t size) const {
+  return (std::memcmp(lhs, rhs, size) == 0);
+}
+
+template <typename V>
 template <typename W>
 bool DArray<V>::operator==(const DArray<W> &rhs) const {
   if ((size() * sizeof(V)) != (rhs.size() * sizeof(W))) {
@@ -139,7 +142,19 @@ bool DArray<V>::operator==(const DArray<W> &rhs) const {
   if (size() == 0) {
     return true;
   }
-  return (std::memcmp(data(), rhs.data(), size() * sizeof(V)) == 0);
+  return valueCompare(data_, rhs.data_, size_ * sizeof(V));
+}
+
+template <typename V>
+template <typename W>
+bool DArray<V>::operator!=(const DArray<W> &rhs) const {
+  if (size() * sizeof(V) != rhs.size() * sizeof(W)) {
+    return true;
+  }
+  if (size() == 0) {
+    return false;
+  }
+  return !valueCompare(data(), rhs.data(), size() * sizeof(V));
 }
 
 template <typename V> void DArray<V>::reserve(size_t n) {
@@ -275,7 +290,7 @@ template <typename V> DArray<char> DArray<V>::compressTo() const {
   size_t srcSize = size_ * sizeof(V), dstSize = 0;
   dstSize = snappy::MaxCompressedLength(srcSize);
   DArray<char> res(dstSize);
-  snappy::RawCompress(data_, srcSize, res.data(), &dstSize);
+  snappy::RawCompress(reinterpret_cast<char*>(data_), srcSize, res.data(), &dstSize);
   res.resize(dstSize);
   return res;
 }
