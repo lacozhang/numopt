@@ -125,6 +125,7 @@ DataConfig searchFiles(const DataConfig &conf) {
     }
 
     std::string baseName = getPath(conf.file(i));
+    CHECK_GT(baseName.size(), 0) << "base file name " << baseName;
     std::vector<std::string> filenames = {};
     if (valid) {
       filenames = readFilenamesInDir(baseName);

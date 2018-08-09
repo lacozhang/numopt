@@ -30,6 +30,16 @@
 
 namespace mltools {
 
+  namespace {
+    bool isAbsolutePath(const std::string &path) {
+      int idx = 0;
+      while(idx < path.size() && !std::isspace(path[idx])) {
+        ++ idx;
+      }
+      return idx < path.size() && path[idx] == '/';
+    }
+  }
+  
 DECLARE_bool(verbose);
 
 File *File::open(const std::string &filepath, const char *const flags) {
@@ -287,18 +297,23 @@ std::vector<std::string> readFilenamesInDir(const DataConfig &config) {
 
 std::string getFilename(const std::string &full) {
   std::vector<std::string> elems;
-  Util::Split(full, elems, "/", true);
+  Util::Split(full, elems, "/", false);
   return elems.empty() ? "" : elems.back();
 }
 
 std::string getPath(const std::string &full) {
   std::vector<std::string> elems;
-  Util::Split(full, elems, "/", true);
+  bool abs = isAbsolutePath(full);
+  Util::Split(full, elems, "/", false);
   if (elems.size() <= 1) {
     return full;
   }
   elems.pop_back();
-  return Util::join(elems, "/");
+  auto composedPath = Util::join(elems, "/");
+  if(abs) {
+    composedPath.insert(composedPath.begin(), '/');
+  }
+  return composedPath;
 }
 
 std::string removeExtension(const std::string &full) {

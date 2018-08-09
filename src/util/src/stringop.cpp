@@ -11,6 +11,7 @@ void Split(const std::string &s, std::vector<std::string> &segs,
 void Split(const unsigned char *buffer, const size_t len,
            std::vector<std::string> &segs, const unsigned char *delim,
            bool skip) {
+  segs.clear();
   if (len == 0)
     return;
   bool hits[256] = {false};
@@ -24,8 +25,9 @@ void Split(const unsigned char *buffer, const size_t len,
   for (int i = 0; i < len; ++i) {
     if (hits[buffer[i]] || (i == len - 1)) {
       const unsigned char *end = buffer + i;
-      if (!hits[buffer[i]])
+      if (!hits[buffer[i]]) {
         end++;
+      }
       if ((end == start) && (!skip)) {
         segs.push_back("");
       } else if (end > start) {
@@ -44,11 +46,11 @@ void Split(const unsigned char *buffer, const size_t len,
 std::string join(const std::vector<std::string> &elems,
                  const std::string delim) {
   std::string str;
-  for (auto elem : elems) {
-    if (!str.empty()) {
+  for(int i=0; i<elems.size(); ++i) {
+    if(i > 0) {
       str += delim;
     }
-    str += elem;
+    str += elems[i];
   }
   return str;
 }

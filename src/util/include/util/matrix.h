@@ -26,9 +26,6 @@
 #include <string>
 #include <vector>
 
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
-
 namespace mltools {
 
 template <typename V> class Matrix;
@@ -134,8 +131,8 @@ public:
   typedef Eigen::Matrix<V, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
       EMat;
   Eigen::Map<EMat> eigenMatrix() {
-    assert(rowMajor());
-    assert(info_.type() == MatrixInfo::DENSE);
+    CHECK(rowMajor());
+    CHECK(info_.type() == MatrixInfo::DENSE);
     return Eigen::Map<EMat>(value_.data(), rows(), cols());
   }
 
@@ -149,5 +146,3 @@ protected:
   DArray<V> value_;
 };
 } // namespace mltools
-
-#endif // __MATRIX_H__

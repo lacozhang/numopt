@@ -1,5 +1,6 @@
 #include "util/dynamic_array_impl.h"
 #include "gtest/gtest.h"
+#include <iostream>
 
 using namespace mltools;
 
@@ -48,14 +49,22 @@ TEST(DArray, compress) {
 }
 
 TEST(DArray, fileop) {
-  const char *path = mktemp("/tmp/temp.XXXXXX");
-  std::string fullpath(path, std::strlen(path));
-  path = mktemp("/tmp/temp.XXXXXX");
-  std::string partpath(path, std::strlen(path));
+  std::unique_ptr<char[]> pathtemp;
+  pathtemp.reset(new char[256]);
+  std::memset(pathtemp.get(), 0, 256);
+  std::strcpy(pathtemp.get(), "/tmp/file.XXXX");
+  
+  mktemp(pathtemp.get());
+  std::string fullpath(pathtemp.get());
+  std::memset(pathtemp.get(), 0, 256);
+  std::strcpy(pathtemp.get(), "/tmp/file.XXXX");
+  mktemp(pathtemp.get());
+  std::string partpath(pathtemp.get());
   DArray<double> v(200);
   for(int i=0; i<200; ++i) {
     v[i] = i+0.5;
   }
+  CHECK(v.size() == 200);
   v.writeToFile(fullpath);
   v.writeToFile(SizeR(10, 20), partpath);
   
@@ -74,9 +83,19 @@ TEST(DArray, fileop) {
   
   test.readFromFile(SizeR(0, 5), partpath);
   CHECK_EQ(test, v.segment(SizeR(10, 15)));
-  
-  File::remove(fullpath);
-  File::remove(partpath);
 }
 
-
+TEST(DArray, denseMatrix) {
+  DArray<double> dat;
+  dat.resize(800);
+  for(int i=0; i<dat.size(); ++i) {
+    dat[i] = i*0.2;
+  }
+  auto mat = dat.denseMatrix();
+  CHECK_EQ(mat->info().nnz(), 800);
+  CHECK_EQ(mat->info().row().begin(), 0);
+  CHECK_EQ(mat->info().row().end(), 800);
+  CHECK_EQ(mat->info().col().begin(), 0);
+  CHECK_EQ(mat->info().col().end(), 1);
+  CHECK_EQ(mat->value().data(), dat.data());
+}

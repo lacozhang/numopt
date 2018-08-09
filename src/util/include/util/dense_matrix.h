@@ -20,9 +20,6 @@
 #include "util/common.h"
 #include "util/matrix.h"
 
-#ifndef __DENSE_MATRIX_H__
-#define __DENSE_MATRIX_H__
-
 namespace mltools {
 
 template <typename V> class DenseMatrix : public Matrix<V> {
@@ -119,5 +116,3 @@ template <typename V> MatrixPtr<V> DenseMatrix<V>::alterStorage() {
   return MatrixPtr<V>(new DenseMatrix<V>(newInfo, newArray));
 }
 } // namespace mltools
-
-#endif // __DENSE_MATRIX_H__

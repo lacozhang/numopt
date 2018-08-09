@@ -254,7 +254,10 @@ bool DArray<V>::writeToFile(SizeR range, const std::string &filepath) const {
   if (range.empty()) {
     return true;
   }
-  if (filepath.empty() || !range.valid() || range.end() >= size_) {
+  CHECK(!filepath.empty());
+  CHECK(range.valid());
+  CHECK_LE(range.end(), size_) << range << " real size " << size_;
+  if (filepath.empty() || !range.valid() || range.end() > size_) {
     LOG(ERROR) << "parameter error, failed to write to file at " << __FILE__
                << __LINE__;
     return false;
