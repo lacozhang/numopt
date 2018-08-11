@@ -176,7 +176,9 @@ template <typename V> void DArray<V>::append(const DArray<V> &tail) {
 }
 
 template <typename V> void DArray<V>::push_back(const V &val) {
-  if (size_ == capacity_) {
+  if (capacity_ <= 0) {
+    reserve(128);
+  } else if (size_ == capacity_) {
     reserve(size_ * 2);
   }
   data_[size_++] = val;
@@ -293,7 +295,8 @@ template <typename V> DArray<char> DArray<V>::compressTo() const {
   size_t srcSize = size_ * sizeof(V), dstSize = 0;
   dstSize = snappy::MaxCompressedLength(srcSize);
   DArray<char> res(dstSize);
-  snappy::RawCompress(reinterpret_cast<char*>(data_), srcSize, res.data(), &dstSize);
+  snappy::RawCompress(reinterpret_cast<char *>(data_), srcSize, res.data(),
+                      &dstSize);
   res.resize(dstSize);
   return res;
 }

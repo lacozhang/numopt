@@ -46,8 +46,8 @@ void Split(const unsigned char *buffer, const size_t len,
 std::string join(const std::vector<std::string> &elems,
                  const std::string delim) {
   std::string str;
-  for(int i=0; i<elems.size(); ++i) {
-    if(i > 0) {
+  for (int i = 0; i < elems.size(); ++i) {
+    if (i > 0) {
       str += delim;
     }
     str += elems[i];

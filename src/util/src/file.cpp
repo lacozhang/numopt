@@ -30,16 +30,16 @@
 
 namespace mltools {
 
-  namespace {
-    bool isAbsolutePath(const std::string &path) {
-      int idx = 0;
-      while(idx < path.size() && !std::isspace(path[idx])) {
-        ++ idx;
-      }
-      return idx < path.size() && path[idx] == '/';
-    }
+namespace {
+bool isAbsolutePath(const std::string &path) {
+  int idx = 0;
+  while (idx < path.size() && !std::isspace(path[idx])) {
+    ++idx;
   }
-  
+  return idx < path.size() && path[idx] == '/';
+}
+} // namespace
+
 DECLARE_bool(verbose);
 
 File *File::open(const std::string &filepath, const char *const flags) {
@@ -310,7 +310,7 @@ std::string getPath(const std::string &full) {
   }
   elems.pop_back();
   auto composedPath = Util::join(elems, "/");
-  if(abs) {
+  if (abs) {
     composedPath.insert(composedPath.begin(), '/');
   }
   return composedPath;

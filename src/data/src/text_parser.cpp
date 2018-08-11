@@ -71,10 +71,6 @@ bool ExampleParser::toProto(char *line, Example *ex) {
 // libsvm format
 // label feature_d:weight feature_id:weight
 bool ExampleParser::parseLibsvm(char *line, Example *ex) {
-#ifdef XDEBUG
-  LOG(INFO) << "Start parsing LibSVM";
-#endif
-
   char *saveptr;
   // label
   float label = 0;
@@ -107,24 +103,18 @@ bool ExampleParser::parseLibsvm(char *line, Example *ex) {
     }
 
     if (!strtou64(pch, &idx)) {
-#ifdef XDEBUG
       LOG(INFO) << "Libsvm feature index incorrect: " << pch;
-#endif
       return false;
     }
     if (!dfltval && !strtofloat(it + 1, &val)) {
-#ifdef XDEBUG
       LOG(INFO) << "Libsvm feature value incorrect: " << (it + 1);
-#endif
       return false;
     } else if (dfltval) {
       val = 1.0;
     }
 
     if (last_idx > idx) {
-#ifdef XDEBUG
       LOG(INFO) << "Libsvm feature index must follow ascending order";
-#endif
       return false;
     }
     last_idx = idx;

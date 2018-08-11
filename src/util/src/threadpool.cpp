@@ -18,7 +18,6 @@
 
 #include "util/threadpool.h"
 #include <gflags/gflags.h>
-DEFINE_int32(num_threads, 2, "#threads for operation");
 
 namespace mltools {
 ThreadPool::~ThreadPool() {

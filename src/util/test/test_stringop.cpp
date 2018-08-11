@@ -32,7 +32,7 @@ TEST(util, stringsplitoperation) {
   std::string test4 = "abcd e d xe";
   Util::Split(test4, res, "\t", false);
   EXPECT_EQ(res.size(), 1);
-  
+
   std::string test5 = "/test/file/path/a.cc";
   Util::Split(test5, res, "/", false);
   EXPECT_EQ(res.size(), 5);

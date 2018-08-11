@@ -129,30 +129,32 @@ void StreamReader<V>::parseExample(const Example &ex, int numReads) {
   if (!infoParser_.add(ex)) {
     return;
   }
+
   for (int i = 0; i < ex.slot_size(); ++i) {
     auto &slot = ex.slot(i);
-    CHECK_LT(slot.id(), static_cast<size_t>(FeatureConstants::kSlotIdMax));
+    CHECK_GE(slot.id(), 0) << "negative slot id" << ex.DebugString();
+    CHECK_LT(slot.id(), static_cast<size_t>(FeatureConstants::kSlotIdMax))
+        << " feature group too many";
     auto &vslot = vslots_[slot.id()];
     auto keySize = slot.key_size();
     if (FLAGS_hash_kernel > 0) {
-      for (int i = 0; i < keySize; ++i) {
-        vslot.idx_.push_back(slot.key(i) % FLAGS_hash_kernel);
+      for (int j = 0; j < keySize; ++j) {
+        vslot.idx_.push_back(slot.key(j) % FLAGS_hash_kernel);
       }
     } else {
-      for (int i = 0; i < keySize; ++i) {
-        vslot.idx_.push_back(slot.key(i));
+      for (int j = 0; j < keySize; ++j) {
+        vslot.idx_.push_back(slot.key(j));
       }
     }
 
     auto valSize = slot.val_size();
-    for (int i = 0; i < valSize; ++i) {
-      vslot.val_.push_back(slot.val(i));
+    for (int j = 0; j < valSize; ++j) {
+      vslot.val_.push_back(slot.val(j));
     }
 
     while (vslot.cnt_.size() < numReads) {
       vslot.cnt_.push_back(0);
     }
-
     vslot.cnt_.push_back(std::max(keySize, valSize));
   }
 }
