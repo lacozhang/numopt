@@ -101,10 +101,11 @@ DArray<size_t> SlotReader::offset(int slotId) {
 }
 
 bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
-  mu_.lock();
-  VLOG(1) << "loading data file [" << data.file(0) << "]; loaded ["
-          << loadedFileCount_ << "/" << data_.file_size() << "]";
-  mu_.unlock();
+  {
+    std::lock_guard<std::mutex> lk(mu_);
+    LOG(INFO) << "loading data file [" << data.file(0) << "]; loaded ["
+              << loadedFileCount_ << "/" << data_.file_size() << "]";
+  }
   std::string infoCachepath = cache_ + getFilename(data.file(0)) + ".info";
   ExampleInfo info;
   if (readFileToProto(infoCachepath, &info)) {
@@ -118,6 +119,7 @@ bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
   Example ex;
   size_t exnum = 0;
   VSlot slots[static_cast<int>(FeatureConstants::kSlotIdMax)];
+  LOG(INFO) << "create info matrix";
   auto storeData = [&]() {
     if (!metaParser.add(ex)) {
       return;
@@ -126,11 +128,11 @@ bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
       auto slot = ex.slot(i);
       CHECK_LT(slot.id(), static_cast<int>(FeatureConstants::kSlotIdMax));
       auto slotMeta = slots[slot.id()];
-      for (int i = 0; i < slot.key_size(); ++i) {
-        slotMeta.idx_.push_back(slot.key(i));
+      for (int j = 0; j < slot.key_size(); ++j) {
+        slotMeta.idx_.push_back(slot.key(j));
       }
-      for (int i = 0; i < slot.val_size(); ++i) {
-        slotMeta.val_.push_back(slot.val(i));
+      for (int j = 0; j < slot.val_size(); ++j) {
+        slotMeta.val_.push_back(slot.val(j));
       }
       while (slotMeta.cnt_.size() < exnum) {
         slotMeta.cnt_.push_back(0);
@@ -195,7 +197,7 @@ int SlotReader::read(ExampleInfo *info) {
   {
     std::lock_guard<std::mutex> lk(mu_);
     loadedFileCount_ = 0;
-    numEx_.resize(data_.file_size());
+    numEx_.resize(data_.file_size(), 0);
   }
   {
     ThreadPool pool(FLAGS_num_threads);
@@ -206,7 +208,7 @@ int SlotReader::read(ExampleInfo *info) {
     pool.startWorkers();
   }
 
-  if (info) {
+  if (info != nullptr) {
     *info = info_;
   }
   for (int i = 0; i < info_.slot_size(); ++i) {

@@ -16,8 +16,6 @@
  * =====================================================================================
  */
 #pragma once
-#ifndef __FILE_H__
-#define __FILE_H__
 #include "proto/dataconfig.pb.h"
 #include "util/common.h"
 #include "util/integral_types.h"
@@ -159,5 +157,3 @@ std::string removeExtension(const std::string &filepath);
 std::string getPath(const std::string &fullpath);
 std::string getFilename(const std::string &filepath);
 } // namespace mltools
-
-#endif // __FILE_H__

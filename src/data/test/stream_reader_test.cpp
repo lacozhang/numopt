@@ -20,6 +20,7 @@
 #include "gtest/gtest.h"
 using namespace mltools;
 using namespace std;
+namespace {
 string libsvmPath = "/Users/edwinzhang/src/parameter_server/example/linear/"
                     "data/ctr/train/part-00[1-4].gz";
 string relLibsvmPath =
@@ -27,6 +28,7 @@ string relLibsvmPath =
 
 string rcvDataPath = "/Users/edwinzhang/src/parameter_server/example/linear/"
                      "data/rcv1/train/part-00[1-4]";
+} // namespace
 
 namespace mltools {
 DEFINE_int32(num_threads, 2, "threads of numbers");
@@ -62,10 +64,10 @@ TEST(SR, readExamples) {
   vector<Example> examples;
   int size = 20000;
   int totalCount = 0;
-  while (reader.readExamples(size, &examples)) {
-    LOG(INFO) << "read size " << examples.size();
-    totalCount += examples.size();
-  }
+  //  while (reader.readExamples(size, &examples)) {
+  //    LOG(INFO) << "read size " << examples.size();
+  //    totalCount += examples.size();
+  //  }
   LOG(INFO) << "Total size " << totalCount;
 }
 
@@ -79,7 +81,7 @@ TEST(SR, readMatrices) {
   vector<Example> examples;
   int size = 20000;
   MatrixPtrList<float> matrices;
-  while (reader.readMatrices(size, &matrices)) {
-    LOG(INFO) << "size " << matrices.size();
-  }
+  //  while (reader.readMatrices(size, &matrices)) {
+  //    LOG(INFO) << "size " << matrices.size();
+  //  }
 }

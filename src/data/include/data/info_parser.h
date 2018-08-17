@@ -22,8 +22,6 @@
 #include "proto/dataconfig.pb.h"
 #include "proto/example.pb.h"
 #include "util/integral_types.h"
-#ifndef __INFO_PARSER_H__
-#define __INFO_PARSER_H__
 
 namespace mltools {
 
@@ -41,5 +39,3 @@ private:
   SlotInfo slotsInfo_[static_cast<int>(FeatureConstants::kSlotIdMax)];
 };
 } // namespace mltools
-
-#endif // __INFO_PARSER_H__

@@ -32,6 +32,11 @@ public:
 
   void init(const DataConfig &data, const DataConfig &cache);
 
+  /**
+   * @brief main inferface for slot style reader
+   *
+   * For slot-style reader, will read training data in block-coordinate style.
+   */
   int read(ExampleInfo *info = nullptr);
 
   template <typename V> MatrixInfo info(int slotId) const {
@@ -67,7 +72,7 @@ private:
   DataConfig data_;
   ExampleInfo info_;
   std::mutex mu_;
-  size_t loadedFileCount_;
+  size_t loadedFileCount_ = 0;
   std::vector<uint32> numEx_;
   std::unordered_map<int, DArray<size_t>> offsetCache_;
   std::unordered_map<int, DArray<uint64>> indexCache_;

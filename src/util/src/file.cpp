@@ -88,7 +88,7 @@ File *File::open(const mltools::DataConfig &config, const char *const flags) {
 
     auto despt = popen(cmd.c_str(), flags);
     if (despt == NULL) {
-      LOG(ERROR) << "Failed to open " << config.DebugString();
+      LOG(INFO) << "Failed to open " << config.DebugString();
       return nullptr;
     }
     auto f = new File(despt, filepath);
@@ -215,7 +215,6 @@ bool readFileToProto(const std::string &filepath, GProto *proto) {
 bool readFileToProto(const mltools::DataConfig &config, GProto *proto) {
   File *f = File::open(config, "r");
   if (f == NULL) {
-    LOG(INFO) << "Failed to open file " << config.DebugString();
     return false;
   }
   size_t estSize = 2 << 20;

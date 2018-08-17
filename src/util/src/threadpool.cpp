@@ -49,7 +49,7 @@ void RunWorker(void *data) {
 void ThreadPool::startWorkers() {
   started_ = true;
   for (int i = 0; i < numWorkers_; ++i) {
-    workers_.emplace_back(std::move(std::thread(&RunWorker, this)));
+    workers_.emplace_back(std::thread(&RunWorker, this));
   }
 }
 
