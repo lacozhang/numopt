@@ -55,3 +55,28 @@ TEST(SlotReader, ReadDataAgain) {
   reader.read(&info);
   LOG(INFO) << "Meta info " << info.DebugString();
 }
+
+TEST(SlotReader, ReadSlot) {
+  DataConfig cfg, cache;
+  cfg.set_format(DataConfig::TEXT);
+  cfg.set_text(DataConfig::LIBSVM);
+  cfg.add_file(rcvDataPath);
+  auto res = searchFiles(cfg);
+  cache.add_file("/tmp/ps_cache");
+  ExampleInfo info;
+  SlotReader reader(res, cache);
+  reader.read(&info);
+  LOG(INFO) << "Meta info " << info.DebugString();
+
+  for (int i = 1; i < info.slot_size(); ++i) {
+    auto slotId = info.slot(i).id();
+    auto offset = reader.offset(slotId);
+    auto index = reader.index(slotId);
+    auto value = reader.value<float>(slotId);
+    if (slotId != 0) {
+      CHECK_EQ(index.size(), value.size());
+    }
+    CHECK_EQ(offset.size(), info.num_ex() + 1);
+    CHECK_EQ(value.size(), info.slot(slotId).nnz_ele());
+  }
+}

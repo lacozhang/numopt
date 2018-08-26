@@ -61,8 +61,10 @@ DArray<uint64> SlotReader::index(int slotId) {
         cacheName(ithFile(data_, i), slotId) + ".colidx";
     DArray<char> comp;
     if (!comp.readFromFile(cacheFilepath)) {
+      LOG(INFO) << "Failed to read from " << cacheFilepath;
       continue;
     }
+    LOG(INFO) << "raw index size " << comp.size();
     DArray<uint64> raw;
     raw.uncompressFrom(comp);
     idx.append(raw);
@@ -79,21 +81,27 @@ DArray<size_t> SlotReader::offset(int slotId) {
 
   DArray<size_t> os(1);
   os[0] = 0;
+  int totalExamples = 0;
   for (int i = 0; i < data_.file_size(); ++i) {
     std::string cachepath = cacheName(ithFile(data_, i), slotId) + ".rowsiz";
     DArray<char> comp;
     DArray<uint16> uncomp;
     if (comp.readFromFile(cachepath) && !comp.empty()) {
+      LOG(INFO) << "raw offset size " << comp.size();
       uncomp.uncompressFrom(comp);
     } else {
+      LOG(INFO) << "raw offset all 0 ";
       uncomp.resize(numEx_[i], 0);
     }
+    totalExamples += numEx_[i];
+    CHECK_EQ(uncomp.size(), numEx_[i]);
     size_t prevSize = os.size();
     os.resize(prevSize + uncomp.size());
     for (int i = 0; i < uncomp.size(); ++i) {
       os[prevSize + i] = os[prevSize + i - 1] + uncomp[i];
     }
   }
+  CHECK_EQ(totalExamples, info_.num_ex());
   CHECK_EQ(os.size(), info_.num_ex() + 1);
   offsetCache_[slotId] = os;
   return os;
@@ -191,6 +199,7 @@ bool SlotReader::readOneFile(InfoParser &metaParser, const DataConfig &data,
     while (slotMeta.cnt_.size() < exnum) {
       slotMeta.cnt_.push_back(0);
     }
+    CHECK_EQ(slotMeta.cnt_.size(), exnum);
     auto slotCacheName = cacheName(data, i);
     LOG(INFO) << "Write data to " << slotCacheName;
     if (!dirExists(getPath(slotCacheName))) {

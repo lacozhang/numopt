@@ -59,9 +59,9 @@ private:
     DArray<uint64> idx_;
     DArray<uint16> cnt_;
     bool writeToFile(const std::string &prefix) {
-      return cnt_.writeToFile(prefix + ".rowsiz") &&
-             idx_.writeToFile(prefix + ".colidx") &&
-             val_.writeToFile(prefix + ".value");
+      return cnt_.compressTo().writeToFile(prefix + ".rowsiz") &&
+             idx_.compressTo().writeToFile(prefix + ".colidx") &&
+             val_.compressTo().writeToFile(prefix + ".value");
     }
   };
 
@@ -89,6 +89,7 @@ template <typename V> DArray<V> SlotReader::value(int slotId) const {
     std::string cacheFilepath = cacheName(ithFile(data_, i), slotId) + ".value";
     DArray<char> raw;
     CHECK(raw.readFromFile(cacheFilepath));
+    LOG(INFO) << "Raw size " << raw.size();
     DArray<V> full;
     full.uncompressFrom(raw);
     auto prevSize = val.size();
