@@ -4,16 +4,6 @@
 
 namespace mltools {
 
-InfoParser::InfoParser() {
-  info_.Clear();
-  for (int i = 0; i < static_cast<int>(FeatureConstants::kSlotIdMax); ++i) {
-    slotsInfo_[i].Clear();
-  }
-  num_ex_ = 0;
-}
-
-InfoParser::~InfoParser() {}
-
 bool InfoParser::add(const Example &ex) {
   for (int i = 0; i < ex.slot_size(); ++i) {
     auto &slot = ex.slot(i);

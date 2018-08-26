@@ -16,12 +16,17 @@
  * =====================================================================================
  */
 
+#include "data/info_parser.h"
 #include "data/text_parser.h"
+#include "util/filelinereader.h"
 #include "gtest/gtest.h"
 #include <glog/logging.h>
 #include <iostream>
 #include <memory>
 #include <string>
+
+using namespace std;
+using namespace mltools;
 
 TEST(DataParser, SimpleLibSVM) {
   mltools::ExampleParser parser;
@@ -64,4 +69,36 @@ TEST(DataParser, DefaultValueLibSVM) {
     EXPECT_TRUE(std::abs(ex.slot(1).val(i) - vals[i]) < 1e-5)
         << " at index " << i;
   }
+}
+
+TEST(DataParser, MetaDataParserInit) {
+  mltools::InfoParser parser;
+  parser.clear();
+}
+
+TEST(DataParser, ReadLineParser) {
+  DataConfig cfg;
+  cfg.add_file("/Users/edwinzhang/src/parameter_server/example/linear/data/"
+               "rcv1/train/part-004");
+  FileLineReader reader(cfg);
+  int cnt = 0;
+  ExampleParser parser;
+  Example ex;
+
+  parser.init(DataConfig::LIBSVM, true);
+  auto handle = [&](char *line) {
+    try {
+      if (parser.toProto(line, &ex)) {
+        cnt += 1;
+      } else {
+        CHECK(false) << "failed to parse example " << line;
+      }
+    } catch (std::exception &ex) {
+      LOG(INFO) << "Exception " << ex.what();
+    }
+  };
+  reader.setLineCallback(handle);
+  reader.reload();
+  CHECK(reader.loadedSuccessfully());
+  LOG(INFO) << "read examples " << cnt << " successfully";
 }

@@ -27,8 +27,6 @@ namespace mltools {
 
 class InfoParser {
 public:
-  InfoParser();
-  ~InfoParser();
   bool add(const Example &ex);
   bool clear();
   const ExampleInfo &info();

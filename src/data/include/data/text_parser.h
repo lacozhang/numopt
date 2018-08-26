@@ -27,6 +27,8 @@ class ExampleParser {
 public:
   typedef DataConfig::TextFormat TextFormat;
   void init(TextFormat format, bool ignore_feat_grp = false);
+  void setDebugMode() { debug_mode = true; }
+  void unsetDebugMode() { debug_mode = false; }
   bool toProto(char *, Example *);
 
 private:
@@ -34,6 +36,7 @@ private:
   bool parseVw(char *, Example *);
   bool parseCriteo(char *, Example *);
   bool ignore_feat_grp_;
+  bool debug_mode = false;
   std::function<bool(char *, Example *)> parser_;
 };
 } // namespace mltools

@@ -1,4 +1,5 @@
 #include "util/dynamic_array_impl.h"
+#include "util/filelinereader.h"
 #include "gtest/gtest.h"
 #include <iostream>
 
@@ -98,4 +99,17 @@ TEST(DArray, denseMatrix) {
   CHECK_EQ(mat->info().col().begin(), 0);
   CHECK_EQ(mat->info().col().end(), 1);
   CHECK_EQ(mat->value().data(), dat.data());
+}
+
+TEST(File, linereader) {
+  DataConfig cfg;
+  cfg.add_file("/Users/edwinzhang/src/parameter_server/example/linear/data/"
+               "rcv1/train/part-004");
+  FileLineReader reader(cfg);
+  int cnt = 0;
+  auto handle = [&](char *line) { cnt += std::strlen(line); };
+  reader.setLineCallback(handle);
+  reader.reload();
+  CHECK(reader.loadedSuccessfully());
+  LOG(INFO) << "read " << cnt << " bytes";
 }

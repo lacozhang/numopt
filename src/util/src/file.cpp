@@ -53,14 +53,14 @@ File *File::open(const std::string &filepath, const char *const flags) {
   } else if (gzfile(filepath)) {
     gzFile gz = gzopen(filepath.c_str(), flags);
     if (gz == NULL) {
-      LOG(ERROR) << "Failed to open file " << filepath;
+      LOG(INFO) << "Failed to open file " << filepath;
       return nullptr;
     }
     f = new File(gz, filepath);
   } else {
     FILE *cf = fopen(filepath.c_str(), flags);
     if (cf == NULL) {
-      LOG(ERROR) << "Failed to open file " << filepath;
+      LOG(INFO) << "Failed to open file " << filepath;
       return nullptr;
     }
     f = new File(cf, filepath);
@@ -159,7 +159,6 @@ int64 File::readToString(std::string *const line, uint64 maxLength) {
   while (maxLength > 0) {
     auto respReadCnt = read(buffer.data(), maxLength > 4096 ? 4096 : maxLength);
     if (respReadCnt == 0) {
-      LOG(INFO) << "Failed to read specified bytes";
       break;
     }
     maxLength -= respReadCnt;
@@ -222,7 +221,8 @@ bool readFileToProto(const mltools::DataConfig &config, GProto *proto) {
     estSize = f->size();
   }
   std::string content;
-  f->readToString(&content, estSize * 100);
+  CHECK_GT(f->readToString(&content, estSize * 100), 0)
+      << "Read 0 bytes from " << config.DebugString();
   NoOpErrorCollector noOpCollector;
   google::protobuf::TextFormat::Parser parser;
   parser.RecordErrorsTo(&noOpCollector);

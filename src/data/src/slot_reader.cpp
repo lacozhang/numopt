@@ -17,7 +17,6 @@
  */
 
 #include "data/slot_reader.h"
-#include "data/info_parser.h"
 #include "data/text_parser.h"
 #include "util/filelinereader.h"
 #include "util/recordio.h"
@@ -33,7 +32,7 @@ void SlotReader::init(const DataConfig &data, const DataConfig &cache) {
 
 std::string SlotReader::cacheName(const DataConfig &data, int slotId) const {
   CHECK_GE(data.file_size(), 1);
-  return cache_ + data.file(0) + "_slot_" + std::to_string(slotId);
+  return cache_ + getFilename(data.file(0)) + "_slot_" + std::to_string(slotId);
 }
 
 size_t SlotReader::nnzEle(int slotId) const {
@@ -100,7 +99,8 @@ DArray<size_t> SlotReader::offset(int slotId) {
   return os;
 }
 
-bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
+bool SlotReader::readOneFile(InfoParser &metaParser, const DataConfig &data,
+                             int ithFile) {
   {
     std::lock_guard<std::mutex> lk(mu_);
     LOG(INFO) << "loading data file [" << data.file(0) << "]; loaded ["
@@ -110,24 +110,28 @@ bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
   ExampleInfo info;
   if (readFileToProto(infoCachepath, &info)) {
     std::lock_guard<std::mutex> lk(mu_);
+    LOG(INFO) << "Read meta info " << info.DebugString();
     info_ = mergeExampleInfo(info_, info);
     numEx_[ithFile] = info.num_ex();
+    loadedFileCount_++;
     return true;
   }
 
-  InfoParser metaParser;
   Example ex;
+  metaParser.clear();
   size_t exnum = 0;
+  size_t failedToParseCnt = 0, failedToAddCnt = 0;
   VSlot slots[static_cast<int>(FeatureConstants::kSlotIdMax)];
-  LOG(INFO) << "create info matrix";
   auto storeData = [&]() {
     if (!metaParser.add(ex)) {
+      failedToAddCnt++;
       return;
     }
+    CHECK(ex.slot_size() > 0);
     for (int i = 0; i < ex.slot_size(); ++i) {
-      auto slot = ex.slot(i);
+      auto &slot = ex.slot(i);
       CHECK_LT(slot.id(), static_cast<int>(FeatureConstants::kSlotIdMax));
-      auto slotMeta = slots[slot.id()];
+      auto &slotMeta = slots[slot.id()];
       for (int j = 0; j < slot.key_size(); ++j) {
         slotMeta.idx_.push_back(slot.key(j));
       }
@@ -147,12 +151,14 @@ bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
     ExampleParser textParser;
     textParser.init(data.text(), data.ignore_feature_group());
     std::function<void(char *)> handle = [&](char *line) {
-      if (textParser.toProto(line, &ex)) {
+      if (!textParser.toProto(line, &ex)) {
+        failedToParseCnt++;
         return;
       }
       storeData();
     };
     src.setLineCallback(handle);
+    LOG(INFO) << "load text data";
     src.reload();
     CHECK(src.loadedSuccessfully());
   } else if (data.format() == DataConfig::PROTO) {
@@ -165,19 +171,31 @@ bool SlotReader::readOneFile(const DataConfig &data, int ithFile) {
     return false;
   }
 
+  LOG(INFO) << "There are " << failedToParseCnt << " lines failed to parse";
+  LOG(INFO) << "There are " << failedToAddCnt << " examples failed to add";
+
   if (!dirExists(getPath(infoCachepath))) {
+    LOG(INFO) << "Create directory " << getPath(infoCachepath);
     dirCreate(getPath(infoCachepath));
   }
 
   info = metaParser.info();
+  LOG(INFO) << "info of file " << data.file(0) << ":" << info.DebugString();
+  CHECK_EQ(info.num_ex(), exnum);
   writeProtoToASCIIFileOrDie(info, infoCachepath);
   for (int i = 0; i < static_cast<int>(FeatureConstants::kSlotIdMax); ++i) {
-    auto slotMeta = slots[i];
+    auto &slotMeta = slots[i];
     if (slotMeta.cnt_.empty() && slotMeta.val_.empty()) {
       continue;
     }
     while (slotMeta.cnt_.size() < exnum) {
       slotMeta.cnt_.push_back(0);
+    }
+    auto slotCacheName = cacheName(data, i);
+    LOG(INFO) << "Write data to " << slotCacheName;
+    if (!dirExists(getPath(slotCacheName))) {
+      LOG(INFO) << "Creating directory " << getPath(slotCacheName);
+      dirCreate(getPath(slotCacheName));
     }
     slotMeta.writeToFile(cacheName(data, i));
   }
@@ -199,11 +217,16 @@ int SlotReader::read(ExampleInfo *info) {
     loadedFileCount_ = 0;
     numEx_.resize(data_.file_size(), 0);
   }
+  std::vector<InfoParser> infoArrays;
   {
     ThreadPool pool(FLAGS_num_threads);
+    infoArrays.resize(data_.file_size());
     for (int i = 0; i < data_.file_size(); ++i) {
       auto ithData = ithFile(data_, i);
-      pool.add([this, ithData, i]() { readOneFile(ithData, i); });
+      auto *ithInfoParser = &infoArrays[i];
+      pool.add([this, ithData, i, ithInfoParser]() {
+        readOneFile(*ithInfoParser, ithData, i);
+      });
     }
     pool.startWorkers();
   }
@@ -214,7 +237,7 @@ int SlotReader::read(ExampleInfo *info) {
   for (int i = 0; i < info_.slot_size(); ++i) {
     slotsInfo_[info_.slot(i).id()] = info_.slot(i);
   }
-  return 0;
+  return info_.num_ex();
 }
 
 } // namespace mltools

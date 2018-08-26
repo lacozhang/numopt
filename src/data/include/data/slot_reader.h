@@ -18,6 +18,7 @@
 
 #pragma once
 #include "data/common.h"
+#include "data/info_parser.h"
 #include "proto/example.pb.h"
 #include "util/dynamic_array_impl.h"
 #include <string>
@@ -66,7 +67,7 @@ private:
 
   std::string cacheName(const DataConfig &data, int slotId) const;
   size_t nnzEle(int slotId) const;
-  bool readOneFile(const DataConfig &data, int ithFile);
+  bool readOneFile(InfoParser &metaParser, const DataConfig &data, int ithFile);
 
   std::string cache_;
   DataConfig data_;

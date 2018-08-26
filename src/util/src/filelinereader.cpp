@@ -47,9 +47,14 @@ void FileLineReader::reload() {
     return;
   }
 
-  loadSuccessfully_ = true;
+  loadSuccessfully_ = false;
   auto succ = f->readLine(buffer.get(), kMaxLineLength);
   while (succ != nullptr) {
+    if (FLAGS_line_limit > 0 && lineCounts >= FLAGS_line_limit) {
+      LOG(INFO) << "reaching limits " << FLAGS_line_limit;
+      loadSuccessfully_ = true;
+      break;
+    }
     ++lineCounts;
     size_t lineLen = std::strlen(succ);
     while (lineLen > 0 &&
@@ -59,9 +64,8 @@ void FileLineReader::reload() {
     if (lineCallback_ && lineLen > 0) {
       lineCallback_(buffer.get());
     }
-    if (FLAGS_line_limit > 0 && lineCounts >= FLAGS_line_limit) {
-      break;
-    }
+    succ = f->readLine(buffer.get(), kMaxLineLength);
   }
+  loadSuccessfully_ = true;
 }
 } // namespace mltools

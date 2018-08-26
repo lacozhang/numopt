@@ -34,8 +34,24 @@ TEST(SlotReader, ReadData) {
   cfg.set_text(DataConfig::LIBSVM);
   cfg.add_file(rcvDataPath);
   auto res = searchFiles(cfg);
+  LOG(INFO) << "read files " << res.DebugString();
   cache.add_file("/tmp/ps_cache");
   ExampleInfo info;
   SlotReader reader(res, cache);
   reader.read(&info);
+  LOG(INFO) << "Meta info " << info.DebugString();
+}
+
+TEST(SlotReader, ReadDataAgain) {
+  DataConfig cfg, cache;
+  cfg.set_format(DataConfig::TEXT);
+  cfg.set_text(DataConfig::LIBSVM);
+  cfg.add_file(rcvDataPath);
+  auto res = searchFiles(cfg);
+  LOG(INFO) << "read files " << res.DebugString();
+  cache.add_file("/tmp/ps_cache");
+  ExampleInfo info;
+  SlotReader reader(res, cache);
+  reader.read(&info);
+  LOG(INFO) << "Meta info " << info.DebugString();
 }
