@@ -31,7 +31,12 @@ public:
   Localizer() {}
   ~Localizer() {}
 
-  /// @brief find the unique index & its count
+  /**
+   * @brief find the unique index & its count
+   *
+   *  Generally the count of the index will be used to filter some of the index
+   * according to count.
+   */
   template <typename C>
   void countUniqIndex(const DArray<I> &idx, DArray<I> *uniqIdx,
                       DArray<C> *idxFreq);
@@ -43,6 +48,9 @@ public:
     countUniqIndex(mat_->index(), uniqIdx, idxFreq);
   }
 
+  /**
+   * @brief re-map the input sparse matrix to relative dense matrix.
+   */
   MatrixPtr<V> remapIndex(const DArray<I> &idxDict);
 
   void clear() { pair_.clear(); }
@@ -52,6 +60,10 @@ public:
            (mat_ == nullptr ? 0 : mat_->memSize());
   }
 
+  /**
+   * @brief re-construct the matrix according to idxdict
+   *
+   */
   MatrixPtr<V> remapIndex(const MatrixInfo &info, const DArray<size_t> &offset,
                           const DArray<I> &index, const DArray<V> &value,
                           const DArray<I> &idxdict) const;

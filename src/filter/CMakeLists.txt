@@ -21,6 +21,6 @@ set(TestFiles
   "test/test_filter.cpp")
 
 add_executable(filter_test ${TestFiles})
-target_link_libraries(filter_test filter test_main)
+target_link_libraries(filter_test filter utils test_main)
 add_test(NAME filter_test
     COMMAND filter_test)
