@@ -135,6 +135,7 @@ void Manager::addNode(const mltools::Node &node) {
     }
   }
 
+  // Key point: Once get add_note command from scheduler, this variable will be set properly and start working on real work now.
   if (node.id() == van_.myNode().id()) {
     isMyNodeInited_ = true;
   }

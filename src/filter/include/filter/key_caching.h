@@ -25,7 +25,7 @@ namespace mltools {
 class KeyCachingFilter : public Filter {
 public:
   void encode(Message *msg) {
-    auto conf = find(FilterConfig::KEY_CACHING, msg);
+    auto conf = Filter::find(FilterConfig::KEY_CACHING, msg);
     if (!conf) {
       return;
     }
@@ -34,7 +34,7 @@ public:
       return;
     }
     const auto &key = msg->key_;
-    auto sig = crc32c::Value(key.data(), std::min(key.size(), maxSigLen_));
+    auto sig = crc32c::Value(key.data(), std::min(key.size(), kmaxSigLen_));
     conf->set_signature(sig);
     auto cacheK = std::make_pair(msg->task_.key_channel(),
                                  Range<Key>(msg->task_.key_range()));
@@ -63,7 +63,7 @@ private:
 
   // calculate the signature using the first maxSigLen_*4 bytes to accelerate
   // the computation.
-  const size_t maxSigLen_ = 2048;
+  const size_t kmaxSigLen_ = 2048;
   std::mutex mu_;
 };
 } // namespace mltools

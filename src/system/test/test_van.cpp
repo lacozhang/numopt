@@ -15,3 +15,13 @@
  *
  * =====================================================================================
  */
+
+#include "system/van.h"
+using namespace mltools;
+
+// follwing functions are faked for the testing purpose.
+
+TEST(Van, init) {
+  Van vanObj;
+  vanObj.init();
+}

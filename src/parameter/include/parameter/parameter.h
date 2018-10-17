@@ -17,6 +17,7 @@
  */
 
 #pragma once
+
 #include "proto/param.pb.h"
 #include "system/customer.h"
 

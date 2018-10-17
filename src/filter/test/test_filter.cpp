@@ -17,6 +17,7 @@
  */
 
 #include "filter/compressing.h"
+#include "filter/fixing_float.h"
 #include "util/dynamic_array_impl.h"
 #include "gtest/gtest.h"
 
@@ -58,4 +59,22 @@ TEST(Filter, compression) {
     CHECK_EQ(testKeys[i], decodedKeys[i]);
     CHECK_DOUBLE_EQ(testValues[i], decodedValues[i]);
   }
+}
+
+TEST(Filter, FixingFloat) {
+  std::shared_ptr<Message> msg(new Message());
+  auto filterConf = msg->add_filter(FilterConfig::FIXING_FLOAT);
+  auto conf = filterConf->add_fixed_point();
+  conf->set_min_value(-90);
+  conf->set_max_value(90);
+  filterConf->set_num_bytes(3);
+  
+  DArray<float> ax = {100.0, 0.1, -100.0};
+  DArray<float> bx = {100.0, .1, -100.0};
+  msg->add_value(ax);
+  msg->add_value(bx);
+  
+  FixingFloatFilter filter;
+  filter.encode(
+  filter
 }
