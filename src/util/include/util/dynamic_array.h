@@ -374,7 +374,7 @@ private:
 
 template <typename V>
 std::ostream &operator<<(std::ostream &os, const DArray<V> &val) {
-  os << dbgstr(val.data(), 10);
+  os << dbgstr(val.data(), std::min<size_t>(val.size(), 10));
   return os;
 }
 

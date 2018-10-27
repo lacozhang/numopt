@@ -3,7 +3,7 @@
  *
  *       Filename:  fixing_float.h
  *
- *    Description:  truncate float
+ *    Description:  quantization of floating point numbers.
  *
  *        Version:  1.0
  *        Created:  07/22/2018 15:53:18
@@ -65,7 +65,7 @@ private:
       int seed = time(NULL);
       for (int i = 0; i < orig.size(); ++i) {
         double proj = orig[i] > maxV ? maxV : orig[i] < minV ? minV : orig[i];
-        double tmp = (proj - minV) / bin * ratio;
+        double tmp = ((proj - minV) / bin * 1.0) * ratio;
         uint64 r = static_cast<uint64>(floor(tmp) + boolrand(&seed));
         for (int j = 0; j < nbytes; ++j) {
           *(codePtr++) = static_cast<uint8>(r & 0xFF);
