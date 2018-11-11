@@ -15,13 +15,16 @@
  *
  * =====================================================================================
  */
-
+#include "run_van_util.h"
+#include "system/sysutil.h"
 #include "system/van.h"
-using namespace mltools;
+#include "util/dynamic_array_impl.h"
 
-// follwing functions are faked for the testing purpose.
+namespace mltools {
 
-TEST(Van, init) {
-  Van vanObj;
-  vanObj.init();
+TEST(Van, initVanObj) {
+  auto schedulerVan = createSchedulerVan();
+  auto workerVan = createWorkerVan();
+  auto serverVan = createServerVan();
 }
+} // namespace mltools

@@ -65,8 +65,10 @@ void Van::bind() {
       << "create receiver socket failed : " << zmq_strerror(errno);
   std::string addr = "tcp://*:";
   if (FLAGS_bind_to) {
+    LOG(INFO) << "Use port from command line";
     addr += std::to_string(FLAGS_bind_to);
   } else {
+    LOG(INFO) << "Use port from node specification";
     CHECK(myNode_.has_port()) << myNode_.ShortDebugString();
     addr += std::to_string(myNode_.port());
   }
@@ -155,7 +157,7 @@ void Van::monitor() {
 void Van::init() {
   scheduler_ = parseNode(FLAGS_scheduler);
   myNode_ = parseNode(FLAGS_my_node);
-  LOG(INFO) << "I'm [" << myNode_.DebugString() << "]";
+  LOG(INFO) << "I'm \n[" << myNode_.DebugString() << "]";
 
   context_ = zmq_ctx_new();
   CHECK(context_ != nullptr) << "Create 0mq context failed";
@@ -191,7 +193,7 @@ bool Van::send(Message *msg, size_t *sendBytes) {
   NodeID recverId = msg->recver_;
   auto it = senders_.find(recverId);
   if (it == senders_.end()) {
-    LOG(WARNING) << "There is no socker to node " << recverId;
+    LOG(WARNING) << "There is no socket to node " << recverId;
     return false;
   }
   void *socket = it->second;
@@ -207,6 +209,10 @@ bool Van::send(Message *msg, size_t *sendBytes) {
 
   size_t taskSize = msg->task_.ByteSize();
   char *taskBuff = new char[taskSize + 5];
+  std::memset(taskBuff, 0, taskSize + 5);
+  if (taskBuff == nullptr) {
+    LOG(FATAL) << "Failed to allocate memory";
+  }
   CHECK(msg->task_.SerializeToArray(taskBuff, taskSize))
       << "failed to serialize task " << msg->task_.ShortDebugString();
 
@@ -346,7 +352,7 @@ bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
 
 void Van::statistics() {
   auto gb = [](size_t x) { return x / 1e9; };
-  LOG(INFO) << myNode_.id() << "Receive "
+  LOG(INFO) << myNode_.id() << "\nReceive "
             << gb(receivedFromLocal_ + receivedFromOthers_) << " (local "
             << gb(receivedFromLocal_) << " ) GBytes,"
             << "Send    " << gb(sentToLocal_ + sentToOthers_) << " (local "

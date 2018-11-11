@@ -31,6 +31,8 @@ target_include_directories(system PUBLIC
 target_link_libraries(system utils glog::glog data filter libzmq Snappy::snappy)
 
 set(TestFiles 
+  "test/run_van_util.h"
+  "test/run_van_util.cpp"
   "test/test_message.cpp"
   "test/test_van.cpp")
 
@@ -38,3 +40,21 @@ add_executable(system_test ${TestFiles})
 target_link_libraries(system_test system test_main)
 add_test(NAME system_test
     COMMAND system_test)
+
+set(TestProgram
+  "test/run_van.cpp"
+  "test/run_van_util.h"
+  "test/run_van_util.cpp")
+add_executable(run_van ${TestProgram})
+target_link_libraries(run_van system)
+add_test(NAME run_van
+    COMMAND run_van)
+
+set(VanWorker
+  "test/run_van_worker.cpp"
+  "test/run_van_util.h"
+  "test/run_van_util.cpp")
+add_executable(run_van_worker ${VanWorker})
+target_link_libraries(run_van_worker system)
+add_test(NAME run_van_worker
+    COMMAND run_van_worker)
