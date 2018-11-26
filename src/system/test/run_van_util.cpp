@@ -95,7 +95,6 @@ void fakeMessage(Message *msg, const std::string &sender,
   DArray<int64> keys = {1, 2, 3, 4, 5};
   msg->set_key(keys);
   msg->task_.set_msg(strMessage);
-  LOG(INFO) << "task: " << msg->task_.DebugString() << " of size " << msg->task_.ByteSize();
 }
 
 Node getNodeFromType(Node::Role role) {
@@ -125,15 +124,13 @@ Node getNodeFromType(Node::Role role) {
 }
 
 void printMessage(Message *recvMsg) {
-  Message localMsg = *recvMsg;
-  DArray<int64_t> keys(localMsg.key_);
-  std::string strMessage(localMsg.task_.msg());
-  LOG(INFO) << "sender: " << localMsg.sender_ << "\n"
-            << "receiver: " << localMsg.recver_ << "\n"
-            << "has key: " << localMsg.has_key() << "\n"
+  DArray<int64_t> keys(recvMsg->key_);
+  std::string strMessage(recvMsg->task_.msg());
+  LOG(INFO) << "sender: " << recvMsg->sender_ << "\n"
+            << "receiver: " << recvMsg->recver_ << "\n"
+            << "has key: " << recvMsg->has_key() << "\n"
             << "keys: " << dbgstr<int64_t>(keys.data(), keys.size()) << "\n"
-            << "task: " << localMsg.task_.DebugString()
-            << " of size " << localMsg.task_.ByteSize();
+            << "task msg size: " << recvMsg->task_.msg().size();
 }
 
 } // namespace mltools
