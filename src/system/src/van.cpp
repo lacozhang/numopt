@@ -312,7 +312,8 @@ bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
         CHECK_LT(valLen, 64 * sizeof(int));
         std::memcpy(val, msg->sender_.data(), valLen);
         CHECK(!zmq_getsockopt(receiver_, ZMQ_FD, (char *)val, &valLen))
-            << "Failed to get the file descriptor of " << msg->sender_;
+            << "Failed to get the file descriptor of " << msg->sender_
+            << ". with error: " << zmq_strerror(errno);
         CHECK_EQ(valLen, 4);
         int fd = val[0];
         VLOG(1) << "node [" << msg->sender_ << "] is on file descriptor " << fd;

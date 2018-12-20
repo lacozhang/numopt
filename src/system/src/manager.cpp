@@ -68,7 +68,7 @@ void Manager::init(char *argv0) {
     appConf_ += FLAGS_app_conf;
     createApp(appConf_);
 
-    // init connection to self.
+    // init connection to self, this will set *isMyNodeInited_* to *true*
     addNode(van_.myNode());
   } else {
     // get app config from scheduler.

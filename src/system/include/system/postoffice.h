@@ -55,8 +55,14 @@ public:
 
 private:
   PostOffice();
+
+  /// runned by independent thread, just to send the message.
   void send();
+
+  /// runned by independent thread, just to monitor port & get message.
   void recv();
+
+  /// function called by @recv, dispatch the message to Manager or Customer.
   bool process(Message *msg);
 
   std::unique_ptr<std::thread> recvThread_;

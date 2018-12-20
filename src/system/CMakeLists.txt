@@ -58,3 +58,8 @@ add_executable(run_van_worker ${VanWorker})
 target_link_libraries(run_van_worker system)
 add_test(NAME run_van_worker
     COMMAND run_van_worker)
+
+set(HelloPS
+  "test/hello_ps.cpp")
+add_executable(hello_ps ${HelloPS})
+target_link_libraries(hello_ps system)
