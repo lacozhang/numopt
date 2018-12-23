@@ -124,13 +124,8 @@ Node getNodeFromType(Node::Role role) {
 }
 
 void printMessage(Message *recvMsg) {
-  DArray<int64_t> keys(recvMsg->key_);
-  std::string strMessage(recvMsg->task_.msg());
-  LOG(INFO) << "sender: " << recvMsg->sender_ << "\n"
-            << "receiver: " << recvMsg->recver_ << "\n"
-            << "has key: " << recvMsg->has_key() << "\n"
-            << "keys: " << dbgstr<int64_t>(keys.data(), keys.size()) << "\n"
-            << "task msg size: " << recvMsg->task_.msg().size();
+  std::cout << recvMsg->DebugString();
+  std::cout << recvMsg->task_.DebugString();
 }
 
 } // namespace mltools
