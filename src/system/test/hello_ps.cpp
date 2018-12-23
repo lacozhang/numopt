@@ -63,8 +63,8 @@ class Scheduler : public App {
 
   virtual void run() override {
     std::cout << "running from scheduler";
-    sys_.manager().waitServersReady();
-    sys_.manager().waitWorkersReady();
+//    sys_.manager().waitServersReady();
+//    sys_.manager().waitWorkersReady();
   }
 };
 

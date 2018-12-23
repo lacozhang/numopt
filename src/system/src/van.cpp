@@ -321,7 +321,7 @@ bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
         fdToNodeId_[fd] = msg->sender_;
       }
       zmq_msg_close(zmsg);
-      delete msg;
+      delete zmsg;
     } else {
       // keys & values from sender's message
       DArray<char> data(buf, size, false);
