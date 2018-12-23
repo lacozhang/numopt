@@ -25,12 +25,22 @@ public:
     std::cout << MyNodeID() << " : processing request " << req->task_.time()
               << " from " << req->sender_ << std::endl;
   }
+
+  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
+                     std::vector<Message *> *requests) override {
+    std::cout << MyNodeID() << " : invoked by server" << std::endl;
+  }
 };
 
 class Worker : public App {
   virtual void processResponse(Message *res) override {
     std::cout << MyNodeID() << ": received response " << res->task_.time()
               << " from " << res->sender_ << std::endl;
+  }
+
+  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
+                     std::vector<Message *> *requests) override {
+    std::cout << MyNodeID() << " : invoked by worker" << std::endl;
   }
 
   virtual void run() override {
@@ -61,10 +71,15 @@ class Scheduler : public App {
               << " from " << req->sender_ << std::endl;
   }
 
+  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
+                     std::vector<Message *> *requests) override {
+    std::cout << MyNodeID() << " : invoked by scheduler" << std::endl;
+  }
+
   virtual void run() override {
     std::cout << "running from scheduler";
-//    sys_.manager().waitServersReady();
-//    sys_.manager().waitWorkersReady();
+    sys_.manager().waitServersReady();
+    sys_.manager().waitWorkersReady();
   }
 };
 

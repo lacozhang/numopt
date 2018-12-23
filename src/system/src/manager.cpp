@@ -67,7 +67,6 @@ void Manager::init(char *argv0) {
     }
     appConf_ += FLAGS_app_conf;
     createApp(appConf_);
-
     // init connection to self, this will set *isMyNodeInited_* to *true*
     addNode(van_.myNode());
   } else {
@@ -262,7 +261,7 @@ bool Manager::process(mltools::Message *msg) {
     if (!tk.has_control()) {
       return false;
     }
-    if (tk.ctrl().cmd() == Control::REQUEST_APP) {
+    if (tk.ctrl().has_cmd() && tk.ctrl().cmd() == Control::REQUEST_APP) {
       CHECK(tk.has_msg());
       createApp(tk.msg());
       // after the creation of app, we can enable the broadcast of this node
