@@ -308,9 +308,8 @@ bool Van::recv(mltools::Message *msg, size_t *recvBytes) {
         // scheduler to get the config. The scheduler will store the file
         // descriptor for performance monitoring.
         int val[64];
-        size_t valLen = msg->sender_.size();
-        CHECK_LT(valLen, 64 * sizeof(int));
-        std::memcpy(val, msg->sender_.data(), valLen);
+        size_t valLen = sizeof(val);
+        std::memset(val, 0, sizeof(val));
         CHECK(!zmq_getsockopt(receiver_, ZMQ_FD, (char *)val, &valLen))
             << "Failed to get the file descriptor of " << msg->sender_
             << ". with error: " << zmq_strerror(errno);

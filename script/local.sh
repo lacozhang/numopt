@@ -27,6 +27,8 @@ Sch="role:SCHEDULER,hostname:'127.0.0.1',port:8001,id:'H'"
 echo "scheduler node : $Sch"
 ${bin} -my_node ${Sch} -scheduler ${Sch} ${arg} &
 
+sleep 2
+
 # start servers
 for ((i=0; i<${num_servers}; ++i)); do
     port=$((9600 + ${i}))
