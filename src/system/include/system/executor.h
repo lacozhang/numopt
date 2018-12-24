@@ -96,10 +96,12 @@ private:
   std::shared_ptr<Message> activeMsg_, lastRequest_, lastResponse_;
   std::condition_variable dagCond_;
 
-  // connections to other customers.
+  // @brief connections to other customers.
   std::mutex nodeMu_;
   std::condition_variable recvReqCond_;
   std::condition_variable sentReqCond_;
+
+  // @brief the interaction of this customer with other node.
   std::unordered_map<NodeID, RemoteNode> remoteNode_;
 
   inline RemoteNode *getRNode(const NodeID &nodeID) {
@@ -112,8 +114,8 @@ private:
   inline int numFinished(RemoteNode *rnode, int timestamp, bool send);
 
   std::vector<NodeID> groupIDs() {
-    std::vector<NodeID> ids = {kServerGroup,  kWorkerGroup, kCompGroup,
-                               kReplicaGroup, kOwnerGroup,  kLiveGroup};
+    static std::vector<NodeID> ids = {kServerGroup,  kWorkerGroup, kCompGroup,
+                                      kReplicaGroup, kOwnerGroup,  kLiveGroup};
     return ids;
   }
 

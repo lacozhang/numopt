@@ -113,6 +113,8 @@ private:
 
   bool done_ = false;
   bool inExit_ = false;
+
+  // @brief time order for global command control
   int time_ = 0;
   Van van_;
   Env env_;

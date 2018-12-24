@@ -23,7 +23,10 @@
 
 namespace mltools {
 
-/// @brief the base class of shared parameters.
+/// @brief the base class of shared parameters. The parameters will be shared
+/// between server and worker. For servers, each server will only serve part of
+/// the parameters. For workers, each worker will only get parameters needed.
+/// Operate based on **ParamCall**.
 class Parameter : public Customer {
 public:
   Parameter(int id) : Customer(id) {}
@@ -33,6 +36,7 @@ public:
   typedef ::google::protobuf::RepeatedPtrField<FilterConfig> Filters;
 
   /// @brief create a request task general for parameters.
+  /// Parameters are specified by timestamp, channel, other dependencies.
   static Task request(int channel, int ts = Message::kInvalidTime,
                       const Timestamps &wait = {},
                       const Filters &filters = Filters(),
@@ -66,7 +70,11 @@ public:
   }
 
   virtual void writeToFile(std::string filepath) {}
+
+  /// @brief override the Customer::processRequest
   virtual void processRequest(Message *request) override;
+
+  /// @brief override the Customer::processResponse
   virtual void processResponse(Message *response) override;
 
 protected:

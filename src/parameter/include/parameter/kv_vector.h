@@ -27,9 +27,12 @@ namespace mltools {
 /**
  * @brief key-value vectors
  *  keys of type K, value is a fixed length array of type V. Physical stroage
- * format: key_0,  ... key_n val_00, ... val_n0 val_01, ... val_n1
- *   ...    ... ...
- *  val_0k, ... val_nk
+ * format:
+ *       key_0,  ... key_n
+ *       val_00, ... val_n0
+ *       val_01, ... val_n1
+ *       ...    ... ...
+ *       val_0k, ... val_nk
  *  keys are ordered and unique. values stored in a column-major format. support
  * multiple channels.
  */
@@ -38,7 +41,7 @@ public:
   /**
    * @brief constructor
    *
-   * @param bufferValue if true, then the received data in push request or pull
+   * @param bufferValue if false, then the received data in push request or pull
    * response is merged into data_ directly.
    * @param k value entry size
    * @param id id of customer
@@ -48,6 +51,8 @@ public:
     CHECK_GT(k, 0);
   }
   virtual ~KVVector() {}
+  
+  /// @brief KVPairs store parameters of specific keys.
   struct KVPairs {
     DArray<K> key_;
     DArray<V> val_;
@@ -59,7 +64,8 @@ public:
     std::vector<DArray<V>> values_;
   };
 
-  /// @brief return the parameter in challel (i.e, feature group)
+  /// @brief return the parameter by channel
+  /// (i.e, parameter of specific timestamp)
   KVPairs &operator[](int chl) {
     Lock l(mu_);
     return data_[chl];
@@ -101,6 +107,7 @@ public:
   int pull(const Task &request, const DArray<K> &keys,
            const Message::Callback &callback = Message::Callback());
 
+  /// @brief called by Executor::submit
   virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
                      std::vector<Message *> *msgs) override {
     sliceKOfVMessage<K>(request, krs, msgs);
