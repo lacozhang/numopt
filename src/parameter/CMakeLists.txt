@@ -15,11 +15,8 @@ target_include_directories(parameter PUBLIC
 target_link_libraries(parameter utils system filter glog::glog)
 
 set(TestFiles 
-  "test/kv_layer_perf_ps.cpp"
-  "test/kv_map_perf_ps.cpp"
   "test/kv_vector_buffer_ps.cpp"
   "test/kv_vector_ps.cpp"
-  "test/kv_layer_ps.cpp"
   "test/kv_map_ps.cpp")
 
 foreach(SRC_PATH ${TestFiles})
