@@ -128,7 +128,7 @@ target_include_directories(gtest_main
   $<INSTALL_INTERFACE:include>)
 
 add_subdirectory(proto)
-add_subdirectory(util)
+add_subdirectory(utils)
 add_subdirectory(dataop)
 add_subdirectory(model)
 add_subdirectory(optimizer)

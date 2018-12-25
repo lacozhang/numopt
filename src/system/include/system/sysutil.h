@@ -42,6 +42,8 @@ inline bool IsScheduler() { return MyRole() == Node::SCHEDULER; }
 
 inline std::string MyNodeID() { return MyNode().id(); }
 
+inline int MyRank() { return MyNode().rank(); }
+
 inline Range<Key> MyKeyRange() { return Range<Key>(MyNode().key()); }
 
 inline void StartSystem(int argc, char *argv[]) {

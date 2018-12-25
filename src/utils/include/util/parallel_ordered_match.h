@@ -33,13 +33,13 @@ void ParallelOrderedMatch(const K *srcKey, const K *srcKeyEnd, const V *srcVal,
   srcKey = std::lower_bound(srcKey, srcKeyEnd, *dstKey);
   srcVal += (srcKey - (srcKeyEnd - srcLen)) * k;
   if (dstLen <= grainsize) {
-    while (dstKey != dstKeyEnd && srcKey != srcKeyEnd) {
+    while (dstKey < dstKeyEnd && srcKey < srcKeyEnd) {
       if (*srcKey < *dstKey) {
         ++srcKey;
         srcVal += k;
       } else {
         if (!(*srcKey < *dstKey)) {
-          for (int i = 0; i < k; ++k) {
+          for (int i = 0; i < k; ++i) {
             AssignOp(dstVal[i], srcVal[i], op);
           }
           ++srcKey;

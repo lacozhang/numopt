@@ -15,9 +15,16 @@ target_include_directories(parameter PUBLIC
 target_link_libraries(parameter utils system filter glog::glog)
 
 set(TestFiles 
-  "test/test_parameter.cpp")
+  "test/kv_layer_perf_ps.cpp"
+  "test/kv_map_perf_ps.cpp"
+  "test/kv_vector_buffer_ps.cpp"
+  "test/kv_vector_ps.cpp"
+  "test/kv_layer_ps.cpp"
+  "test/kv_map_ps.cpp"
+  "test/kv_vector_perf_ps.cpp")
 
-add_executable(parameter_test ${TestFiles})
-target_link_libraries(parameter_test parameter test_main)
-add_test(NAME parameter_test
-    COMMAND parameter_test)
+foreach(SRC_PATH ${TestFiles})
+  get_filename_component(SRC_NAME ${SRC_PATH} NAME_WE)
+  add_executable(${SRC_NAME} ${SRC_PATH})
+  target_link_libraries(${SRC_NAME} parameter utils)
+endforeach()
