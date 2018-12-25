@@ -16,71 +16,68 @@
  * =====================================================================================
  */
 
+#include "parameter/kv_vector.h"
+#include "parameter/kv_map.h"
 #include "system/sysutil.h"
 
 namespace mltools {
-class Server : public App {
-public:
-  virtual void processRequest(Message *req) override {
-    std::cout << MyNodeID() << " : processing request " << req->task_.time()
-              << " from " << req->sender_ << std::endl;
-  }
 
-  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
-                     std::vector<Message *> *requests) override {
-    std::cout << MyNodeID() << " : invoked by server" << std::endl;
-  }
+typedef uint64 KeyType;
+typedef double ValType;
+
+namespace {
+const int kChannelId = 4;
+DArray<KeyType> kAllKeys = DArray<KeyType>{0, 1, 3, 4, 5, 8};
+DArray<KeyType> kCh0Keys = DArray<KeyType>{0, 3, 5, 8};
+DArray<KeyType> kCh1Keys = DArray<KeyType>{1, 3, 4, 5};
+DArray<ValType> kCh0Params = DArray<ValType>{1.0, 2.0, 3.0, 4.0};
+DArray<ValType> kCh1Params = DArray<ValType>{5.0, 6.0, 7.0, 8.0};
+} // namespace
+
+struct Entry {
+  void get(ValType *data, void *state) { *data = value_; }
+
+  void set(const ValType *data, void *state) { value_ += *data; }
+
+  ValType value_ = 0;
+};
+
+class Server : public App {
+private:
+  KVMap<KeyType, ValType, Entry> param_;
 };
 
 class Worker : public App {
-  virtual void processResponse(Message *res) override {
-    std::cout << MyNodeID() << ": received response " << res->task_.time()
-              << " from " << res->sender_ << std::endl;
-  }
-
-  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
-                     std::vector<Message *> *requests) override {
-    std::cout << MyNodeID() << " : invoked by worker" << std::endl;
+public:
+  Worker() : param_() {
+    LOG(INFO) << MyNodeID() << ": worker parameter table with id "
+              << param_.id();
+    param_[kChannelId].key_.copyFrom(kAllKeys);
   }
 
   virtual void run() override {
-    int ts = submit(Task(), kServerGroup);
-    wait(ts);
+    LOG(INFO) << MyNodeID() << ": worker node " << MyRank() << std::endl;
 
-    ts = submit(Task(), kServerGroup);
-    wait(ts);
+    DArray<KeyType> key;
+    DArray<ValType> val;
+    LOG(INFO) << MyNode().DebugString();
 
-    Message req;
-    req.recver_ = kServerGroup;
-    req.callback = [this]() {
-      std::cout << MyNodeID() << ": request " << lastResponse()->task_.time()
-                << " is finished" << std::endl;
-    };
-    wait(submit(&req));
-  }
-};
+    if (MyRank() == 0) {
+      key = kCh0Keys;
+      val = kCh0Params;
+    } else {
+      key = kCh1Keys;
+      val = kCh1Params;
+    }
 
-class Scheduler : public App {
-  virtual void processResponse(Message *res) override {
-    std::cout << MyNodeID() << ": received response " << res->task_.time()
-              << " from " << res->sender_ << std::endl;
+    param_.wait(param_.push(Parameter::request(kChannelId), key, {val}));
+    param_.wait(param_.pull(Parameter::request(kChannelId), key));
+    LOG(INFO) << MyNodeID() << ": pulled value from channel " << kChannelId
+              << " " << param_[kChannelId].val_;
   }
 
-  virtual void processRequest(Message *req) override {
-    std::cout << MyNodeID() << " : processing request " << req->task_.time()
-              << " from " << req->sender_ << std::endl;
-  }
-
-  virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
-                     std::vector<Message *> *requests) override {
-    std::cout << MyNodeID() << " : invoked by scheduler" << std::endl;
-  }
-
-  virtual void run() override {
-    std::cout << "running from scheduler";
-    sys_.manager().waitServersReady();
-    sys_.manager().waitWorkersReady();
-  }
+private:
+  KVVector<KeyType, ValType> param_;
 };
 
 App *App::Create(const std::string &conf) {
@@ -91,11 +88,7 @@ App *App::Create(const std::string &conf) {
     return new Server();
   }
 
-  if (IsScheduler()) {
-    return new Scheduler();
-  }
-
-  LOG(FATAL) << "Unknow role type " << MyNode().DebugString();
+  return new App();
 }
 } // namespace mltools
 
