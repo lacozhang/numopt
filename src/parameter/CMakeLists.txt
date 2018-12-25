@@ -20,8 +20,7 @@ set(TestFiles
   "test/kv_vector_buffer_ps.cpp"
   "test/kv_vector_ps.cpp"
   "test/kv_layer_ps.cpp"
-  "test/kv_map_ps.cpp"
-  "test/kv_vector_perf_ps.cpp")
+  "test/kv_map_ps.cpp")
 
 foreach(SRC_PATH ${TestFiles})
   get_filename_component(SRC_NAME ${SRC_PATH} NAME_WE)
