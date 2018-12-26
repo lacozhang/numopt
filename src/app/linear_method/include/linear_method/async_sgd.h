@@ -176,6 +176,7 @@ protected:
   };
 };
 
+/// @brief Using KVVector as model parameters. The channel is snapshot-id.
 template <typename V> class ASyncSGDWorker : public ISGDComputeNode {
 public:
   ASyncSGDWorker(const Config &conf) : ISGDComputeNode(), conf_(conf) {
