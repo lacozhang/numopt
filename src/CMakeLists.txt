@@ -22,7 +22,7 @@ set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fs
 set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/Modules)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules")
 
 if(MSVC)
     add_definitions(-D_SCL_SECURE_NO_WARNINGS)
@@ -41,7 +41,7 @@ if(MSVC)
 endif(MSVC)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-find_package(glog 0.3.5 REQUIRED)
+find_package(glog 0.3.3 REQUIRED)
 find_package(gflags REQUIRED)
 find_package(ZeroMQ REQUIRED)
 find_package(zlib REQUIRED)
@@ -58,13 +58,12 @@ find_package(snappy REQUIRED)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.54 REQUIRED COMPONENTS 
-  log 
-  program_options 
+find_package(Boost 1.53 REQUIRED COMPONENTS
+  program_options
   system
   filesystem
   date_time
-  thread 
+  thread
   unit_test_framework)
 
 if(Boost_FOUND)
