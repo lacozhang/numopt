@@ -40,13 +40,13 @@ void LccrfModel::InitFromData(DataIterator &iterator) {
   modelsize_ += (maxbigramid_ + 1) * (maxlabelid_ + 1) * (maxlabelid_ + 1);
 
   if (modelsize_ < 1) {
-    BOOST_LOG_TRIVIAL(fatal) << "Model size error";
+    LOG(FATAL) << "Model size error";
     return;
   }
 
   param_.reset(new DenseVector(modelsize_));
   if (param_.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to allocate model parameters";
+    LOG(FATAL) << "Failed to allocate model parameters";
     return;
   }
 
@@ -58,7 +58,7 @@ void LccrfModel::InitFromData(DataIterator &iterator) {
   sparsekeys_.reserve(modelsize_);
   sparseparam_.reset(new DenseVector(modelsize_));
   if (!sparseparam_.get()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to allocate memory for sparse param";
+    LOG(FATAL) << "Failed to allocate memory for sparse param";
     return;
   }
   this->losstype_ = LossFunc::MLECRF;
@@ -69,13 +69,13 @@ bool LccrfModel::LoadModel(std::string model) {
   fs::path srcpath(model);
 
   if (!fs::exists(srcpath)) {
-    BOOST_LOG_TRIVIAL(fatal) << "model path do not exist " << model;
+    LOG(FATAL) << "model path do not exist " << model;
     return false;
   }
 
   std::fstream src(model, std::ios_base::in | std::ios_base::binary);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "failed to open " << model;
+    LOG(FATAL) << "failed to open " << model;
     return false;
   }
 
@@ -97,7 +97,7 @@ bool LccrfModel::SaveModel(std::string model) {
 
   std::fstream sink(model, std::ios_base::out | std::ios_base::binary);
   if (!sink.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to open " << model;
+    LOG(FATAL) << "Failed to open " << model;
     return false;
   }
 
@@ -139,8 +139,8 @@ double LccrfModel::Learn(LccrfSamples &samples, LccrfLabels &labels,
     LabelVector &label = *(labels.Labels()[i]);
 
 #ifdef _DEBUG
-    BOOST_LOG_TRIVIAL(info) << "unigram count " << unigramfeature.nonZeros();
-    BOOST_LOG_TRIVIAL(info) << "bigram count " << bigramfeature.nonZeros();
+    LOG(INFO) << "unigram count " << unigramfeature.nonZeros();
+    LOG(INFO) << "bigram count " << bigramfeature.nonZeros();
 #endif // _DEBUG
 
     int wordcount = unigramfeature.rows();
@@ -234,9 +234,9 @@ double LccrfModel::Learn(LccrfSamples &samples, LccrfLabels &labels,
 
   std::sort(sparsekeys_.begin(), sparsekeys_.end());
 #ifdef _DEBUG
-  BOOST_LOG_TRIVIAL(info) << "key count         :" << sparsekeys_.size();
-  BOOST_LOG_TRIVIAL(info) << "uniq unigram keys :" << uniqunifeats.size();
-  BOOST_LOG_TRIVIAL(info) << "uniq bigram keys  :" << uniqbifeats.size();
+  LOG(INFO) << "key count         :" << sparsekeys_.size();
+  LOG(INFO) << "uniq unigram keys :" << uniqunifeats.size();
+  LOG(INFO) << "uniq bigram keys  :" << uniqbifeats.size();
 #endif // _DEBUG
 
   int *innerindex = grad.innerIndexPtr();
@@ -448,7 +448,7 @@ double LccrfModel::Evaluate(LccrfSamples &samples, LccrfLabels &labels,
       lastalpha = alpha.col(testi) + beta.col(testi);
       double currentlog = LogSumExp(lastalpha);
       if (std::abs(currentlog - testlogpartion) > 1e-3) {
-        BOOST_LOG_TRIVIAL(info)
+        LOG(INFO)
             << "first one " << testlogpartion << " current one " << currentlog;
       }
     }
@@ -745,7 +745,7 @@ double LccrfModel::GetNodeAndEdgeProb(DataSamples &unigramfeature,
     lastalpha = alpha.col(testi) + beta.col(testi);
     double currentlog = LogSumExp(lastalpha);
     if (std::abs(currentlog - testlogpartion) > 1e-3) {
-      BOOST_LOG_TRIVIAL(info)
+      LOG(INFO)
           << "first one " << testlogpartion << " current one " << currentlog;
     }
   }
@@ -771,7 +771,7 @@ double LccrfModel::LogLikelihood(double logpartion, DenseMatrix &node,
   }
 
   if (logpartion < 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "error, negative log likelihood is negative";
+    LOG(FATAL) << "error, negative log likelihood is negative";
   }
   return logpartion;
 }

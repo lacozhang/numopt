@@ -2,7 +2,6 @@
 #include "util/cmdline.h"
 #include "util/util.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include <fstream>
 #include <iostream>
@@ -38,7 +37,7 @@ void BinaryLinearModel::SetLoss(LossFunc loss) {
     loss_ = boost::make_shared<SquaredHingeLoss>();
     break;
   default:
-    BOOST_LOG_TRIVIAL(fatal) << "Loss function error";
+    LOG(FATAL) << "Loss function error";
     break;
   }
   this->losstype_ = loss;
@@ -49,19 +48,19 @@ void BinaryLinearModel::InitFromCmd(int argc, const char *argv[]) {
   try {
     std::string lossoption =
         vm[BinaryLinearModel::kLossOption].as<std::string>();
-    BOOST_LOG_TRIVIAL(info) << "Loss Function : " << lossoption;
+    LOG(INFO) << "Loss Function : " << lossoption;
     SetLoss(parselossfunc(
         vm[BinaryLinearModel::kLossOption].as<std::string>().c_str()));
   } catch (const std::exception &e) {
-    BOOST_LOG_TRIVIAL(error) << e.what();
+    LOG(ERROR) << e.what();
     throw e;
   }
 
   try {
     bias_ = vm[BinaryLinearModel::kBiasOption].as<double>();
-    BOOST_LOG_TRIVIAL(info) << "Bias           : " << bias_;
+    LOG(INFO) << "Bias           : " << bias_;
   } catch (const std::exception &e) {
-    BOOST_LOG_TRIVIAL(error) << e.what();
+    LOG(ERROR) << e.what();
     throw e;
   }
 }
@@ -70,9 +69,9 @@ void BinaryLinearModel::InitFromData(DataIterator &iterator) {
   auto dat = iterator.GetAllData();
   featdim_ = dat.cols();
   param_.reset(new DenseVector(featdim_));
-  BOOST_LOG_TRIVIAL(info) << "param dimension " << featdim_;
+  LOG(INFO) << "param dimension " << featdim_;
   if (param_.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(error)
+    LOG(ERROR)
         << "Allocate parameter vector for binary model failed";
   } else {
     param_->setZero();
@@ -87,7 +86,7 @@ bool BinaryLinearModel::LoadModel(std::string model) {
                     binfmode ? std::ios_base::binary | std::ios_base::in
                              : std::ios_base::in);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "open file " << model << " failed";
+    LOG(ERROR) << "open file " << model << " failed";
     return false;
   }
   src.read((char *)&featdim_, sizeof(size_t));
@@ -104,7 +103,7 @@ bool BinaryLinearModel::SaveModel(std::string model) {
                        filemode ? std::ios_base::binary | std::ios_base::out
                                 : std::ios_base::out);
   if (!writer.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "open file " << model << " failed";
+    LOG(ERROR) << "open file " << model << " failed";
     return false;
   }
   writer.write((char *)&featdim_, sizeof(size_t));

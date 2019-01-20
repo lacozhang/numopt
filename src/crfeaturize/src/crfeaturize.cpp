@@ -1,7 +1,7 @@
 #include "crflib/lccrfeaturizer.h"
 #include <boost/filesystem.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/program_options.hpp>
+#include <glog/logging.h>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -46,13 +46,13 @@ int main(int argc, const char *argv[]) {
 
   LccrFeaturizer featurizer(featemplate);
   for (const std::string &src : featsrcs) {
-    BOOST_LOG_TRIVIAL(info) << "Extract feature from " << src;
+    LOG(INFO) << "Extract feature from " << src;
     featurizer.AccumulateFeatures(src, cutoff, cutoff);
   }
 
   for (std::string &src : inputfiles) {
     std::string binfilepath = src + ".bin";
-    BOOST_LOG_TRIVIAL(info) << "Featurize file " << src;
+    LOG(INFO) << "Featurize file " << src;
     featurizer.FeaturizeFile(src, binfilepath);
   }
 

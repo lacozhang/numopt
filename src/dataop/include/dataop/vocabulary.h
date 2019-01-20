@@ -4,9 +4,9 @@
 #define __VOCABULARY_H__
 #include "util/cedar.h"
 #include "util/stringop.h"
-#include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include <fstream>
+#include <glog/logging.h>
 #include <string>
 #include <unordered_map>
 
@@ -47,7 +47,7 @@ public:
       word2index_.update(word.c_str(), word.size()) = index;
       return true;
     } else {
-      BOOST_LOG_TRIVIAL(error) << "word " << word << " has been aded";
+      LOG(FATAL) << "word " << word << " has been aded";
       return false;
     }
   }

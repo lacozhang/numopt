@@ -2,7 +2,6 @@
 
 #ifndef __UTIL_H__
 #define __UTIL_H__
-#include <boost/log/trivial.hpp>
 #include <boost/program_options.hpp>
 #include <chrono>
 #include <fstream>

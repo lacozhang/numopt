@@ -6,8 +6,6 @@
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
 #include <fstream>
 #include <functional>
 #include <iostream>
@@ -65,12 +63,12 @@ bool matrix_size_estimation_from_bin(std::ifstream &ifs,
   ifs.read(TempLineBuffer, std::strlen(kBinMagicString));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read magic string failed";
+    LOG(ERROR) << "read magic string failed";
     return false;
   }
   if (std::strncmp(TempLineBuffer, kBinMagicString,
                    std::strlen(kBinMagicString)) != 0) {
-    BOOST_LOG_TRIVIAL(error) << "magic string do not equal";
+    LOG(ERROR) << "magic string do not equal";
     return false;
   }
 
@@ -78,7 +76,7 @@ bool matrix_size_estimation_from_bin(std::ifstream &ifs,
   ifs.read((char *)&samplecnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read sample count failed";
+    LOG(ERROR) << "read sample count failed";
     return false;
   }
   row = samplecnt;
@@ -88,7 +86,7 @@ bool matrix_size_estimation_from_bin(std::ifstream &ifs,
   ifs.read((char *)&featcnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read maximum feature id failed";
+    LOG(ERROR) << "read maximum feature id failed";
     return false;
   }
   col = featcnt;
@@ -97,7 +95,7 @@ bool matrix_size_estimation_from_bin(std::ifstream &ifs,
   ifs.read((char *)&elementcnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read number of non-zero elements failed";
+    LOG(ERROR) << "read number of non-zero elements failed";
     return false;
   }
 
@@ -106,7 +104,7 @@ bool matrix_size_estimation_from_bin(std::ifstream &ifs,
     ifs.read((char *)&temp, sizeof(size_t));
     success = success && ifs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "read non-zero elements for each row failed";
+      LOG(ERROR) << "read non-zero elements for each row failed";
       return false;
     }
     rowsize[rowindex] = temp;
@@ -157,12 +155,12 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
   ifs.read(TempLineBuffer, std::strlen(kBinMagicString));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read magic string failed";
+    LOG(ERROR) << "read magic string failed";
     return false;
   }
   if (std::strncmp(TempLineBuffer, kBinMagicString,
                    std::strlen(kBinMagicString)) != 0) {
-    BOOST_LOG_TRIVIAL(error) << "magic string do not equal";
+    LOG(ERROR) << "magic string do not equal";
     return false;
   }
 
@@ -170,7 +168,7 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
   ifs.read((char *)&samplecnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read sample count failed";
+    LOG(ERROR) << "read sample count failed";
     return false;
   }
 
@@ -178,12 +176,12 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
   ifs.read((char *)&featcnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read maximum feature id failed";
+    LOG(ERROR) << "read maximum feature id failed";
     return false;
   }
 
   if (featcnt > samples->cols()) {
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "maximum feature id of file: " << featcnt
         << "maximum feature id of data matrix: " << samples->cols();
   }
@@ -192,7 +190,7 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
   ifs.read((char *)&elementcnt, sizeof(size_t));
   success = success && ifs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "read number of non-zero elements failed";
+    LOG(ERROR) << "read number of non-zero elements failed";
     return false;
   }
 
@@ -201,7 +199,7 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
     ifs.read((char *)&temp, sizeof(size_t));
     success = success && ifs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "read non-zero elements for each row failed";
+      LOG(ERROR) << "read non-zero elements for each row failed";
       return false;
     }
   }
@@ -211,14 +209,14 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
     ifs.read((char *)&temp, sizeof(size_t));
     success = success && ifs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "read non-zero elements of line failed";
+      LOG(ERROR) << "read non-zero elements of line failed";
       return false;
     }
 
     ifs.read((char *)&label, sizeof(signed char));
     success = success && ifs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "read label of line failed";
+      LOG(ERROR) << "read label of line failed";
       return false;
     }
 
@@ -229,14 +227,14 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
       ifs.read((char *)&featindex, sizeof(size_t));
       success = success && ifs.good();
       if (!success) {
-        BOOST_LOG_TRIVIAL(error) << "read index of feat failed";
+        LOG(ERROR) << "read index of feat failed";
         return false;
       }
 
       ifs.read((char *)&featval, sizeof(float));
       success = success && ifs.good();
       if (!success) {
-        BOOST_LOG_TRIVIAL(error) << "read value of feat failed";
+        LOG(ERROR) << "read value of feat failed";
         return false;
       }
 
@@ -254,13 +252,13 @@ bool save_libsvm_data_bin(std::string filepath,
                           boost::shared_ptr<LabelVector> &labels) {
 
   if (!boost::algorithm::ends_with(filepath, ".bin")) {
-    BOOST_LOG_TRIVIAL(trace) << "output file do not ends with .bin";
+    LOG(INFO) << "output file do not ends with .bin";
   }
 
   std::ofstream ofs(filepath, std::ios_base::out | std::ios_base::trunc |
                                   std::ios_base::binary);
   if (!ofs.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "create file " << filepath << " failed";
+    LOG(FATAL) << "create file " << filepath << " failed";
     return false;
   }
 
@@ -272,7 +270,7 @@ bool save_libsvm_data_bin(std::string filepath,
   ofs.write(kBinMagicString, std::strlen(kBinMagicString));
   success = success && ofs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "write magic number failed";
+    LOG(ERROR) << "write magic number failed";
     return false;
   }
 
@@ -280,7 +278,7 @@ bool save_libsvm_data_bin(std::string filepath,
   ofs.write((char *)&samplecnt, sizeof(size_t));
   success = success && ofs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "write sample count failed";
+    LOG(ERROR) << "write sample count failed";
     return false;
   }
 
@@ -288,7 +286,7 @@ bool save_libsvm_data_bin(std::string filepath,
   ofs.write((const char *)&featurecnt, sizeof(size_t));
   success = success && ofs.good();
   if (!success) {
-    BOOST_LOG_TRIVIAL(error) << "write maximum feature id failed";
+    LOG(ERROR) << "write maximum feature id failed";
     return false;
   }
 
@@ -305,13 +303,13 @@ bool save_libsvm_data_bin(std::string filepath,
     ofs.write((char *)&cnt, sizeof(size_t));
     success = success && ofs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "write nonzero elements of one row failed";
+      LOG(ERROR) << "write nonzero elements of one row failed";
       return false;
     }
   }
 
   // write data labels into file
-  BOOST_LOG_TRIVIAL(trace) << "write data to file";
+  LOG(INFO) << "write data to file";
   signed char label = 0;
   size_t index = 0;
   float val = 0;
@@ -325,7 +323,7 @@ bool save_libsvm_data_bin(std::string filepath,
     ofs.write((char *)&cnt, sizeof(size_t));
     success = success && ofs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "write element count failed";
+      LOG(ERROR) << "write element count failed";
       return false;
     }
 
@@ -333,12 +331,12 @@ bool save_libsvm_data_bin(std::string filepath,
     ofs.write((char *)&label, sizeof(signed char));
     success = success && ofs.good();
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "write line " << rowindex << " label failed";
+      LOG(ERROR) << "write line " << rowindex << " label failed";
       return false;
     }
 
     if (!success) {
-      BOOST_LOG_TRIVIAL(error) << "write label failed";
+      LOG(ERROR) << "write label failed";
       return false;
     }
 
@@ -350,7 +348,7 @@ bool save_libsvm_data_bin(std::string filepath,
       success = success && ofs.good();
 
       if (!success) {
-        BOOST_LOG_TRIVIAL(fatal)
+        LOG(FATAL)
             << "write index for line " << rowindex << " failed";
         return false;
       }
@@ -358,15 +356,15 @@ bool save_libsvm_data_bin(std::string filepath,
       ofs.write((char *)&val, sizeof(float));
       success = success && ofs.good();
       if (!success) {
-        BOOST_LOG_TRIVIAL(fatal)
+        LOG(FATAL)
             << "write value for index line " << rowindex << " failed";
         return false;
       }
     }
   }
   ofs.close();
-  BOOST_LOG_TRIVIAL(info) << "sample count  : " << samplecnt;
-  BOOST_LOG_TRIVIAL(info) << "max feature id: " << featurecnt;
+  LOG(INFO) << "sample count  : " << samplecnt;
+  LOG(INFO) << "max feature id: " << featurecnt;
   return true;
 }
 
@@ -392,7 +390,7 @@ void parselibsvmline(char *line, std::vector<std::pair<size_t, float>> &feats,
       ptr = strtok(NULL, ": \t");
       feats.push_back(std::pair<size_t, float>(index, val));
     } else {
-      BOOST_LOG_TRIVIAL(error) << "error, data format error" << std::endl;
+      LOG(ERROR) << "error, data format error" << std::endl;
       std::abort();
     }
   }
@@ -414,7 +412,7 @@ bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
   }
 
   if (!featsrc.is_open()) {
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "open file " << featfile << " failed" << std::endl;
     std::abort();
   }
@@ -427,13 +425,13 @@ bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
     matrix_size_estimation_from_text(featsrc, rowsize, row, col);
   } else {
     if (!matrix_size_estimation_from_bin(featsrc, rowsize, row, col)) {
-      BOOST_LOG_TRIVIAL(fatal) << "estimate matrix size failed " << featfile;
+      LOG(FATAL) << "estimate matrix size failed " << featfile;
       return false;
     }
   }
 
   featsrc.close();
-  BOOST_LOG_TRIVIAL(info) << "estimate costs " << t.toc() << " seconds";
+  LOG(INFO) << "estimate costs " << t.toc() << " seconds";
 
   col += 1;
 
@@ -455,30 +453,30 @@ bool load_libsvm_data(std::string featfile,
 
   bool binary = boost::algorithm::ends_with(featfile, ".bin");
   if (binary) {
-    BOOST_LOG_TRIVIAL(info) << "Loading data from binary file";
+    LOG(INFO) << "Loading data from binary file";
   } else {
-    BOOST_LOG_TRIVIAL(info) << "Loading data from text file";
+    LOG(INFO) << "Loading data from text file";
   }
 
   int estrowsize, estcolsize;
   if (!matrix_size_estimation(featfile, datasize, estrowsize, estcolsize)) {
-    BOOST_LOG_TRIVIAL(fatal) << "load data file " << featfile << " failed";
+    LOG(FATAL) << "load data file " << featfile << " failed";
     return false;
   }
 
-  BOOST_LOG_TRIVIAL(trace) << "Finish data size estimation";
+  LOG(INFO) << "Finish data size estimation";
 
   timeutil t;
 
   if (estimate)
     colsize = estcolsize;
 
-  BOOST_LOG_TRIVIAL(trace) << "Sample count  :" << estrowsize;
-  BOOST_LOG_TRIVIAL(trace) << "Max feature id:" << (colsize - 1);
+  LOG(INFO) << "Sample count  :" << estrowsize;
+  LOG(INFO) << "Max feature id:" << (colsize - 1);
   Samples.reset(new DataSamples(estrowsize, colsize));
 
   if (Samples.get() == NULL) {
-    BOOST_LOG_TRIVIAL(error)
+    LOG(ERROR)
         << "Error, new operator for samples error" << std::endl;
     std::exit(-1);
   }
@@ -495,7 +493,7 @@ bool load_libsvm_data(std::string featfile,
   }
 
   if (!featsrc.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "open file " << featfile << " failed";
+    LOG(ERROR) << "open file " << featfile << " failed";
     return false;
   }
 
@@ -508,10 +506,10 @@ bool load_libsvm_data(std::string featfile,
   }
 
   Samples->makeCompressed();
-  BOOST_LOG_TRIVIAL(info) << "Loading data costs " << t.toc() << " seconds "
+  LOG(INFO) << "Loading data costs " << t.toc() << " seconds "
                           << std::endl;
-  BOOST_LOG_TRIVIAL(info) << "data samples : " << Samples->rows() << std::endl;
-  BOOST_LOG_TRIVIAL(info) << "max feat id  : " << (Samples->cols() - 1)
+  LOG(INFO) << "data samples : " << Samples->rows() << std::endl;
+  LOG(INFO) << "max feat id  : " << (Samples->cols() - 1)
                           << std::endl;
   return ret;
 }
@@ -526,7 +524,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
   binary = boost::algorithm::ends_with(srcfilepath, ".bin");
 
   if (!binary) {
-    BOOST_LOG_TRIVIAL(error) << "For lccrf, binary file only";
+    LOG(ERROR) << "For lccrf, binary file only";
     return false;
   }
 
@@ -535,7 +533,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
 
   std::fstream src(srcfilepath, std::ios_base::in | std::ios_base::binary);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open file " << srcfilepath;
+    LOG(ERROR) << "Failed to open file " << srcfilepath;
     return false;
   }
 
@@ -545,7 +543,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
   int tmp;
 
   if (!reader.ReadInt(tmp)) {
-    BOOST_LOG_TRIVIAL(error) << "Error when read max unigram feature id";
+    LOG(ERROR) << "Error when read max unigram feature id";
     return false;
   }
   if (estimate) {
@@ -553,7 +551,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
   }
 
   if (!reader.ReadInt(tmp)) {
-    BOOST_LOG_TRIVIAL(error) << "Error when read max bigram feature id";
+    LOG(ERROR) << "Error when read max bigram feature id";
     return false;
   }
   if (estimate) {
@@ -561,7 +559,7 @@ bool load_lccrf_data_bin(std::string srcfilepath,
   }
 
   if (!reader.ReadInt(tmp)) {
-    BOOST_LOG_TRIVIAL(error) << "Error when read max label id";
+    LOG(ERROR) << "Error when read max label id";
     return false;
   }
   if (estimate) {
@@ -569,14 +567,14 @@ bool load_lccrf_data_bin(std::string srcfilepath,
   }
 
   if (!reader.ReadInt(numsamples)) {
-    BOOST_LOG_TRIVIAL(error) << "Error when read number of samples";
+    LOG(ERROR) << "Error when read number of samples";
     return false;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "Number of Samples      : " << numsamples;
-  BOOST_LOG_TRIVIAL(info) << "Max Unigram Feature Id : " << maxunifeatid;
-  BOOST_LOG_TRIVIAL(info) << "Max Bigram Feature Id  : " << maxbifeatid;
-  BOOST_LOG_TRIVIAL(info) << "Max Label Id           : " << maxlabelid;
+  LOG(INFO) << "Number of Samples      : " << numsamples;
+  LOG(INFO) << "Max Unigram Feature Id : " << maxunifeatid;
+  LOG(INFO) << "Max Bigram Feature Id  : " << maxbifeatid;
+  LOG(INFO) << "Max Label Id           : " << maxlabelid;
 
   samples.reset(new LccrfSamples());
   labels.reset(new LccrfLabels());
@@ -668,16 +666,16 @@ bool build_vocab(const std::string &filepath, size_t cutoffvalue,
   label.open(labelfilepath);
 
   if (!query.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open query.txt" << std::endl;
+    LOG(ERROR) << "Failed to open query.txt" << std::endl;
     return false;
   }
   if (!label.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open labels.txt" << std::endl;
+    LOG(ERROR) << "Failed to open labels.txt" << std::endl;
     return false;
   }
 
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath << std::endl;
+    LOG(ERROR) << "Failed to open " << filepath << std::endl;
     return false;
   }
 
@@ -692,8 +690,8 @@ bool build_vocab(const std::string &filepath, size_t cutoffvalue,
                 std::strlen(TempLineBuffer), segments,
                 (const unsigned char *)"\t", false);
     if (segments.size() < 2 || segments[0].empty() || segments[1].empty()) {
-      BOOST_LOG_TRIVIAL(error) << "Line format error @ " << linecount;
-      BOOST_LOG_TRIVIAL(error) << TempLineBuffer;
+      LOG(ERROR) << "Line format error @ " << linecount;
+      LOG(ERROR) << TempLineBuffer;
     } else {
       query.write(segments[0].c_str(), segments[0].size());
       query.write("\n", 1);
@@ -704,7 +702,7 @@ bool build_vocab(const std::string &filepath, size_t cutoffvalue,
   }
 
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(error) << "Unexpected error";
+    LOG(ERROR) << "Unexpected error";
     return false;
   }
 
@@ -716,7 +714,7 @@ bool build_vocab(const std::string &filepath, size_t cutoffvalue,
   labels = Vocabulary::BuildVocabForLabel(labelfilepath);
 
   if (!words || !labels) {
-    BOOST_LOG_TRIVIAL(warning)
+    LOG(WARNING)
         << "Failed to build vocabulary for query & labels";
     return false;
   }
@@ -793,7 +791,7 @@ bool read_lines(std::ifstream &src, std::vector<std::string> &lines,
     std::getline(src, line);
   }
 
-  BOOST_LOG_TRIVIAL(info) << lines.size() << " lines read";
+  LOG(INFO) << lines.size() << " lines read";
   if (src.good())
     return true;
   else
@@ -859,7 +857,7 @@ void estimate_nn_sequence_lines(std::vector<std::string> &lines,
         if (est.densesize_ == 0)
           est.densesize_ = densefeats.size();
         else if (est.densesize_ != densefeats.size()) {
-          BOOST_LOG_TRIVIAL(error) << "Line format error " << line;
+          LOG(ERROR) << "Line format error " << line;
         }
       }
     }
@@ -870,7 +868,7 @@ bool estimate_nn_sequence(const std::string &filepath, int &sparsebinary,
                           int &sparsefloat, int &dense, int &label) {
   std::ifstream src(filepath);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open " << filepath;
+    LOG(ERROR) << "Failed to open " << filepath;
     return false;
   }
   sparsebinary = sparsefloat = dense = label = 0;
@@ -882,7 +880,7 @@ bool estimate_nn_sequence(const std::string &filepath, int &sparsebinary,
   int threads = std::thread::hardware_concurrency() - 2;
   if (threads <= 0)
     threads = 1;
-  BOOST_LOG_TRIVIAL(info) << "Number of Threads : " << threads;
+  LOG(INFO) << "Number of Threads : " << threads;
   mltools::ProducerConsumer<std::vector<std::string>> worker(1000, threads);
 
   std::function<bool(std::vector<std::string> &)> producer =
@@ -911,7 +909,7 @@ bool estimate_nn_sequence(const std::string &filepath, int &sparsebinary,
   worker.BlockProducer();
   worker.BlockConsumer();
   worker.JoinConsumer();
-  BOOST_LOG_TRIVIAL(info) << "Estimate costs " << timer.toc() << " seconds";
+  LOG(INFO) << "Estimate costs " << timer.toc() << " seconds";
 
   sparsebinary = est.sparsebinarysize_;
   sparsefloat = est.sparsefloatsize_;
@@ -922,7 +920,7 @@ bool estimate_nn_sequence(const std::string &filepath, int &sparsebinary,
   sparsefloat++;
   label++;
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
+    LOG(ERROR) << "Unexpected EOF";
     return false;
   }
   return true;
@@ -980,7 +978,7 @@ bool parse_nn_sequence_sentence(
     if (parse_nn_sequence_sparse_binary(binarytext, buffer, binaryfeat)) {
       binaryfeats[idx] = std::move(binaryfeat);
     } else {
-      BOOST_LOG_TRIVIAL(fatal) << "Fundamental feature missing";
+      LOG(FATAL) << "Fundamental feature missing";
       return false;
     }
 
@@ -994,7 +992,7 @@ bool parse_nn_sequence_sentence(
     if (densesize > 0 && buffer.size() >= 4 &&
         parse_nn_sequence_dense(densetext, buffer, densefeat)) {
       if (densefeat.size() != densesize) {
-        BOOST_LOG_TRIVIAL(warning) << "dense feature size do not match";
+        LOG(WARNING) << "dense feature size do not match";
       }
       for (int j = 0; j < densesize; ++j)
         feat->DenseFeature().coeffRef(idx, j) = densefeat[j];
@@ -1033,7 +1031,7 @@ bool load_nn_sequence(const std::string &filepath,
                       boost::shared_ptr<NNModel::NNSequenceLabel> &labels) {
   std::ifstream src(filepath);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Error to open file " << filepath;
+    LOG(ERROR) << "Error to open file " << filepath;
     return false;
   }
 
@@ -1098,9 +1096,9 @@ bool load_nn_sequence(const std::string &filepath,
   worker.BlockConsumer();
   worker.JoinConsumer();
 
-  BOOST_LOG_TRIVIAL(info) << "Loading costs " << timer.toc() << " seconds";
+  LOG(INFO) << "Loading costs " << timer.toc() << " seconds";
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(error) << "Unexpected EOF";
+    LOG(ERROR) << "Unexpected EOF";
     return false;
   }
 
@@ -1139,7 +1137,7 @@ bool DataLoader<kNNSequence, NNModel::NNSequenceFeature,
   namespace fs = boost::filesystem;
   fs::path path(filepath_);
   if (!fs::exists(path) || !fs::is_regular_file(path)) {
-    BOOST_LOG_TRIVIAL(error) << "file path " << filepath_ << " bad";
+    LOG(ERROR) << "file path " << filepath_ << " bad";
     valid_ = false;
   } else {
     if (features_.get() == nullptr)
@@ -1156,7 +1154,7 @@ bool DataLoader<kNNSequence, NNModel::NNSequenceFeature,
         features_->SetDenseSize(densesize);
         labels_->SetLabelSize(labelsize);
       } else {
-        BOOST_LOG_TRIVIAL(error) << "Parse nn sequence format error";
+        LOG(ERROR) << "Parse nn sequence format error";
         return false;
       }
     }
@@ -1173,7 +1171,7 @@ bool DataLoader<kNNQuery, NNModel::NNQueryFeature,
   fs::path path(filepath_);
   if (filepath_.empty() || !fs::exists(path) || !fs::is_regular_file(path)) {
     valid_ = false;
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "either empty path or invaida path " << filepath_ << std::endl;
     return false;
   } else {

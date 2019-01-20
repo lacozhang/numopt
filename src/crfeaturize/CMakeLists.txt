@@ -5,4 +5,4 @@ if(ENABLE_PREFIX_TREE)
 endif(ENABLE_PREFIX_TREE)
 
 add_executable(crfeat "src/crfeaturize.cpp")
-target_link_libraries(crfeat crflib Boost::program_options Boost::filesystem Boost::log)
+target_link_libraries(crfeat crflib Boost::program_options Boost::filesystem ${GLOG_LIBRARIES})

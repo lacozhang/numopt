@@ -54,7 +54,9 @@ public:
       : info_(info), value_(value) {}
 
   virtual void resize(size_t rows, size_t cols, size_t nnz = 0,
-                      bool row_major = true) = 0;
+                      bool row_major = true) {
+    assert(false);
+  }
 
   typedef Eigen::Matrix<V, Eigen::Dynamic, 1> EVec;
   EVec operator*(const Eigen::Ref<const EVec> &x) const { return times(x); }
@@ -73,17 +75,25 @@ public:
     return y;
   }
 
-  virtual void times(const V *x, V *y) const = 0;
+  virtual void times(const V *x, V *y) const {
+    assert(false);
+  }
 
   EVec transTimes(const Eigen::Ref<const EVec> &x) const {
     return trans()->times(x);
   }
 
   /// @brief Return element-wise product result
-  virtual MatrixPtr<V> dotTimes(const MatrixPtr<V> &B) const = 0;
+  virtual MatrixPtr<V> dotTimes(const MatrixPtr<V> &B) const {
+    assert(false);
+    return MatrixPtr<V>(nullptr);
+  }
 
   /// @brief Return the Transpose of current matrix
-  virtual MatrixPtr<V> trans() const = 0;
+  virtual MatrixPtr<V> trans() const {
+    assert(false);
+    return MatrixPtr<V>(nullptr);
+  }
 
   MatrixPtr<V> toRowMajor() {
     return (rowMajor() ? MatrixPtr<V>(this, [](Matrix<V> *p) {})
@@ -95,12 +105,25 @@ public:
                        : alterStorage());
   }
 
-  virtual MatrixPtr<V> alterStorage() = 0;
+  virtual MatrixPtr<V> alterStorage() {
+    assert(false);
+    return MatrixPtr<V>(nullptr);
+  }
 
-  virtual MatrixPtr<V> rowBlock(SizeR range) const = 0;
-  virtual MatrixPtr<V> colBlock(SizeR range) const = 0;
+  virtual MatrixPtr<V> rowBlock(SizeR range) const {
+    assert(false);
+    return MatrixPtr<V>(nullptr);
+  }
 
-  virtual bool writeToBinFile(std::string filename) const = 0;
+  virtual MatrixPtr<V> colBlock(SizeR range) const {
+    assert(false);
+    return MatrixPtr<V>(nullptr);
+  }
+
+  virtual bool writeToBinFile(std::string filename) const {
+    assert(false);
+    return false;
+  }
 
   virtual size_t memSize() const { return value_.size() * sizeof(V); }
 

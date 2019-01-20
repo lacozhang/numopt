@@ -1,5 +1,4 @@
 #include "optimizer/linesearch.h"
-#include <boost/log/trivial.hpp>
 
 namespace {
 
@@ -296,7 +295,7 @@ LineSearcher::LineSearcher(const std::string &lsfuncstr,
     : valid_(false), maxtries_(maxtries), alpha_(alpha), beta_(beta),
       minstep_(minstep), maxstep_(maxstep), parameps_(parameps) {
   if (maxtries_ < 1) {
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << "For line search, maximum number of tries should larger than 0";
     return;
   }
@@ -306,7 +305,7 @@ LineSearcher::LineSearcher(const std::string &lsfuncstr,
   if (lsfunctype_ == LineSearchFunctionType::None ||
       lscondtype_ == LineSearchConditionType::None) {
     valid_ = false;
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << "Line search function or condition not recognized : " << lsfuncstr
         << "/" << lscondstr;
     return;
@@ -335,7 +334,7 @@ bool LineSearcher::BackTrackLineSearch(
   double dginit = direc.dot(grad), dgtest, fval, dgval;
   const double stepshrink = 0.5, stepexpand = 2.1;
   if (dginit > 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "initial direction is not a decent direction";
+    LOG(FATAL) << "initial direction is not a decent direction";
     return false;
   }
 
@@ -372,12 +371,12 @@ bool LineSearcher::BackTrackLineSearch(
     }
 
     if (stepsize < minstep_) {
-      BOOST_LOG_TRIVIAL(error) << "Small than smallest step size";
+      LOG(ERROR) << "Small than smallest step size";
       return false;
     }
 
     if (stepsize > maxstep_) {
-      BOOST_LOG_TRIVIAL(error) << "Large than largest step size";
+      LOG(ERROR) << "Large than largest step size";
       return false;
     }
 
@@ -386,7 +385,7 @@ bool LineSearcher::BackTrackLineSearch(
   }
 
   if (itercnt_ >= maxtries_) {
-    BOOST_LOG_TRIVIAL(error) << "Exceed Maximum number of iteration count";
+    LOG(ERROR) << "Exceed Maximum number of iteration count";
     return false;
   }
 
@@ -411,13 +410,13 @@ bool LineSearcher::MoreThuenteLineSearch(
   double fval;
 
   if (stepsize < 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "Stepsize less than 0";
+    LOG(FATAL) << "Stepsize less than 0";
     return false;
   }
 
   dginit = direc.dot(grad);
   if (dginit > 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "Direction not decent";
+    LOG(FATAL) << "Direction not decent";
     return false;
   }
 
@@ -565,10 +564,10 @@ bool LineSearcher::MoreThuenteLineSearch(
 LineSearchFunctionType
 LineSearcher::ParseLineSearchString(const std::string &str) {
   if ("bt" == str) {
-    BOOST_LOG_TRIVIAL(info) << "Using backtrack line search";
+    LOG(INFO) << "Using backtrack line search";
     return LineSearchFunctionType::BackTrack;
   } else if ("mt" == str) {
-    BOOST_LOG_TRIVIAL(info) << "Using more thuente line search";
+    LOG(INFO) << "Using more thuente line search";
     return LineSearchFunctionType::MoreThuente;
   } else {
     return LineSearchFunctionType::None;
@@ -578,13 +577,13 @@ LineSearcher::ParseLineSearchString(const std::string &str) {
 LineSearchConditionType
 LineSearcher::ParseLineSearchConditionString(const std::string &str) {
   if ("armijo" == str) {
-    BOOST_LOG_TRIVIAL(info) << "Using Armijo condition";
+    LOG(INFO) << "Using Armijo condition";
     return LineSearchConditionType::Armijo;
   } else if ("wolfe" == str) {
-    BOOST_LOG_TRIVIAL(info) << "Using Wolfe Condition";
+    LOG(INFO) << "Using Wolfe Condition";
     return LineSearchConditionType::Wolfe;
   } else if ("swolfe" == str) {
-    BOOST_LOG_TRIVIAL(info) << "Using Strong Wolfe Condition";
+    LOG(INFO) << "Using Strong Wolfe Condition";
     return LineSearchConditionType::StrongWolfe;
   } else {
     return LineSearchConditionType::None;

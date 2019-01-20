@@ -41,7 +41,7 @@ void RunModel(
     BaseOptimizerFactory<ParameterType, DataSampleType, DataLabelType,
                          SparseGradientType, DenseGradientType> &optimfactory) {
 
-  BOOST_LOG_TRIVIAL(info) << "load data";
+  LOG(INFO) << "load data";
 
   ModelData<DataType, DataSampleType, DataLabelType> modeldata;
   modeldata.InitFromCmd(argc, argv);
@@ -50,7 +50,7 @@ void RunModel(
   auto testset = modeldata.RetrieveTest();
 
   if (trainset == nullptr) {
-    BOOST_LOG_TRIVIAL(fatal) << "Train set not set, failed";
+    LOG(FATAL) << "Train set not set, failed";
     return;
   }
 
@@ -91,7 +91,7 @@ void RunModel(
           testiter));
   optimizer->Train();
   if (!modeldata.ModelFilePath().empty()) {
-    BOOST_LOG_TRIVIAL(trace)
+    LOG(INFO)
         << "save model to file " << modeldata.ModelFilePath();
     model->SaveModel(modeldata.ModelFilePath());
   }

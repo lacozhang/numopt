@@ -1,9 +1,9 @@
 #pragma once
 #include "nnmacros.h"
 #include "util/typedef.h"
-#include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <glog/logging.h>
 
 #ifndef __NN_MODULE_H__
 #define __NN_MODULE_H__

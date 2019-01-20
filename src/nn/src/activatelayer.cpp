@@ -18,7 +18,7 @@ ActivateLayer::ActivateLayer(ActivateType type) {
   }
 
   if (!func_) {
-    BOOST_LOG_TRIVIAL(error) << "Allocate activate object failed";
+    LOG(ERROR) << "Allocate activate object failed";
     return;
   }
 

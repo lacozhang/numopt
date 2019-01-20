@@ -5,6 +5,7 @@
 #include "AbstractModel.h"
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <unordered_set>
+#include <glog/logging.h>
 
 class LccrfModel : public AbstractModel<DenseVector, LccrfSamples, LccrfLabels,
                                         SparseVector, DenseVector> {

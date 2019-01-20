@@ -5,13 +5,13 @@ file(GLOB UTIL_HDR "include/util/*.h")
 
 add_library(utils STATIC ${UTIL_SRC} ${UTIL_HDR})
 
-target_include_directories(utils 
-  PUBLIC 
+target_include_directories(utils
+  PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(utils proto gtest ${ZLIB_LIBRARIES} Snappy::snappy)
+target_link_libraries(utils proto gtest ${ZLIB_LIBRARIES} ${Snappy_LIBRARIES} ${GLOB_LIBRARIES} ${Boost_PROGRAM_OPTIONS_LIBRARY})
 
 set(TestFiles "test/test_stringop.cpp"
   "test/test_misc.cpp")

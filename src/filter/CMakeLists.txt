@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 
-add_library(filter STATIC 
+add_library(filter STATIC
   "include/filter/filter.h"
   "include/filter/add_noise.h"
   "include/filter/compressing.h"
@@ -10,14 +10,14 @@ add_library(filter STATIC
   "include/filter/sparse_filter.h"
   "src/filter.cpp")
 
-target_include_directories(filter PUBLIC 
+target_include_directories(filter PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(filter utils glog::glog data system)
+target_link_libraries(filter utils data system)
 
-set(TestFiles 
+set(TestFiles
   "test/test_filter.cpp")
 
 add_executable(filter_test ${TestFiles})

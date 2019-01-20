@@ -33,20 +33,20 @@ public:
 
     auto vm = ParseArgs(argc, argv, combined, true);
     if (this->fixedstepsize_) {
-      BOOST_LOG_TRIVIAL(info)
+      LOG(INFO)
           << "Using fixed stepsize for proximal gradient descent";
       if (this->stepsize_ == 0.0) {
-        BOOST_LOG_TRIVIAL(info) << "Using default value 0.1";
+        LOG(INFO) << "Using default value 0.1";
         this->stepsize_ = 0.1;
       } else {
-        BOOST_LOG_TRIVIAL(info) << "Using fixed stepsize " << this->stepsize_;
+        LOG(INFO) << "Using fixed stepsize " << this->stepsize_;
       }
     } else {
-      BOOST_LOG_TRIVIAL(info) << "Using line search to determine stepsize";
+      LOG(INFO) << "Using line search to determine stepsize";
     }
 
     if (this->learn_.l1_ == 0) {
-      BOOST_LOG_TRIVIAL(warning) << "Do not use L1 regularization for Proximal "
+      LOG(WARNING) << "Do not use L1 regularization for Proximal "
                                     "gradient descent is like GD";
     }
   }

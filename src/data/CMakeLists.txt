@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 
-add_library(data STATIC 
+add_library(data STATIC
   "include/data/common.h"
   "include/data/text_parser.h"
   "include/data/info_parser.h"
@@ -12,14 +12,14 @@ add_library(data STATIC
   "src/stream_reader.cpp"
   "src/common.cpp")
 
-target_include_directories(data PUBLIC 
+target_include_directories(data PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(data proto utils glog::glog)
+target_link_libraries(data proto utils ${GLOG_LIBRARIES})
 
-set(TestFiles 
+set(TestFiles
   "test/text_parser_test.cpp"
   "test/stream_reader_test.cpp"
   "test/slot_reader_test.cpp")

@@ -4,10 +4,10 @@
 #include "util/stringop.h"
 #include "util/typedef.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
+#include <glog/logging.h>
 
 #ifndef __NN_QUERY_H__
 #define __NN_QUERY_H__
@@ -53,7 +53,7 @@ public:
   void InsertQueryFeature(int idx, boost::shared_ptr<QueryFeature> &feat) {
     while (idx >= featdat_.size()) {
       featdat_.resize(featdat_.size() * 2);
-      BOOST_LOG_TRIVIAL(info) << "Expand feature data size";
+      LOG(INFO) << "Expand feature data size";
     }
 
     featdat_[idx] = feat;
@@ -63,7 +63,7 @@ public:
 
   boost::shared_ptr<QueryFeature> &FeatureOfSample(int idx) {
     if (idx >= featdat_.size()) {
-      BOOST_LOG_TRIVIAL(fatal) << "Access Sample Index out of bound";
+      LOG(FATAL) << "Access Sample Index out of bound";
       std::abort();
     }
     return featdat_[idx];
@@ -85,7 +85,7 @@ public:
 
   boost::shared_ptr<QueryLabel> &LabelOfSample(int idx) {
     if (idx >= labels_.size()) {
-      BOOST_LOG_TRIVIAL(fatal) << "Access sample index out of bound";
+      LOG(FATAL) << "Access sample index out of bound";
       std::abort();
     }
     return labels_[idx];
@@ -102,7 +102,7 @@ public:
   void SetQueryLabel(int idx, boost::shared_ptr<QueryLabel> &label) {
     while (idx >= labels_.size()) {
       labels_.resize(labels_.size() * 2);
-      BOOST_LOG_TRIVIAL(info) << "Expand label data size";
+      LOG(INFO) << "Expand label data size";
     }
     labels_[idx] = label;
   }
@@ -149,7 +149,7 @@ public:
     words.clear();
     Util::Split(label, words, " ", true);
     if (words.size() != 1) {
-      BOOST_LOG_TRIVIAL(error) << "Multiple labels appeared";
+      LOG(ERROR) << "Multiple labels appeared";
       return false;
     }
     l->Label() = labelvocab_.GetIndex(words[0]);
@@ -162,13 +162,13 @@ public:
                  const std::string &filepath) {
     namespace signal2 = boost::signals2::detail;
     if (!feats.get() || !labels.get()) {
-      BOOST_LOG_TRIVIAL(info) << "Feature or label is empty" << std::endl;
+      LOG(INFO) << "Feature or label is empty" << std::endl;
       return false;
     }
 
     std::ifstream src(filepath);
     if (!src.is_open()) {
-      BOOST_LOG_TRIVIAL(error)
+      LOG(ERROR)
           << "Failed to open file " << filepath << std::endl;
       return false;
     }
@@ -185,7 +185,7 @@ public:
                   std::strlen(buffer.data()), segments,
                   (const unsigned char *)"\t", false);
       if (segments.size() < 2) {
-        BOOST_LOG_TRIVIAL(warning) << "Line " << linecount << " format error";
+        LOG(WARNING) << "Line " << linecount << " format error";
       } else {
         boost::shared_ptr<NNModel::QueryFeature> feat =
             boost::make_shared<NNModel::QueryFeature>();
@@ -203,7 +203,7 @@ public:
     }
 
     if (!src.eof()) {
-      BOOST_LOG_TRIVIAL(error)
+      LOG(ERROR)
           << "Unexpected error happens, donot reach EOF" << std::endl;
       return false;
     }

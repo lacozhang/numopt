@@ -32,20 +32,20 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType,
   timeutil timer;
 
   for (epochcount_ = 0; epochcount_ < this->MaxIter(); ++epochcount_) {
-    BOOST_LOG_TRIVIAL(info) << "epoch " << epochcount_ << " start";
+    LOG(INFO) << "epoch " << epochcount_ << " start";
     this->trainiter_->ResetBatch();
 
     timer.tic();
     TrainOneEpoch();
     double secs = timer.toc();
-    BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
+    LOG(INFO) << "batch costs " << secs;
 
-    BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
+    LOG(INFO) << "evaluate on train set";
     this->EvaluateOnSet(this->trainiter_->GetAllData(),
                         this->trainiter_->GetAllLabel());
 
     if (this->testiter_->IsValid()) {
-      BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
+      LOG(INFO) << "evaluate on test set";
       this->EvaluateOnSet(this->testiter_->GetAllData(),
                           this->testiter_->GetAllLabel());
     }
@@ -79,7 +79,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType,
 #endif // _DEBUG
 
   if (this->learn_.averge_ && epochcount_ == 1) {
-    BOOST_LOG_TRIVIAL(trace)
+    LOG(INFO)
         << "copy param to averaged param, start to averaging";
     avgparam_.resizeLike(param);
     avgparam_.setZero();
@@ -132,7 +132,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType,
     param.swap(avgparam_);
   }
 
-  BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();
+  LOG(INFO) << "param norm : " << param.norm();
 }
 
 template <class ParameterType, class SampleType, class LabelType,

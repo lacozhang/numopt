@@ -30,21 +30,21 @@ void DataIteratorBase<SampleType, LabelType>::InitFromCmd(int argc,
   auto vm = ParseArgs(argc, argv, batchdesc_, true);
   batchsize_ = vm[kBaseBatchSizeOption].template as<int>();
   seed_ = vm[kBaseRandomSeedOption].template as<int>();
-  BOOST_LOG_TRIVIAL(info) << "Batch size  : " << batchsize_;
-  BOOST_LOG_TRIVIAL(info) << "Random seed : " << seed_;
+  LOG(INFO) << "Batch size  : " << batchsize_;
+  LOG(INFO) << "Random seed : " << seed_;
 }
 
 template <class SampleType, class LabelType>
 void DataIteratorBase<SampleType, LabelType>::SetDataSet(
     boost::shared_ptr<IndexDataType> dataset) {
   if (dataset.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(warning) << "dataset is null";
+    LOG(WARNING) << "dataset is null";
     valid_ = false;
     return;
   }
 
   if (!dataset->IsValid()) {
-    BOOST_LOG_TRIVIAL(warning) << "dataset is in valid";
+    LOG(WARNING) << "dataset is in valid";
     valid_ = false;
     return;
   }
@@ -87,7 +87,7 @@ bool DataIteratorBase<SampleType, LabelType>::GetNextBatch(
   data_->ResizeLabel(labelbatch, endindex - dataindex_);
 
   if (data_.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(warning) << "retrieve data failed, because data is empty";
+    LOG(WARNING) << "retrieve data failed, because data is empty";
     return false;
   }
 
@@ -104,7 +104,7 @@ template <class SampleType, class LabelType>
 bool DataIteratorBase<SampleType, LabelType>::GetRandomBatch(SampleType &batch,
                                                              LabelType &label) {
   if (this->batchsize_ != 1) {
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << "For random retrieve, only support batchsize as 1";
     return false;
   }

@@ -14,7 +14,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
 
   auto vm = ParseArgs(argc, argv, alldesc, true);
   if (this->historycnt_ < 1) {
-    BOOST_LOG_TRIVIAL(error) << "History count less than 1";
+    LOG(ERROR) << "History count less than 1";
     return;
   }
   this->gradhistory_.resize(this->historycnt_);
@@ -26,7 +26,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
   lsearch_.reset(new LineSearcher(this->lsfuncstr_, this->lsconfstr_,
                                   this->learn_.maxlinetries_));
   if (lsearch_.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(fatal) << "Can't allocate object";
+    LOG(FATAL) << "Can't allocate object";
     return;
   }
 }
@@ -74,7 +74,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
 
   funcval = EvaluateValueAndGrad(param, grad);
   paramnorm = param.norm();
-  BOOST_LOG_TRIVIAL(info) << "Param norm " << paramnorm;
+  LOG(INFO) << "Param norm " << paramnorm;
   paramnorm = std::max(paramnorm, 1.0);
 
   if (this->learn_.l1_ > 0) {
@@ -83,7 +83,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
   } else {
     gradnorm = grad.norm();
   }
-  BOOST_LOG_TRIVIAL(info) << "gradient norm " << gradnorm;
+  LOG(INFO) << "gradient norm " << gradnorm;
 
   std::function<double(ParameterType &, DenseGradientType &)> evaluator =
       std::bind(&LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
@@ -91,7 +91,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
                 this, std::placeholders::_1, std::placeholders::_2);
 
   if (gradnorm / paramnorm < this->learn_.gradeps_) {
-    BOOST_LOG_TRIVIAL(info) << "param already been optimized";
+    LOG(INFO) << "param already been optimized";
     return;
   }
 
@@ -109,12 +109,12 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   while (itercnt_ <= this->learn_.maxiter_) {
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "*******Start iteration " << itercnt_ << "*******";
     pastparam = param;
     pastgrad = grad;
 
-    BOOST_LOG_TRIVIAL(info) << "objective value " << funcval;
+    LOG(INFO) << "objective value " << funcval;
     if (this->learn_.l1_ == 0) {
       lsgood = lsearch_->LineSearch(param, direction, grad, funcval, stepsize,
                                     evaluator);
@@ -124,10 +124,10 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
       OwlqnPGradient(param, grad, projgrad);
     }
 
-    BOOST_LOG_TRIVIAL(info) << "using step size " << stepsize;
+    LOG(INFO) << "using step size " << stepsize;
 
     if (!lsgood) {
-      BOOST_LOG_TRIVIAL(fatal) << "line search failed revert";
+      LOG(FATAL) << "line search failed revert";
       param = pastparam;
       break;
     }
@@ -150,7 +150,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
 #endif // _DEBUG
 
     paramnorm = param.norm();
-    BOOST_LOG_TRIVIAL(info) << "Param norm " << paramnorm;
+    LOG(INFO) << "Param norm " << paramnorm;
     paramnorm = std::max(paramnorm, 1.0);
     if (this->learn_.l1_ > 0) {
       gradnorm = projgrad.norm();
@@ -158,9 +158,9 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
       gradnorm = grad.norm();
     }
 
-    BOOST_LOG_TRIVIAL(info) << "Gradient norm " << gradnorm;
+    LOG(INFO) << "Gradient norm " << gradnorm;
     if (gradnorm / paramnorm < this->learn_.gradeps_) {
-      BOOST_LOG_TRIVIAL(info) << "optimization finished";
+      LOG(INFO) << "optimization finished";
       break;
     }
 
@@ -222,7 +222,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
       }
     }
 
-    BOOST_LOG_TRIVIAL(info) << "new direction norm " << direction.norm();
+    LOG(INFO) << "new direction norm " << direction.norm();
     stepsize = 1.0;
   }
   OptMethodBaseType::ResultStats(param);
@@ -250,7 +250,7 @@ bool LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
                                                  double &stepsize) {
   double funcval;
   if (stepsize < 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "error, step size smaller than 0";
+    LOG(FATAL) << "error, step size smaller than 0";
     return false;
   }
   for (int i = 0; i < oriparam.size(); ++i) {
@@ -271,7 +271,7 @@ bool LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
     }
 
     if (stepsize < 1e-15) {
-      BOOST_LOG_TRIVIAL(error) << "stepsize too small";
+      LOG(ERROR) << "stepsize too small";
       return false;
     }
 
@@ -280,7 +280,7 @@ bool LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   if (iter >= this->learn_.maxlinetries_) {
-    BOOST_LOG_TRIVIAL(error) << "exceed maximum number of tries";
+    LOG(ERROR) << "exceed maximum number of tries";
     return false;
   }
 

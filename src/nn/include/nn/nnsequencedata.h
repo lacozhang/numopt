@@ -3,9 +3,9 @@
 #ifndef __NNSEQUENCE_DATA_H__
 #define __NNSEQUENCE_DATA_H__
 #include "util/typedef.h"
-#include <boost/log/trivial.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <glog/logging.h>
 
 namespace NNModel {
 
@@ -87,7 +87,7 @@ public:
 
   void SetSequenceFeature(boost::shared_ptr<SentenceFeature> &feat, int index) {
     while (index >= features_.size()) {
-      BOOST_LOG_TRIVIAL(info) << "increase the size of features";
+      LOG(INFO) << "increase the size of features";
       features_.resize(2 * features_.size());
     }
 
@@ -98,7 +98,7 @@ public:
     if (index < features_.size()) {
       return features_[index];
     }
-    BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+    LOG(INFO) << "Access data index outside of array";
     return nullfeat_;
   }
 
@@ -145,7 +145,7 @@ public:
 
   void SetSequenceLabel(boost::shared_ptr<SentenceLabel> &label, int idx) {
     while (idx >= labels_.size()) {
-      BOOST_LOG_TRIVIAL(info) << "Increase the size of labels";
+      LOG(INFO) << "Increase the size of labels";
       labels_.resize(2 * labels_.size());
     }
 
@@ -156,7 +156,7 @@ public:
     if (index < labels_.size())
       return labels_[index];
 
-    BOOST_LOG_TRIVIAL(info) << "Access data index outside of array";
+    LOG(INFO) << "Access data index outside of array";
     return nullabel_;
   }
 

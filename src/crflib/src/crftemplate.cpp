@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/log/trivial.hpp>
+#include <glog/logging.h>
 
 const std::regex CrfTemplate::kLccrfRegex(
     "%x\\[(\\+?|-?[[:digit:]]+),(\\+?|-?[[:digit:]]+)\\]", std::regex::icase);
@@ -18,7 +18,7 @@ CrfTemplate::CrfTemplate(std::string filepath) {
   valid_ = false;
   boost::filesystem::path f(filepath);
   if (!boost::filesystem::exists(f) || !boost::filesystem::is_regular_file(f)) {
-    BOOST_LOG_TRIVIAL(fatal) << "template file " << filepath
+    LOG(FATAL) << "template file " << filepath
                              << " not exist or is not a regular file";
     return;
   }
@@ -51,7 +51,7 @@ bool CrfTemplate::ExtractUnigramFeatures(
       std::unordered_set<std::string> uniquefeats;
       for (std::string &f : currfeats) {
         if (uniquefeats.count(f) > 0) {
-          BOOST_LOG_TRIVIAL(info) << f << " appear multiple times";
+          LOG(INFO) << f << " appear multiple times";
         } else {
           uniquefeats.insert(f);
         }
@@ -61,7 +61,7 @@ bool CrfTemplate::ExtractUnigramFeatures(
       features.push_back(currfeats);
     }
   } else {
-    BOOST_LOG_TRIVIAL(fatal) << "Load tempalte failed!!!";
+    LOG(FATAL) << "Load tempalte failed!!!";
     return false;
   }
   return true;
@@ -91,7 +91,7 @@ bool CrfTemplate::ExtractBigramFeatures(
       std::unordered_set<std::string> uniquefeats;
       for (std::string &f : currfeats) {
         if (uniquefeats.count(f) > 0) {
-          BOOST_LOG_TRIVIAL(info) << f << " appear multiple times";
+          LOG(INFO) << f << " appear multiple times";
         } else {
           uniquefeats.insert(f);
         }
@@ -102,7 +102,7 @@ bool CrfTemplate::ExtractBigramFeatures(
       features.push_back(currfeats);
     }
   } else {
-    BOOST_LOG_TRIVIAL(fatal) << "Load template failed!!!";
+    LOG(FATAL) << "Load template failed!!!";
     return false;
   }
   return true;
@@ -113,7 +113,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates) {
   std::ifstream src(crftemplates);
   std::string line;
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to open " << crftemplates;
+    LOG(FATAL) << "Failed to open " << crftemplates;
   } else {
     std::getline(src, line);
     while (src.good()) {
@@ -124,7 +124,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates) {
         if (IsLccrfTemplate(line)) {
           HandleLCCRFTemplateLine(line, featspec);
         } else {
-          BOOST_LOG_TRIVIAL(fatal)
+          LOG(FATAL)
               << "Not support other type of model tempalte yet";
         }
       }
@@ -133,7 +133,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates) {
 
     if (!src.eof()) {
       succ = false;
-      BOOST_LOG_TRIVIAL(error) << "Unexpected end of templte file";
+      LOG(ERROR) << "Unexpected end of templte file";
     } else {
       succ = true;
     }
@@ -146,7 +146,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates) {
 void CrfTemplate::SaveToFile(const std::string &filepath) {
   std::ofstream sink(filepath, std::ios_base::out | std::ios_base::trunc);
   if (!sink.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "failed to open " << filepath;
+    LOG(FATAL) << "failed to open " << filepath;
     return;
   }
 
@@ -234,7 +234,7 @@ bool CrfTemplate::SaveTemplateSet(
 void CrfTemplate::ParseLCCRFTemplateLine(const std::string &line,
                                          LccrfTemplateLine &featspecs) {
   if (line[0] != 'U' && line[0] != 'B') {
-    BOOST_LOG_TRIVIAL(fatal) << "LCCRF tempalte line format error : " << line;
+    LOG(FATAL) << "LCCRF tempalte line format error : " << line;
     std::exit(1);
   }
 
@@ -252,14 +252,14 @@ void CrfTemplate::ParseLCCRFTemplateLine(const std::string &line,
   }
 
   if (comps.size() != 2) {
-    BOOST_LOG_TRIVIAL(fatal) << "LCCRF tempalte line format error : " << line;
+    LOG(FATAL) << "LCCRF tempalte line format error : " << line;
     std::exit(1);
   }
 
   boost::algorithm::split(featspecstrs, comps[1],
                           boost::algorithm::is_any_of("/"));
   if (featspecstrs.size() < 1) {
-    BOOST_LOG_TRIVIAL(fatal) << "LCCRF tempalte line format error : " << line;
+    LOG(FATAL) << "LCCRF tempalte line format error : " << line;
     std::exit(1);
   }
 
@@ -274,14 +274,14 @@ void CrfTemplate::ParseLCCRFTemplateLine(const std::string &line,
         colidx = boost::lexical_cast<int>(m[2].str());
         safe = true;
       } catch (const boost::bad_lexical_cast &e) {
-        BOOST_LOG_TRIVIAL(warning) << e.what() << " format error: " << featstr;
+        LOG(WARNING) << e.what() << " format error: " << featstr;
       }
 
       if (safe) {
         featspecs.AddTemplatePart(rowidx, colidx);
       }
     } else {
-      BOOST_LOG_TRIVIAL(warning) << "LCCRFTemplate format error " << featstr;
+      LOG(WARNING) << "LCCRFTemplate format error " << featstr;
     }
   }
 }

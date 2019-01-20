@@ -128,14 +128,14 @@ bool IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::
 template <>
 size_t IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::SampleSize() {
   if (features_->NumSamples() != labels_->NumSamples()) {
-    BOOST_LOG_TRIVIAL(error)
+    LOG(ERROR)
         << "Samples of feature do not equal samples of labels";
   }
   return features_->NumSamples();
 }
 template <>
 size_t IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::ModelSize() {
-  BOOST_LOG_TRIVIAL(info) << "do not use this to estimate model size";
+  LOG(INFO) << "do not use this to estimate model size";
   return 0;
 }
 
@@ -181,7 +181,7 @@ IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::SampleSize() {
 template <>
 size_t
 IndexData<NNModel::NNSequenceFeature, NNModel::NNSequenceLabel>::ModelSize() {
-  BOOST_LOG_TRIVIAL(info) << "do not use this to estimate model size";
+  LOG(INFO) << "do not use this to estimate model size";
   return 0;
 }
 

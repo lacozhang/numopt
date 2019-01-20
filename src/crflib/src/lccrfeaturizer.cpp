@@ -2,10 +2,10 @@
 #include "util/util.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/log/trivial.hpp>
 #include <boost/signals2/detail/auto_buffer.hpp>
 #include <cctype>
 #include <fstream>
+#include <glog/logging.h>
 #include <iostream>
 #include <string>
 
@@ -17,20 +17,20 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string &featsrc,
   BOOST_ASSERT_MSG(bifeatcut >= 1, "bigram feature cutoff value less than 1");
 
   if (!crftemplates_.IsValid()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Crf templates load failed";
+    LOG(FATAL) << "Crf templates load failed";
     return false;
   }
 
   fs::path filepath(featsrc);
   if (!fs::exists(filepath) || !fs::is_regular_file(filepath)) {
-    BOOST_LOG_TRIVIAL(fatal) << "Source file " << featsrc
+    LOG(FATAL) << "Source file " << featsrc
                              << " do no exists or is not a regular file";
     return false;
   }
 
   std::ifstream src(featsrc);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Open file " << featsrc << " failed";
+    LOG(FATAL) << "Open file " << featsrc << " failed";
     return false;
   }
   std::vector<std::string> sentence;
@@ -59,7 +59,7 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string &featsrc,
   }
 
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(error) << "file " << featsrc << " ended unexpectedly";
+    LOG(ERROR) << "file " << featsrc << " ended unexpectedly";
     return false;
   }
   src.close();
@@ -137,7 +137,7 @@ bool LccrFeaturizer::FeaturizeSentence(
       if (trie_t::CEDAR_NO_VALUE != labelid) {
         labels.push_back(labelid);
       } else {
-        BOOST_LOG_TRIVIAL(fatal) << "unrecognized label " << label;
+        LOG(FATAL) << "unrecognized label " << label;
       }
     }
   }
@@ -150,7 +150,7 @@ bool LccrFeaturizer::FeaturizeFile(const std::string &featsrc,
   namespace fs = boost::filesystem;
   fs::path textfilepath(featsrc);
   if (!fs::exists(textfilepath) || !fs::is_regular_file(textfilepath)) {
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << " file " << featsrc << " not exist or is not a file";
     return false;
   }
@@ -160,11 +160,11 @@ bool LccrFeaturizer::FeaturizeFile(const std::string &featsrc,
                                  std::ios_base::trunc);
 
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "open " << featsrc << " failed";
+    LOG(FATAL) << "open " << featsrc << " failed";
     return false;
   }
   if (!sink.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "open " << featbin << " failed";
+    LOG(FATAL) << "open " << featbin << " failed";
     return false;
   }
 
@@ -173,10 +173,10 @@ bool LccrFeaturizer::FeaturizeFile(const std::string &featsrc,
   int maxbifeatid = bifeat2id_.num_keys() - 1;
   int maxlabelid = label2id_.num_keys() - 1;
 
-  BOOST_LOG_TRIVIAL(info) << "Samples             : " << numsentences;
-  BOOST_LOG_TRIVIAL(info) << "Max Unigram Feat Id : " << maxunifeatid;
-  BOOST_LOG_TRIVIAL(info) << "Max Bigram Feat Id  : " << maxbifeatid;
-  BOOST_LOG_TRIVIAL(info) << "Max Label Id        : " << maxlabelid;
+  LOG(INFO) << "Samples             : " << numsentences;
+  LOG(INFO) << "Max Unigram Feat Id : " << maxunifeatid;
+  LOG(INFO) << "Max Bigram Feat Id  : " << maxbifeatid;
+  LOG(INFO) << "Max Label Id        : " << maxlabelid;
 
   std::vector<std::string> sentence;
 
@@ -251,11 +251,11 @@ bool LccrFeaturizer::Load(const std::string &featprefix) {
   label2id_.open(label2idpath.c_str());
   crftemplates_.LoadTemplate(templatepath);
 
-  BOOST_LOG_TRIVIAL(info) << "Max Unigram Feat Id : "
+  LOG(INFO) << "Max Unigram Feat Id : "
                           << unifeat2id_.num_keys() - 1;
-  BOOST_LOG_TRIVIAL(info) << "Max Bigram Feat Id  : "
+  LOG(INFO) << "Max Bigram Feat Id  : "
                           << bifeat2id_.num_keys() - 1;
-  BOOST_LOG_TRIVIAL(info) << "Max Label Id        : "
+  LOG(INFO) << "Max Label Id        : "
                           << label2id_.num_keys() - 1;
 
   return true;
@@ -287,13 +287,13 @@ bool LccrFeaturizer::FromLineToRawFeatures(
     }
 
     if (temp.size() < 1) {
-      BOOST_LOG_TRIVIAL(error) << "line format error " << line;
+      LOG(ERROR) << "line format error " << line;
     } else {
       rawlabels.push_back(temp);
     }
 
     if (segs.size() < 1) {
-      BOOST_LOG_TRIVIAL(warning) << "extract nothing, maybe bad line " << line;
+      LOG(WARNING) << "extract nothing, maybe bad line " << line;
     }
     rawfeats.push_back(segs);
   }
@@ -342,7 +342,7 @@ void LccrFeaturizer::FilterFeatureWithCount(trie_t &raw, trie_t &filtered,
 int LccrFeaturizer::CountSamples(const std::string &featsrc) {
   std::ifstream src(featsrc);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "failed to open file " << featsrc;
+    LOG(FATAL) << "failed to open file " << featsrc;
     return -1;
   }
 
@@ -358,7 +358,7 @@ int LccrFeaturizer::CountSamples(const std::string &featsrc) {
   }
 
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << "unexpected EOF " << __FILE__ << " " << __LINE__;
   }
   return count;
@@ -367,7 +367,7 @@ int LccrFeaturizer::CountSamples(const std::string &featsrc) {
 bool LccrFeaturizer::ReadOneSentence(std::ifstream &src,
                                      std::vector<std::string> &sentence) {
   if (!src.good()) {
-    BOOST_LOG_TRIVIAL(info) << "stream in bad state";
+    LOG(INFO) << "stream in bad state";
     return false;
   }
 
@@ -382,7 +382,7 @@ bool LccrFeaturizer::ReadOneSentence(std::ifstream &src,
   }
 
   if ((!src.good()) && (!src.eof())) {
-    BOOST_LOG_TRIVIAL(fatal) << "error when read files";
+    LOG(FATAL) << "error when read files";
     return false;
   }
 

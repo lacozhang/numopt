@@ -1,7 +1,6 @@
 #define BOOST_TEST_MODULE "DataOperationTest"
 #include "dataop/dataop.h"
 #include "util/util.h"
-#include <boost/log/trivial.hpp>
 #include <boost/test/unit_test.hpp>
 #include <fstream>
 
@@ -10,13 +9,13 @@ BOOST_AUTO_TEST_CASE(ReadNLines) {
   std::string inputfile = "D:\\zhangyu\\src\\data\\nn\\rnn-small\\train.txt";
   std::ifstream src(inputfile);
   while (read_lines(src, lines, 1000)) {
-    BOOST_LOG_TRIVIAL(info) << "Read " << lines.size() << " lines";
+    LOG(INFO) << "Read " << lines.size() << " lines";
   }
 
   src.close();
   src.open(inputfile);
   while (read_sentence(src, lines)) {
-    BOOST_LOG_TRIVIAL(info) << "Sentence " << lines.size() << " lines";
+    LOG(INFO) << "Sentence " << lines.size() << " lines";
   }
 }
 
@@ -41,5 +40,5 @@ BOOST_AUTO_TEST_CASE(LoadNNQuery) {
   timeutil timer;
   timer.tic();
   loader.LoadData();
-  BOOST_LOG_TRIVIAL(info) << "Cost " << timer.toc() << " seconds";
+  LOG(INFO) << "Cost " << timer.toc() << " seconds";
 }

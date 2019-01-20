@@ -12,6 +12,6 @@ target_link_libraries(crflib utils)
 
 set(TestFiles "test/crf_test.cpp")
 add_executable(crflib_test ${TestFiles})
-target_link_libraries(crflib_test crflib Boost::unit_test_framework Boost::filesystem Boost::log)
+target_link_libraries(crflib_test crflib Boost::unit_test_framework Boost::filesystem ${GLOG_LIBRARIES})
 add_test(NAME crflib_test
     COMMAND crflib_test)

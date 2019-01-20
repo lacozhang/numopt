@@ -12,12 +12,12 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType,
 
   auto vm = ParseArgs(argc, argv, overall, true);
   if (this->learn_.learningrate_ < 0) {
-    BOOST_LOG_TRIVIAL(fatal)
+    LOG(FATAL)
         << "Learning rate is negative, set to default 1e-7";
     this->learn_.learningrate_ = 1e-7;
   }
   if (this->learn_.l1_ > 0) {
-    BOOST_LOG_TRIVIAL(info) << "--l1 l1 regularization not enabled for svrg";
+    LOG(INFO) << "--l1 l1 regularization not enabled for svrg";
   }
 }
 
@@ -47,10 +47,10 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType,
 
   while (iter <= this->learn_.maxiter_) {
     ++iter;
-    BOOST_LOG_TRIVIAL(info) << "Start iteration " << iter;
+    LOG(INFO) << "Start iteration " << iter;
     timer.tic();
     svrgenable = true;
-    BOOST_LOG_TRIVIAL(info) << "Enable SVRG iterations";
+    LOG(INFO) << "Enable SVRG iterations";
     avgparam = param;
     this->model_.Learn(this->trainiter_->GetAllData(),
                        this->trainiter_->GetAllLabel(), gradcache);
@@ -94,18 +94,18 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType,
       }
     }
     double secs = timer.toc();
-    BOOST_LOG_TRIVIAL(info) << "batch costs " << secs;
-    BOOST_LOG_TRIVIAL(info) << "evaluate on train set";
+    LOG(INFO) << "batch costs " << secs;
+    LOG(INFO) << "evaluate on train set";
     this->EvaluateOnSet(this->trainiter_->GetAllData(),
                         this->trainiter_->GetAllLabel());
 
     if (this->testiter_->IsValid()) {
-      BOOST_LOG_TRIVIAL(info) << "evaluate on test set";
+      LOG(INFO) << "evaluate on test set";
       this->EvaluateOnSet(this->testiter_->GetAllData(),
                           this->testiter_->GetAllLabel());
     }
 
-    BOOST_LOG_TRIVIAL(info) << "param norm : " << param.norm();
+    LOG(INFO) << "param norm : " << param.norm();
   }
 }
 

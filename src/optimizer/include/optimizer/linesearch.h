@@ -4,6 +4,7 @@
 #define __LINE_SEARCH_H__
 #include "util/typedef.h"
 #include <functional>
+#include <glog/logging.h>
 #include <string>
 
 enum class LineSearchFunctionType { None, BackTrack, MoreThuente };

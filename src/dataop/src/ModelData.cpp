@@ -50,10 +50,10 @@ void ModelData<DataType, DataSampleType, DataLabelType>::InitFromCmd(
     modelpath_.clear();
   }
 
-  BOOST_LOG_TRIVIAL(info) << "Train data path : " << trainpath_;
-  BOOST_LOG_TRIVIAL(info) << "Test data path  : " << testpath_;
-  BOOST_LOG_TRIVIAL(info) << "Model file path : " << modelpath_;
-  BOOST_LOG_TRIVIAL(info) << "NN Cutoff Value : " << nncutoff_;
+  LOG(INFO) << "Train data path : " << trainpath_;
+  LOG(INFO) << "Test data path  : " << testpath_;
+  LOG(INFO) << "Model file path : " << modelpath_;
+  LOG(INFO) << "NN Cutoff Value : " << nncutoff_;
 }
 
 template <TrainDataType DataType, class DataSampleType, class DataLabelType>

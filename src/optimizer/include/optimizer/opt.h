@@ -54,7 +54,7 @@ public:
   double EvaluateOnSet(SampleType &samples, LabelType &labels) {
     std::string message;
     double funcval = this->model_.Evaluate(samples, labels, message);
-    BOOST_LOG_TRIVIAL(info) << message << std::endl;
+    LOG(INFO) << message << std::endl;
     return funcval;
   }
 
@@ -65,7 +65,7 @@ public:
         zeros += 1;
       }
     }
-    BOOST_LOG_TRIVIAL(info) << "sparsity rate " << (zeros / total);
+    LOG(INFO) << "sparsity rate " << (zeros / total);
   }
 
 protected:

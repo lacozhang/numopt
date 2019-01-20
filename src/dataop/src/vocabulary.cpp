@@ -16,13 +16,13 @@ Vocabulary::BuildVocabForQuery(const std::string &filepath, size_t cutoff,
   cedar::da<int> rawvocab;
   std::ifstream src(filepath);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Faled to open file " << filepath << std::endl;
+    LOG(FATAL) << "Faled to open file " << filepath << std::endl;
     return vocab;
   }
 
   vocab = boost::make_shared<Vocabulary>();
   if (!vocab.get()) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to allocate memory";
+    LOG(FATAL) << "Failed to allocate memory";
     return vocab;
   }
 
@@ -49,7 +49,7 @@ Vocabulary::BuildVocabForQuery(const std::string &filepath, size_t cutoff,
   }
 
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(warning) << "Unexpected EOF";
+    LOG(WARNING) << "Unexpected EOF";
   }
 
   vocab->AddWord(Vocabulary::kUNK, Vocabulary::kUNKID);
@@ -67,7 +67,7 @@ Vocabulary::BuildVocabForQuery(const std::string &filepath, size_t cutoff,
       std::string tword(buffer.data());
       int key = vocab->VocabSize();
       if (!vocab->AddWord(tword, key)) {
-        BOOST_LOG_TRIVIAL(info) << "Add word failed" << std::endl;
+        LOG(INFO) << "Add word failed" << std::endl;
       }
     }
   }
@@ -82,13 +82,13 @@ Vocabulary::BuildVocabForLabel(const std::string &filepath) {
   boost::shared_ptr<Vocabulary> vocab;
   std::ifstream src(filepath);
   if (!src.is_open()) {
-    BOOST_LOG_TRIVIAL(error) << "Failed to open file " << filepath << std::endl;
+    LOG(ERROR) << "Failed to open file " << filepath << std::endl;
     return vocab;
   }
 
   vocab = boost::make_shared<Vocabulary>();
   if (vocab.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(info) << "Allocate vocabulary failed";
+    LOG(INFO) << "Allocate vocabulary failed";
     return vocab;
   }
 
@@ -104,7 +104,7 @@ Vocabulary::BuildVocabForLabel(const std::string &filepath) {
                 std::strlen(buffer.data()), labels,
                 (const unsigned char *)" \t", true);
     if (labels.empty() || labels.size() > 1) {
-      BOOST_LOG_TRIVIAL(warning)
+     LOG(WARNING)
           << "Multiple labels appeared " << buffer.data() << " @" << linenumber;
     } else {
       rawlabels.update(labels[0].c_str(), labels[0].size());
@@ -113,7 +113,7 @@ Vocabulary::BuildVocabForLabel(const std::string &filepath) {
   }
 
   if (!src.eof()) {
-    BOOST_LOG_TRIVIAL(warning) << "Unexpected EOF";
+    LOG(WARNING) << "Unexpected EOF";
   }
 
   vocab->AddWord(Vocabulary::kUNK, 0);
@@ -127,7 +127,7 @@ Vocabulary::BuildVocabForLabel(const std::string &filepath) {
     std::string tword(buffer.data());
     int key = vocab->VocabSize();
     if (!vocab->AddWord(tword, key)) {
-      BOOST_LOG_TRIVIAL(info) << "Label " << tword << " appear multiple times";
+      LOG(INFO) << "Label " << tword << " appear multiple times";
     }
   }
 

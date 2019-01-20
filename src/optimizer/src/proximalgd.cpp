@@ -16,7 +16,7 @@ void ProxGradientDescent<ParameterType, SampleType, LabelType,
 
   while (itercnt < this->learn_.maxiter_) {
 
-    BOOST_LOG_TRIVIAL(info) << "iter " << itercnt;
+    LOG(INFO) << "iter " << itercnt;
     this->model_.Learn(this->trainiter_->GetAllData(),
                        this->trainiter_->GetAllLabel(), grad);
     if (this->learn_.l2_ > 0) {
@@ -45,9 +45,9 @@ void ProxGradientDescent<ParameterType, SampleType, LabelType,
     if (this->learn_.l1_ > 0) {
       funcval += param.template lpNorm<1>();
     }
-    BOOST_LOG_TRIVIAL(info) << "Grad norm  : " << grad.norm();
-    BOOST_LOG_TRIVIAL(info) << "Param norm : " << param.norm();
-    BOOST_LOG_TRIVIAL(info) << "Objective value " << funcval;
+    LOG(INFO) << "Grad norm  : " << grad.norm();
+    LOG(INFO) << "Param norm : " << param.norm();
+    LOG(INFO) << "Objective value " << funcval;
 
     ++itercnt;
   }

@@ -2,7 +2,6 @@
 
 #include "barrier.h"
 #include "threadsafe_limited_queue.h"
-#include <boost/log/trivial.hpp>
 #include <functional>
 #include <glog/logging.h>
 #include <thread>
@@ -67,7 +66,7 @@ public:
 
       BlockConsumer();
 #ifdef _DEBUG
-      BOOST_LOG_TRIVIAL(info) << "Thread done";
+      LOG(INFO) << "Thread done";
 #endif // _DEBUG
     };
 

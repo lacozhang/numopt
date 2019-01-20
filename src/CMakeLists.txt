@@ -7,6 +7,7 @@ enable_testing()
 
 option(ENABLE_PREFIX_TREE "enable doubld array trie with prefix" OFF)
 option(ENABLE_DEBUG "enable debug macro XDEBUG" ON)
+cmake_policy(SET CMP0028 NEW)
 
 if(ENABLE_DEBUG)
   set(CMAKE_CXX_FLAGS_DEBUG "-DXDEBUG")

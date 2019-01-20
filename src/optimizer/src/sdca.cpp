@@ -17,7 +17,7 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
   BOOST_ASSERT_MSG(this->learn_.l2_ >= 0,
                    "l2 regularization must larget or equal to 0");
   if (this->dualgap_ <= 0) {
-    BOOST_LOG_TRIVIAL(warning)
+    LOG(WARNING)
         << "Duality gap can be negative or 0, set to default value(1e-3)";
     this->dualgap_ = 1e-3;
   }
@@ -44,7 +44,7 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
 
   double lambda = 0, alpha = 0, beta = 0;
   if ((this->learn_.l2_ == 0) && (this->learn_.l1_ != 0)) {
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "For Prox-SDCA to work, need to adjust the parameters";
     lambda = this->dualgap_ * this->learn_.l1_ * this->learn_.l1_;
     beta = 1.0 / (this->learn_.l1_ * this->dualgap_);
@@ -67,16 +67,16 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
   case LossFunc::SquaredHinge:
     break;
   default:
-    BOOST_LOG_TRIVIAL(fatal) << "Loss function not supported";
+    LOG(FATAL) << "Loss function not supported";
     return;
     BOOST_ASSERT_MSG(false, "Loss function not supported");
   }
 
-  BOOST_LOG_TRIVIAL(info) << "Optimize with follow regularization: lambda "
+  LOG(INFO) << "Optimize with follow regularization: lambda "
                              "*(alpha/2 * l2_reg + beta * l1_reg)";
-  BOOST_LOG_TRIVIAL(info) << "lambda : " << lambda;
-  BOOST_LOG_TRIVIAL(info) << "alpha  : " << alpha;
-  BOOST_LOG_TRIVIAL(info) << "beta   : " << beta;
+  LOG(INFO) << "lambda : " << lambda;
+  LOG(INFO) << "alpha  : " << alpha;
+  LOG(INFO) << "beta   : " << beta;
 
   this->dualcoef_.resize(epochsize);
   this->dualcoef_.setZero();
@@ -86,14 +86,14 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   while (itercnt < this->learn_.maxiter_) {
-    BOOST_LOG_TRIVIAL(info) << "Start iteration " << itercnt;
+    LOG(INFO) << "Start iteration " << itercnt;
     std::random_shuffle(rndptrs.begin(), rndptrs.end());
 
     if (TrainOneEpoch(this->trainiter_->GetAllData(),
                       this->trainiter_->GetAllLabel(), param, dualcoef_,
                       proxcoef_, rndptrs, datanorms, epochsize, loss, lambda,
                       alpha, beta)) {
-      BOOST_LOG_TRIVIAL(info) << "Converged";
+      LOG(INFO) << "Converged";
       break;
     }
 
@@ -111,8 +111,8 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
     if (this->learn_.l1_ > 0) {
       funcval += this->learn_.l1_ * param.template lpNorm<1>();
     }
-    BOOST_LOG_TRIVIAL(info) << "Param norm : " << param.norm();
-    BOOST_LOG_TRIVIAL(info) << "Objective value " << funcval;
+    LOG(INFO) << "Param norm : " << param.norm();
+    LOG(INFO) << "Objective value " << funcval;
     itercnt++;
   }
 
@@ -211,8 +211,8 @@ bool StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
 
   double gap = primal - dual + regval;
   gap /= epochsize;
-  BOOST_LOG_TRIVIAL(info) << "Duality gap " << gap;
-  BOOST_LOG_TRIVIAL(info) << "Desired gap " << this->dualgap_;
+  LOG(INFO) << "Duality gap " << gap;
+  LOG(INFO) << "Desired gap " << this->dualgap_;
   if (gap < this->dualgap_) {
     return true;
   } else {

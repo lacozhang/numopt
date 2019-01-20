@@ -60,7 +60,7 @@ int main(int argc, const char *argv[]) {
       case ModelType::SMCRF:
         break;
       case ModelType::None: {
-        BOOST_LOG_TRIVIAL(fatal)
+        LOG(FATAL)
             << "ModelType " << modelstr << " do no exist!!!";
       } break;
       }

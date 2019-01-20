@@ -1,4 +1,6 @@
+#include <glog/logging.h>
 #include "util/util.h"
+
 
 timeutil::timeutil() {}
 
@@ -31,7 +33,7 @@ ParseArgs(int argc, const char *argv[],
     }
     boost::program_options::notify(vm);
   } catch (std::exception &e) {
-    BOOST_LOG_TRIVIAL(error) << "parse command line failed :" << e.what();
+    LOG(FATAL) << "parse command line failed :" << e.what();
   }
 
   return vm;

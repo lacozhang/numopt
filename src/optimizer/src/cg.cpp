@@ -12,31 +12,31 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
 
   auto vm = ParseArgs(argc, argv, alldesc, true);
   if (this->restartcounter_ < 1) {
-    BOOST_LOG_TRIVIAL(fatal) << "small value will lead to poor performance";
+    LOG(FATAL) << "small value will lead to poor performance";
     return;
   }
 
-  BOOST_LOG_TRIVIAL(info) << "Restart iteration every " << this->restartcounter_
+  LOG(INFO) << "Restart iteration every " << this->restartcounter_
                           << " iterations";
   if ("fr" == this->methodstr_) {
     method_ = ConjugateGenerationMethod::FR;
   } else if ("pr" == this->methodstr_) {
     method_ = ConjugateGenerationMethod::PR;
   } else {
-    BOOST_LOG_TRIVIAL(info) << "Method " << this->methodstr_
+    LOG(INFO) << "Method " << this->methodstr_
                             << " can not be recognized, use default pr";
     method_ = ConjugateGenerationMethod::PR;
   }
 
   if (this->learn_.l1_ != 0) {
-    BOOST_LOG_TRIVIAL(fatal) << "Error, Conjugate gradient can't handle l1 "
+    LOG(FATAL) << "Error, Conjugate gradient can't handle l1 "
                                 "regularization, it will be ignored";
   }
 
   lsearch_.reset(
       new LineSearcher(this->lsfuncstr_, "swolfe", this->learn_.maxlinetries_));
   if (lsearch_.get() == nullptr) {
-    BOOST_LOG_TRIVIAL(fatal) << "Failed to initialize line search";
+    LOG(FATAL) << "Failed to initialize line search";
   }
 }
 
@@ -71,16 +71,16 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
   while (itercnt < this->learn_.maxiter_) {
 
     pastdirec = direction;
-    BOOST_LOG_TRIVIAL(info)
+    LOG(INFO)
         << "*******Start iteration " << itercnt << "*******";
-    BOOST_LOG_TRIVIAL(info) << "Object value " << funcval;
+    LOG(INFO) << "Object value " << funcval;
 
     ++itercnt;
     pastgrad_ = grad;
     bool lsgood = lsearch_->LineSearch(param, direction, grad, funcval,
                                        stepsize, evaluator);
     if (!lsgood) {
-      BOOST_LOG_TRIVIAL(info) << "line search failed";
+      LOG(INFO) << "line search failed";
       break;
     }
 
@@ -88,11 +88,11 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
     paramnorm = std::max(1.0, paramnorm);
     gradnorm = grad.norm();
 
-    BOOST_LOG_TRIVIAL(info) << "Step size      " << stepsize;
-    BOOST_LOG_TRIVIAL(info) << "Gradient  norm " << gradnorm;
-    BOOST_LOG_TRIVIAL(info) << "Parameter norm " << paramnorm;
+    LOG(INFO) << "Step size      " << stepsize;
+    LOG(INFO) << "Gradient  norm " << gradnorm;
+    LOG(INFO) << "Parameter norm " << paramnorm;
     if (gradnorm / paramnorm < this->learn_.gradeps_) {
-      BOOST_LOG_TRIVIAL(info) << "satisfy gradient epsilon, exit";
+      LOG(INFO) << "satisfy gradient epsilon, exit";
       break;
     }
 
@@ -127,7 +127,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
       direction.setZero();
     }
     direction -= grad;
-    BOOST_LOG_TRIVIAL(info) << "Orthognal rate " << pastdirec.dot(direction);
+    LOG(INFO) << "Orthognal rate " << pastdirec.dot(direction);
 
     stepsize = 4;
   }

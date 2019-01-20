@@ -22,7 +22,7 @@ void LinearLayer::Forward(const RealVector &input,
 void LinearLayer::ParamGrad(const RealVector &input,
                             const boost::shared_ptr<RealVector> &gradin) {
   if (!gradin) {
-    BOOST_LOG_TRIVIAL(error) << "Input Gradient is empty";
+    LOG(ERROR) << "Input Gradient is empty";
     std::abort();
   }
   grad_ += *gradin * input.transpose();
@@ -32,12 +32,12 @@ void LinearLayer::InputGrad(const RealVector &input,
                             const boost::shared_ptr<RealVector> &gradin,
                             boost::shared_ptr<RealVector> &gradout) {
   if (!gradin) {
-    BOOST_LOG_TRIVIAL(error) << "Input Gradient is empty";
+    LOG(ERROR) << "Input Gradient is empty";
     std::abort();
   }
 
   if (!gradout) {
-    BOOST_LOG_TRIVIAL(error) << "Output Gradient is empty";
+    LOG(ERROR) << "Output Gradient is empty";
     std::abort();
   }
 

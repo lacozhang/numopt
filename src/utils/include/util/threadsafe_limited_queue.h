@@ -1,6 +1,5 @@
 #pragma once
 
-#include <boost/log/trivial.hpp>
 #include <condition_variable>
 #include <glog/logging.h>
 #include <mutex>

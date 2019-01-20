@@ -1,6 +1,5 @@
 #include "nn/cnn.h"
 #include "util/util.h"
-#include <boost/log/trivial.hpp>
 
 namespace NNModel {
 const char *CNNModel::kEmbeddingSizeOption = "cnn.embed";
@@ -38,12 +37,12 @@ CNNModel::~CNNModel() {}
 
 void CNNModel::InitFromCmd(int argc, const char *argv[]) {
   auto vm = ParseArgs(argc, argv, optionsdesc_, true);
-  BOOST_LOG_TRIVIAL(info) << "Embedding Size " << embedsize_;
-  BOOST_LOG_TRIVIAL(info) << "Hidden Size    " << hiddensize_;
-  BOOST_LOG_TRIVIAL(info) << "#Filters       " << convfilters_;
-  BOOST_LOG_TRIVIAL(info) << "#Window Size   " << convsize_;
-  BOOST_LOG_TRIVIAL(info) << "#Stack Size    " << poolstack_;
-  BOOST_LOG_TRIVIAL(info) << "DropOut        " << dropout_;
+  LOG(INFO) << "Embedding Size " << embedsize_;
+  LOG(INFO) << "Hidden Size    " << hiddensize_;
+  LOG(INFO) << "#Filters       " << convfilters_;
+  LOG(INFO) << "#Window Size   " << convsize_;
+  LOG(INFO) << "#Stack Size    " << poolstack_;
+  LOG(INFO) << "DropOut        " << dropout_;
 }
 
 void CNNModel::InitFromData(DataIterator &iterator) {
@@ -74,7 +73,7 @@ void CNNModel::Init() {
   param_ = boost::make_shared<RealVector>(modelsize);
   grad_ = boost::make_shared<RealVector>(modelsize);
   if (!param_ || !grad_) {
-    BOOST_LOG_TRIVIAL(error) << "Allocate memory failed";
+    LOG(ERROR) << "Allocate memory failed";
     std::abort();
   }
   param_->setZero();

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 
-add_library(learner STATIC 
+add_library(learner STATIC
   "include/learner/workload_pool.h"
   "include/learner/sgd.h"
   "include/learner/bcd.h"
@@ -8,14 +8,14 @@ add_library(learner STATIC
   "src/sgd.cpp"
   "src/bcd.cpp")
 
-target_include_directories(learner PUBLIC 
+target_include_directories(learner PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(learner system parameter filter utils glog::glog)
+target_link_libraries(learner system parameter filter utils ${GLOB_LIBRARIES})
 
-set(TestFiles 
+set(TestFiles
   "test/test_learner.cpp")
 
 add_executable(learner_test ${TestFiles})

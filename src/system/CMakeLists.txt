@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.10)
 
-add_library(system STATIC 
+add_library(system STATIC
   "include/system/message.h"
   "include/system/van.h"
   "include/system/postoffice.h"
@@ -23,14 +23,15 @@ add_library(system STATIC
   "src/remote_node.cpp"
   "src/executor.cpp")
 
-target_include_directories(system PUBLIC 
+target_include_directories(system PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>
   PRIVATE src)
 
-target_link_libraries(system utils glog::glog data filter libzmq Snappy::snappy)
+target_link_libraries(system utils ${GLOG_LIBRARIES} data filter libzmq
+${Snappy_LIBRARIES} ${GFLAGS_LIBRARIES})
 
-set(TestFiles 
+set(TestFiles
   "test/run_van_util.h"
   "test/run_van_util.cpp"
   "test/test_message.cpp"
