@@ -44,8 +44,7 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
 
   double lambda = 0, alpha = 0, beta = 0;
   if ((this->learn_.l2_ == 0) && (this->learn_.l1_ != 0)) {
-    LOG(INFO)
-        << "For Prox-SDCA to work, need to adjust the parameters";
+    LOG(INFO) << "For Prox-SDCA to work, need to adjust the parameters";
     lambda = this->dualgap_ * this->learn_.l1_ * this->learn_.l1_;
     beta = 1.0 / (this->learn_.l1_ * this->dualgap_);
     alpha = 1.0;
@@ -73,7 +72,7 @@ void StochasticDCA<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   LOG(INFO) << "Optimize with follow regularization: lambda "
-                             "*(alpha/2 * l2_reg + beta * l1_reg)";
+               "*(alpha/2 * l2_reg + beta * l1_reg)";
   LOG(INFO) << "lambda : " << lambda;
   LOG(INFO) << "alpha  : " << alpha;
   LOG(INFO) << "beta   : " << beta;

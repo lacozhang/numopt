@@ -168,8 +168,7 @@ public:
 
     std::ifstream src(filepath);
     if (!src.is_open()) {
-      LOG(ERROR)
-          << "Failed to open file " << filepath << std::endl;
+      LOG(ERROR) << "Failed to open file " << filepath << std::endl;
       return false;
     }
 
@@ -203,8 +202,7 @@ public:
     }
 
     if (!src.eof()) {
-      LOG(ERROR)
-          << "Unexpected error happens, donot reach EOF" << std::endl;
+      LOG(ERROR) << "Unexpected error happens, donot reach EOF" << std::endl;
       return false;
     }
 

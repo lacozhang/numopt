@@ -91,8 +91,7 @@ void RunModel(
           testiter));
   optimizer->Train();
   if (!modeldata.ModelFilePath().empty()) {
-    LOG(INFO)
-        << "save model to file " << modeldata.ModelFilePath();
+    LOG(INFO) << "save model to file " << modeldata.ModelFilePath();
     model->SaveModel(modeldata.ModelFilePath());
   }
 }

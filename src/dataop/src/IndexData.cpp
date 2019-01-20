@@ -128,8 +128,7 @@ bool IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::
 template <>
 size_t IndexData<NNModel::NNQueryFeature, NNModel::NNQueryLabel>::SampleSize() {
   if (features_->NumSamples() != labels_->NumSamples()) {
-    LOG(ERROR)
-        << "Samples of feature do not equal samples of labels";
+    LOG(ERROR) << "Samples of feature do not equal samples of labels";
   }
   return features_->NumSamples();
 }

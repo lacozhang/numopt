@@ -104,8 +104,7 @@ template <class SampleType, class LabelType>
 bool DataIteratorBase<SampleType, LabelType>::GetRandomBatch(SampleType &batch,
                                                              LabelType &label) {
   if (this->batchsize_ != 1) {
-    LOG(FATAL)
-        << "For random retrieve, only support batchsize as 1";
+    LOG(FATAL) << "For random retrieve, only support batchsize as 1";
     return false;
   }
 

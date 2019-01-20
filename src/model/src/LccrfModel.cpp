@@ -448,8 +448,8 @@ double LccrfModel::Evaluate(LccrfSamples &samples, LccrfLabels &labels,
       lastalpha = alpha.col(testi) + beta.col(testi);
       double currentlog = LogSumExp(lastalpha);
       if (std::abs(currentlog - testlogpartion) > 1e-3) {
-        LOG(INFO)
-            << "first one " << testlogpartion << " current one " << currentlog;
+        LOG(INFO) << "first one " << testlogpartion << " current one "
+                  << currentlog;
       }
     }
 #endif // _DEBUG
@@ -745,8 +745,8 @@ double LccrfModel::GetNodeAndEdgeProb(DataSamples &unigramfeature,
     lastalpha = alpha.col(testi) + beta.col(testi);
     double currentlog = LogSumExp(lastalpha);
     if (std::abs(currentlog - testlogpartion) > 1e-3) {
-      LOG(INFO)
-          << "first one " << testlogpartion << " current one " << currentlog;
+      LOG(INFO) << "first one " << testlogpartion << " current one "
+                << currentlog;
     }
   }
 #endif // _DEBUG

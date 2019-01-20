@@ -51,7 +51,7 @@ public:
     CHECK_GT(k, 0);
   }
   virtual ~KVVector() {}
-  
+
   /// @brief KVPairs store parameters of specific keys.
   struct KVPairs {
     DArray<K> key_;

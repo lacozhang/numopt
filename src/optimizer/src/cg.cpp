@@ -17,20 +17,20 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   LOG(INFO) << "Restart iteration every " << this->restartcounter_
-                          << " iterations";
+            << " iterations";
   if ("fr" == this->methodstr_) {
     method_ = ConjugateGenerationMethod::FR;
   } else if ("pr" == this->methodstr_) {
     method_ = ConjugateGenerationMethod::PR;
   } else {
     LOG(INFO) << "Method " << this->methodstr_
-                            << " can not be recognized, use default pr";
+              << " can not be recognized, use default pr";
     method_ = ConjugateGenerationMethod::PR;
   }
 
   if (this->learn_.l1_ != 0) {
     LOG(FATAL) << "Error, Conjugate gradient can't handle l1 "
-                                "regularization, it will be ignored";
+                  "regularization, it will be ignored";
   }
 
   lsearch_.reset(
@@ -71,8 +71,7 @@ void ConjugateGradient<ParameterType, SampleType, LabelType, SparseGradientType,
   while (itercnt < this->learn_.maxiter_) {
 
     pastdirec = direction;
-    LOG(INFO)
-        << "*******Start iteration " << itercnt << "*******";
+    LOG(INFO) << "*******Start iteration " << itercnt << "*******";
     LOG(INFO) << "Object value " << funcval;
 
     ++itercnt;

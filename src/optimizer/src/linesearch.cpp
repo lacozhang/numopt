@@ -305,9 +305,8 @@ LineSearcher::LineSearcher(const std::string &lsfuncstr,
   if (lsfunctype_ == LineSearchFunctionType::None ||
       lscondtype_ == LineSearchConditionType::None) {
     valid_ = false;
-    LOG(FATAL)
-        << "Line search function or condition not recognized : " << lsfuncstr
-        << "/" << lscondstr;
+    LOG(FATAL) << "Line search function or condition not recognized : "
+               << lsfuncstr << "/" << lscondstr;
     return;
   } else {
     valid_ = true;

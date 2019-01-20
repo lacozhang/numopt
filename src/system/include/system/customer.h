@@ -122,7 +122,7 @@ public:
    * properly before call this method.
    */
   virtual void slice(const Message &request, const std::vector<Range<Key>> &krs,
-                     std::vector<Message *> *requests) { }
+                     std::vector<Message *> *requests) {}
 
   //////// as a receiver ///////
   /**

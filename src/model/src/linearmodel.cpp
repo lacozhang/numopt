@@ -71,8 +71,7 @@ void BinaryLinearModel::InitFromData(DataIterator &iterator) {
   param_.reset(new DenseVector(featdim_));
   LOG(INFO) << "param dimension " << featdim_;
   if (param_.get() == nullptr) {
-    LOG(ERROR)
-        << "Allocate parameter vector for binary model failed";
+    LOG(ERROR) << "Allocate parameter vector for binary model failed";
   } else {
     param_->setZero();
   }

@@ -33,8 +33,7 @@ public:
 
     auto vm = ParseArgs(argc, argv, combined, true);
     if (this->fixedstepsize_) {
-      LOG(INFO)
-          << "Using fixed stepsize for proximal gradient descent";
+      LOG(INFO) << "Using fixed stepsize for proximal gradient descent";
       if (this->stepsize_ == 0.0) {
         LOG(INFO) << "Using default value 0.1";
         this->stepsize_ = 0.1;
@@ -47,7 +46,7 @@ public:
 
     if (this->learn_.l1_ == 0) {
       LOG(WARNING) << "Do not use L1 regularization for Proximal "
-                                    "gradient descent is like GD";
+                      "gradient descent is like GD";
     }
   }
   virtual void Train() override;

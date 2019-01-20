@@ -1,6 +1,5 @@
-#include <glog/logging.h>
 #include "util/util.h"
-
+#include <glog/logging.h>
 
 timeutil::timeutil() {}
 

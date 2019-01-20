@@ -12,8 +12,7 @@ void StochasticVRG<ParameterType, SampleType, LabelType, SparseGradientType,
 
   auto vm = ParseArgs(argc, argv, overall, true);
   if (this->learn_.learningrate_ < 0) {
-    LOG(FATAL)
-        << "Learning rate is negative, set to default 1e-7";
+    LOG(FATAL) << "Learning rate is negative, set to default 1e-7";
     this->learn_.learningrate_ = 1e-7;
   }
   if (this->learn_.l1_ > 0) {

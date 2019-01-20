@@ -181,9 +181,8 @@ bool load_libsvm_data_bin(std::ifstream &ifs,
   }
 
   if (featcnt > samples->cols()) {
-    LOG(INFO)
-        << "maximum feature id of file: " << featcnt
-        << "maximum feature id of data matrix: " << samples->cols();
+    LOG(INFO) << "maximum feature id of file: " << featcnt
+              << "maximum feature id of data matrix: " << samples->cols();
   }
 
   // read non-zero elements in data file
@@ -348,16 +347,14 @@ bool save_libsvm_data_bin(std::string filepath,
       success = success && ofs.good();
 
       if (!success) {
-        LOG(FATAL)
-            << "write index for line " << rowindex << " failed";
+        LOG(FATAL) << "write index for line " << rowindex << " failed";
         return false;
       }
 
       ofs.write((char *)&val, sizeof(float));
       success = success && ofs.good();
       if (!success) {
-        LOG(FATAL)
-            << "write value for index line " << rowindex << " failed";
+        LOG(FATAL) << "write value for index line " << rowindex << " failed";
         return false;
       }
     }
@@ -412,8 +409,7 @@ bool matrix_size_estimation(std::string featfile, Eigen::VectorXi &datsize,
   }
 
   if (!featsrc.is_open()) {
-    LOG(INFO)
-        << "open file " << featfile << " failed" << std::endl;
+    LOG(INFO) << "open file " << featfile << " failed" << std::endl;
     std::abort();
   }
 
@@ -476,8 +472,7 @@ bool load_libsvm_data(std::string featfile,
   Samples.reset(new DataSamples(estrowsize, colsize));
 
   if (Samples.get() == NULL) {
-    LOG(ERROR)
-        << "Error, new operator for samples error" << std::endl;
+    LOG(ERROR) << "Error, new operator for samples error" << std::endl;
     std::exit(-1);
   }
 
@@ -506,11 +501,9 @@ bool load_libsvm_data(std::string featfile,
   }
 
   Samples->makeCompressed();
-  LOG(INFO) << "Loading data costs " << t.toc() << " seconds "
-                          << std::endl;
+  LOG(INFO) << "Loading data costs " << t.toc() << " seconds " << std::endl;
   LOG(INFO) << "data samples : " << Samples->rows() << std::endl;
-  LOG(INFO) << "max feat id  : " << (Samples->cols() - 1)
-                          << std::endl;
+  LOG(INFO) << "max feat id  : " << (Samples->cols() - 1) << std::endl;
   return ret;
 }
 
@@ -714,8 +707,7 @@ bool build_vocab(const std::string &filepath, size_t cutoffvalue,
   labels = Vocabulary::BuildVocabForLabel(labelfilepath);
 
   if (!words || !labels) {
-    LOG(WARNING)
-        << "Failed to build vocabulary for query & labels";
+    LOG(WARNING) << "Failed to build vocabulary for query & labels";
     return false;
   }
 
@@ -1171,8 +1163,7 @@ bool DataLoader<kNNQuery, NNModel::NNQueryFeature,
   fs::path path(filepath_);
   if (filepath_.empty() || !fs::exists(path) || !fs::is_regular_file(path)) {
     valid_ = false;
-    LOG(INFO)
-        << "either empty path or invaida path " << filepath_ << std::endl;
+    LOG(INFO) << "either empty path or invaida path " << filepath_ << std::endl;
     return false;
   } else {
 

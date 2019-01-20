@@ -4,8 +4,8 @@
 #define __NNSEQUENCE_DATA_H__
 #include "util/typedef.h"
 #include <boost/shared_ptr.hpp>
-#include <vector>
 #include <glog/logging.h>
+#include <vector>
 
 namespace NNModel {
 

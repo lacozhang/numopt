@@ -109,8 +109,7 @@ void LBFGS<ParameterType, SampleType, LabelType, SparseGradientType,
   }
 
   while (itercnt_ <= this->learn_.maxiter_) {
-    LOG(INFO)
-        << "*******Start iteration " << itercnt_ << "*******";
+    LOG(INFO) << "*******Start iteration " << itercnt_ << "*******";
     pastparam = param;
     pastgrad = grad;
 

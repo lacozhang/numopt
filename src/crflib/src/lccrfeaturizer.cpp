@@ -24,7 +24,7 @@ bool LccrFeaturizer::AccumulateFeatures(const std::string &featsrc,
   fs::path filepath(featsrc);
   if (!fs::exists(filepath) || !fs::is_regular_file(filepath)) {
     LOG(FATAL) << "Source file " << featsrc
-                             << " do no exists or is not a regular file";
+               << " do no exists or is not a regular file";
     return false;
   }
 
@@ -150,8 +150,7 @@ bool LccrFeaturizer::FeaturizeFile(const std::string &featsrc,
   namespace fs = boost::filesystem;
   fs::path textfilepath(featsrc);
   if (!fs::exists(textfilepath) || !fs::is_regular_file(textfilepath)) {
-    LOG(FATAL)
-        << " file " << featsrc << " not exist or is not a file";
+    LOG(FATAL) << " file " << featsrc << " not exist or is not a file";
     return false;
   }
 
@@ -251,12 +250,9 @@ bool LccrFeaturizer::Load(const std::string &featprefix) {
   label2id_.open(label2idpath.c_str());
   crftemplates_.LoadTemplate(templatepath);
 
-  LOG(INFO) << "Max Unigram Feat Id : "
-                          << unifeat2id_.num_keys() - 1;
-  LOG(INFO) << "Max Bigram Feat Id  : "
-                          << bifeat2id_.num_keys() - 1;
-  LOG(INFO) << "Max Label Id        : "
-                          << label2id_.num_keys() - 1;
+  LOG(INFO) << "Max Unigram Feat Id : " << unifeat2id_.num_keys() - 1;
+  LOG(INFO) << "Max Bigram Feat Id  : " << bifeat2id_.num_keys() - 1;
+  LOG(INFO) << "Max Label Id        : " << label2id_.num_keys() - 1;
 
   return true;
 }
@@ -358,8 +354,7 @@ int LccrFeaturizer::CountSamples(const std::string &featsrc) {
   }
 
   if (!src.eof()) {
-    LOG(FATAL)
-        << "unexpected EOF " << __FILE__ << " " << __LINE__;
+    LOG(FATAL) << "unexpected EOF " << __FILE__ << " " << __LINE__;
   }
   return count;
 }

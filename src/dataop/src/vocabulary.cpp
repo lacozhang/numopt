@@ -104,8 +104,8 @@ Vocabulary::BuildVocabForLabel(const std::string &filepath) {
                 std::strlen(buffer.data()), labels,
                 (const unsigned char *)" \t", true);
     if (labels.empty() || labels.size() > 1) {
-     LOG(WARNING)
-          << "Multiple labels appeared " << buffer.data() << " @" << linenumber;
+      LOG(WARNING) << "Multiple labels appeared " << buffer.data() << " @"
+                   << linenumber;
     } else {
       rawlabels.update(labels[0].c_str(), labels[0].size());
     }

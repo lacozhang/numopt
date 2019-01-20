@@ -75,9 +75,7 @@ public:
     return y;
   }
 
-  virtual void times(const V *x, V *y) const {
-    assert(false);
-  }
+  virtual void times(const V *x, V *y) const { assert(false); }
 
   EVec transTimes(const Eigen::Ref<const EVec> &x) const {
     return trans()->times(x);

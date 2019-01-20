@@ -79,8 +79,7 @@ void StochasticGD<ParameterType, SampleType, LabelType, SparseGradientType,
 #endif // _DEBUG
 
   if (this->learn_.averge_ && epochcount_ == 1) {
-    LOG(INFO)
-        << "copy param to averaged param, start to averaging";
+    LOG(INFO) << "copy param to averaged param, start to averaging";
     avgparam_.resizeLike(param);
     avgparam_.setZero();
     avgparam_ = param;

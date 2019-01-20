@@ -19,7 +19,7 @@ CrfTemplate::CrfTemplate(std::string filepath) {
   boost::filesystem::path f(filepath);
   if (!boost::filesystem::exists(f) || !boost::filesystem::is_regular_file(f)) {
     LOG(FATAL) << "template file " << filepath
-                             << " not exist or is not a regular file";
+               << " not exist or is not a regular file";
     return;
   }
 
@@ -124,8 +124,7 @@ bool CrfTemplate::LoadTemplate(std::string crftemplates) {
         if (IsLccrfTemplate(line)) {
           HandleLCCRFTemplateLine(line, featspec);
         } else {
-          LOG(FATAL)
-              << "Not support other type of model tempalte yet";
+          LOG(FATAL) << "Not support other type of model tempalte yet";
         }
       }
       std::getline(src, line);
