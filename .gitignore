@@ -11,3 +11,4 @@ log/
 *.sdf
 *.suo
 *.swp
+.vscode

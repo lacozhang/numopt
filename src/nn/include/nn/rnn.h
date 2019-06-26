@@ -1,6 +1,6 @@
 #pragma once
 
-class RNN :  {
+class RNN : {
 public:
   RNN();
   virtual ~RNN();
