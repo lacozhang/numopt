@@ -1,8 +1,8 @@
 # program to CMakeLists.txt
 
-cmake_minimum_required(VERSION 2.8.7)
+cmake_minimum_required(VERSION 3.0.0)
 
-PROJECT(NumOpt C CXX)
+PROJECT(NumOpt VERSION 1.0.0 LANGUAGES C CXX)
 enable_testing()
 
 option(ENABLE_PREFIX_TREE "enable doubld array trie with prefix" OFF)

@@ -22,9 +22,6 @@
 #include "proto/matrix.pb.h"
 #include "util/common.h"
 
-#ifndef __DATA_COMMON_H__
-#define __DATA_COMMON_H__
-
 namespace mltools {
 
 DECLARE_string(input);
@@ -55,5 +52,3 @@ MatrixInfo readMatrixInfo(const ExampleInfo &info, int slotId, int sizeOfIdx,
 
 DataConfig shuffleFiles(const DataConfig &data);
 } // namespace mltools
-
-#endif // __DATA_COMMON_H__
